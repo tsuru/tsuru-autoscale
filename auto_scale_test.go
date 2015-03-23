@@ -13,7 +13,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/tsuru/tsuru/db"
+        "github.com/tsuru/config"
+	"github.com/tsuru/tsuru-autoscale/db"
 	"gopkg.in/check.v1"
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
@@ -23,6 +24,13 @@ func Test(t *testing.T) { check.TestingT(t) }
 
 type S struct {
 	conn *db.Storage
+}
+
+func (s *S) SetUpSuite(c *check.C) {
+	err := config.ReadConfigFile("testdata/config.yaml")
+	c.Assert(err, check.IsNil)
+	s.conn, err = db.Conn()
+	c.Assert(err, check.IsNil)
 }
 
 var _ = check.Suite(&S{})

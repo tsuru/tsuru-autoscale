@@ -12,7 +12,7 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/tsuru/tsuru/db"
+	"github.com/tsuru/tsuru-autoscale/db"
 	"github.com/tsuru/tsuru/log"
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
@@ -135,10 +135,6 @@ func autoScalableApps() ([]App, error) {
 	}
 	defer conn.Close()
 	var apps []App
-	err = conn.Apps().Find(bson.M{"autoscaleconfig.enabled": true}).All(&apps)
-	if err != nil {
-		return nil, err
-	}
 	return apps, nil
 }
 
@@ -285,10 +281,7 @@ func AutoScaleEnable(app *App) error {
 	if err != nil {
 		return err
 	}
-	return conn.Apps().Update(
-		bson.M{"name": app.Name},
-		bson.M{"$set": bson.M{"autoscaleconfig": app.AutoScaleConfig}},
-	)
+	return nil
 }
 
 func AutoScaleDisable(app *App) error {
@@ -300,10 +293,7 @@ func AutoScaleDisable(app *App) error {
 	if err != nil {
 		return err
 	}
-	return conn.Apps().Update(
-		bson.M{"name": app.Name},
-		bson.M{"$set": bson.M{"autoscaleconfig": app.AutoScaleConfig}},
-	)
+	return nil
 }
 
 func SetAutoScaleConfig(app *App, config *AutoScaleConfig) error {
@@ -312,8 +302,5 @@ func SetAutoScaleConfig(app *App, config *AutoScaleConfig) error {
 	if err != nil {
 		return err
 	}
-	return conn.Apps().Update(
-		bson.M{"name": app.Name},
-		bson.M{"$set": bson.M{"autoscaleconfig": app.AutoScaleConfig}},
-	)
+	return nil
 }
