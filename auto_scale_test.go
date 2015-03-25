@@ -214,21 +214,22 @@ func (s *S) TestNewAction(c *check.C) {
 }
 
 func (s *S) TestLastScaleEvent(c *check.C) {
-	config := Config{Name: "newconfig"}
-	event1, err := NewEvent(&config, "increase")
+	config := &Config{Name: "newconfig"}
+	event1, err := NewEvent(config, "increase")
 	c.Assert(err, check.IsNil)
 	event1.StartTime = event1.StartTime.Add(-1 * time.Hour)
 	err = event1.update(nil)
 	c.Assert(err, check.IsNil)
-	event2, err := NewEvent(&config, "increase")
+	event2, err := NewEvent(config, "increase")
 	c.Assert(err, check.IsNil)
-	event, err := lastScaleEvent(config.Name)
+	event, err := lastScaleEvent(config)
 	c.Assert(err, check.IsNil)
 	c.Assert(event.ID, check.DeepEquals, event2.ID)
 }
 
 func (s *S) TestLastScaleEventNotFound(c *check.C) {
-	_, err := lastScaleEvent("notfound")
+	config := &Config{Name: "not found"}
+	_, err := lastScaleEvent(config)
 	c.Assert(err, check.Equals, mgo.ErrNotFound)
 }
 

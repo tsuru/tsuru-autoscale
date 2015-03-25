@@ -194,7 +194,7 @@ func scaleIfNeeded(config *Config) error {
 
 func shouldWait(config *Config, waitPeriod time.Duration) (bool, error) {
 	now := time.Now().UTC()
-	lastEvent, err := lastScaleEvent(config.Name)
+	lastEvent, err := lastScaleEvent(config)
 	if err != nil && err != mgo.ErrNotFound {
 		return false, err
 	}
@@ -208,14 +208,14 @@ func shouldWait(config *Config, waitPeriod time.Duration) (bool, error) {
 	return true, nil
 }
 
-func lastScaleEvent(appName string) (Event, error) {
+func lastScaleEvent(config *Config) (Event, error) {
 	var event Event
 	conn, err := db.Conn()
 	if err != nil {
 		return event, err
 	}
 	defer conn.Close()
-	err = conn.Events().Find(bson.M{"appname": appName}).Sort("-starttime").One(&event)
+	err = conn.Events().Find(bson.M{"config.name": config.Name}).Sort("-starttime").One(&event)
 	return event, err
 }
 
