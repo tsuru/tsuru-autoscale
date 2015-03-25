@@ -219,22 +219,22 @@ func lastScaleEvent(config *Config) (Event, error) {
 	return event, err
 }
 
-func ListAutoScaleHistory(appName string) ([]Event, error) {
+func eventsByConfigName(config *Config) ([]Event, error) {
 	conn, err := db.Conn()
 	if err != nil {
 		return nil, err
 	}
 	defer conn.Close()
-	var history []Event
+	var events []Event
 	q := bson.M{}
-	if appName != "" {
-		q["appname"] = appName
+	if config != nil {
+		q["config.name"] = config.Name
 	}
-	err = conn.Events().Find(q).Sort("-_id").Limit(200).All(&history)
+	err = conn.Events().Find(q).Sort("-_id").Limit(200).All(&events)
 	if err != nil {
 		return nil, err
 	}
-	return history, nil
+	return events, nil
 }
 
 func AutoScaleEnable(config *Config) error {

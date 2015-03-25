@@ -32,6 +32,10 @@ func (s *S) SetUpSuite(c *check.C) {
 	c.Assert(err, check.IsNil)
 }
 
+func (s *S) TearDownTest(c *check.C) {
+	s.conn.Events().RemoveAll(nil)
+}
+
 var _ = check.Suite(&S{})
 
 type metricHandler struct {
@@ -233,25 +237,25 @@ func (s *S) TestLastScaleEventNotFound(c *check.C) {
 	c.Assert(err, check.Equals, mgo.ErrNotFound)
 }
 
-func (s *S) TestListAutoScaleHistory(c *check.C) {
+func (s *S) TestEventsByConfigNameWithoutName(c *check.C) {
 	config := Config{Name: "config"}
 	_, err := NewEvent(&config, "increase")
 	c.Assert(err, check.IsNil)
-	events, err := ListAutoScaleHistory("")
+	events, err := eventsByConfigName(nil)
 	c.Assert(err, check.IsNil)
 	c.Assert(events, check.HasLen, 1)
 	c.Assert(events[0].Type, check.Equals, "increase")
 	c.Assert(events[0].StartTime, check.Not(check.DeepEquals), time.Time{})
 }
 
-func (s *S) TestListAutoScaleHistoryByAppName(c *check.C) {
+func (s *S) TestEventsByConfigName(c *check.C) {
 	config := Config{Name: "config"}
 	_, err := NewEvent(&config, "increase")
 	c.Assert(err, check.IsNil)
 	config = Config{Name: "another"}
 	_, err = NewEvent(&config, "increase")
 	c.Assert(err, check.IsNil)
-	events, err := ListAutoScaleHistory("another")
+	events, err := eventsByConfigName(&config)
 	c.Assert(err, check.IsNil)
 	c.Assert(events, check.HasLen, 1)
 	c.Assert(events[0].Type, check.Equals, "increase")
@@ -285,7 +289,7 @@ func (s *S) TestAutoScaleUpWaitEventStillRunning(c *check.C) {
 	c.Assert(err, check.IsNil)
 	err = scaleIfNeeded(config)
 	c.Assert(err, check.IsNil)
-	events, err := ListAutoScaleHistory(config.Name)
+	events, err := eventsByConfigName(config)
 	c.Assert(err, check.IsNil)
 	c.Assert(events, check.HasLen, 1)
 	c.Assert(events[0].ID, check.DeepEquals, event.ID)
@@ -306,7 +310,7 @@ func (s *S) TestAutoScaleUpWaitTime(c *check.C) {
 	c.Assert(err, check.IsNil)
 	err = scaleIfNeeded(config)
 	c.Assert(err, check.IsNil)
-	events, err := ListAutoScaleHistory(config.Name)
+	events, err := eventsByConfigName(config)
 	c.Assert(err, check.IsNil)
 	c.Assert(events, check.HasLen, 1)
 	c.Assert(events[0].ID, check.DeepEquals, event.ID)
@@ -348,7 +352,7 @@ func (s *S) TestAutoScaleDownWaitEventStillRunning(c *check.C) {
 	c.Assert(err, check.IsNil)
 	err = scaleIfNeeded(config)
 	c.Assert(err, check.IsNil)
-	events, err := ListAutoScaleHistory(config.Name)
+	events, err := eventsByConfigName(config)
 	c.Assert(err, check.IsNil)
 	c.Assert(events, check.HasLen, 1)
 	c.Assert(events[0].ID, check.DeepEquals, event.ID)
@@ -371,7 +375,7 @@ func (s *S) TestAutoScaleDownWaitTime(c *check.C) {
 	c.Assert(err, check.IsNil)
 	err = scaleIfNeeded(config)
 	c.Assert(err, check.IsNil)
-	events, err := ListAutoScaleHistory(config.Name)
+	events, err := eventsByConfigName(config)
 	c.Assert(err, check.IsNil)
 	c.Assert(events, check.HasLen, 1)
 	c.Assert(events[0].ID, check.DeepEquals, event.ID)
