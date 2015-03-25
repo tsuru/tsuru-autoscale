@@ -22,26 +22,26 @@ func StartAutoScale() {
 	go runAutoScale()
 }
 
-// AutoScaleEvent represents an auto scale event with
+// Event represents an auto scale event with
 // the scale metadata.
-type AutoScaleEvent struct {
-	ID         bson.ObjectId `bson:"_id"`
-	AppName    string
-	StartTime  time.Time
-	EndTime    time.Time `bson:",omitempty"`
-	Config     *Config
-	Type       string
-	Successful bool
-	Error      string `bson:",omitempty"`
+type Event struct {
+	ID              bson.ObjectId `bson:"_id"`
+	AppName         string
+	StartTime       time.Time
+	EndTime         time.Time `bson:",omitempty"`
+	Config		*Config
+	Type            string
+	Successful      bool
+	Error           string `bson:",omitempty"`
 }
 
-func NewAutoScaleEvent(a *App, scaleType string) (*AutoScaleEvent, error) {
-	evt := AutoScaleEvent{
-		ID:        bson.NewObjectId(),
-		StartTime: time.Now().UTC(),
-		Config:    a.Config,
-		AppName:   a.Name,
-		Type:      scaleType,
+func NewEvent(a *App, scaleType string) (*Event, error) {
+	evt := Event{
+		ID:              bson.NewObjectId(),
+		StartTime:       time.Now().UTC(),
+		Config: a.Config,
+		AppName:         a.Name,
+		Type:            scaleType,
 	}
 	conn, err := db.Conn()
 	if err != nil {
@@ -51,7 +51,7 @@ func NewAutoScaleEvent(a *App, scaleType string) (*AutoScaleEvent, error) {
 	return &evt, conn.AutoScale().Insert(evt)
 }
 
-func (evt *AutoScaleEvent) update(err error) error {
+func (evt *Event) update(err error) error {
 	if err != nil {
 		evt.Error = err.Error()
 	}
@@ -100,7 +100,7 @@ func (action *Action) value() (float64, error) {
 
 // Config represents the configuration for the auto scale.
 type Config struct {
-	Name     string `json:"increase"`
+	Name	 string `json:"increase"`
 	Increase Action `json:"increase"`
 	Decrease Action `json:"decrease"`
 	MinUnits uint   `json:"minUnits"`
@@ -110,7 +110,7 @@ type Config struct {
 
 type App struct {
 	Config *Config
-	Name   string
+	Name            string
 }
 
 func (a *App) Units() []string {
@@ -179,7 +179,7 @@ func scaleApplicationIfNeeded(app *App) error {
 		} else if wait {
 			return nil
 		}
-		evt, err := NewAutoScaleEvent(app, "increase")
+		evt, err := NewEvent(app, "increase")
 		if err != nil {
 			return fmt.Errorf("Error trying to insert auto scale event, auto scale aborted: %s", err.Error())
 		}
@@ -210,7 +210,7 @@ func scaleApplicationIfNeeded(app *App) error {
 		} else if wait {
 			return nil
 		}
-		evt, err := NewAutoScaleEvent(app, "decrease")
+		evt, err := NewEvent(app, "decrease")
 		if err != nil {
 			return fmt.Errorf("Error trying to insert auto scale event, auto scale aborted: %s", err.Error())
 		}
@@ -244,8 +244,8 @@ func shouldWait(app *App, waitPeriod time.Duration) (bool, error) {
 	return true, nil
 }
 
-func lastScaleEvent(appName string) (AutoScaleEvent, error) {
-	var event AutoScaleEvent
+func lastScaleEvent(appName string) (Event, error) {
+	var event Event
 	conn, err := db.Conn()
 	if err != nil {
 		return event, err
@@ -255,13 +255,13 @@ func lastScaleEvent(appName string) (AutoScaleEvent, error) {
 	return event, err
 }
 
-func ListAutoScaleHistory(appName string) ([]AutoScaleEvent, error) {
+func ListAutoScaleHistory(appName string) ([]Event, error) {
 	conn, err := db.Conn()
 	if err != nil {
 		return nil, err
 	}
 	defer conn.Close()
-	var history []AutoScaleEvent
+	var history []Event
 	q := bson.M{}
 	if appName != "" {
 		q["appname"] = appName

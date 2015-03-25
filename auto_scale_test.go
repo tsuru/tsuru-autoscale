@@ -58,7 +58,7 @@ func (s *S) TestAutoScale(c *check.C) {
 	}
 	err := scaleApplicationIfNeeded(&newApp)
 	c.Assert(err, check.IsNil)
-	var events []AutoScaleEvent
+	var events []Event
 	err = s.conn.AutoScale().Find(nil).All(&events)
 	c.Assert(err, check.IsNil)
 	c.Assert(events, check.HasLen, 0)
@@ -82,7 +82,7 @@ func (s *S) TestAutoScaleUp(c *check.C) {
 	err = scaleApplicationIfNeeded(&newApp)
 	c.Assert(err, check.IsNil)
 	c.Assert(newApp.Units(), check.HasLen, 1)
-	var events []AutoScaleEvent
+	var events []Event
 	err = s.conn.AutoScale().Find(nil).All(&events)
 	c.Assert(err, check.IsNil)
 	c.Assert(events, check.HasLen, 1)
@@ -113,7 +113,7 @@ func (s *S) TestAutoScaleDown(c *check.C) {
 	err = scaleApplicationIfNeeded(&newApp)
 	c.Assert(err, check.IsNil)
 	c.Assert(newApp.Units(), check.HasLen, 1)
-	var events []AutoScaleEvent
+	var events []Event
 	err = s.conn.AutoScale().Find(nil).All(&events)
 	c.Assert(err, check.IsNil)
 	c.Assert(events, check.HasLen, 1)
@@ -179,7 +179,7 @@ func (s *S) TestRunAutoScaleOnce(c *check.C) {
 	runAutoScaleOnce()
 	c.Assert(up.Units(), check.HasLen, 1)
 	c.Assert(down.Units(), check.HasLen, 2)
-	var events []AutoScaleEvent
+	var events []Event
 	err = s.conn.AutoScale().Find(nil).All(&events)
 	c.Assert(err, check.IsNil)
 	c.Assert(events, check.HasLen, 2)
@@ -277,12 +277,12 @@ func (s *S) TestAutoScalebleApps(c *check.C) {
 
 func (s *S) TestLastScaleEvent(c *check.C) {
 	a := App{Name: "myApp"}
-	event1, err := NewAutoScaleEvent(&a, "increase")
+	event1, err := NewEvent(&a, "increase")
 	c.Assert(err, check.IsNil)
 	event1.StartTime = event1.StartTime.Add(-1 * time.Hour)
 	err = event1.update(nil)
 	c.Assert(err, check.IsNil)
-	event2, err := NewAutoScaleEvent(&a, "increase")
+	event2, err := NewEvent(&a, "increase")
 	c.Assert(err, check.IsNil)
 	event, err := lastScaleEvent(a.Name)
 	c.Assert(err, check.IsNil)
@@ -297,7 +297,7 @@ func (s *S) TestLastScaleEventNotFound(c *check.C) {
 
 func (s *S) TestListAutoScaleHistory(c *check.C) {
 	a := App{Name: "myApp"}
-	_, err := NewAutoScaleEvent(&a, "increase")
+	_, err := NewEvent(&a, "increase")
 	c.Assert(err, check.IsNil)
 	events, err := ListAutoScaleHistory("")
 	c.Assert(err, check.IsNil)
@@ -309,10 +309,10 @@ func (s *S) TestListAutoScaleHistory(c *check.C) {
 
 func (s *S) TestListAutoScaleHistoryByAppName(c *check.C) {
 	a := App{Name: "myApp"}
-	_, err := NewAutoScaleEvent(&a, "increase")
+	_, err := NewEvent(&a, "increase")
 	c.Assert(err, check.IsNil)
 	a = App{Name: "another"}
-	_, err = NewAutoScaleEvent(&a, "increase")
+	_, err = NewEvent(&a, "increase")
 	c.Assert(err, check.IsNil)
 	events, err := ListAutoScaleHistory("another")
 	c.Assert(err, check.IsNil)
@@ -372,7 +372,7 @@ func (s *S) TestAutoScaleUpWaitEventStillRunning(c *check.C) {
 	err := s.conn.Apps().Insert(app)
 	c.Assert(err, check.IsNil)
 	defer s.conn.Apps().Remove(bson.M{"name": app.Name})
-	event, err := NewAutoScaleEvent(&app, "increase")
+	event, err := NewEvent(&app, "increase")
 	c.Assert(err, check.IsNil)
 	err = scaleApplicationIfNeeded(&app)
 	c.Assert(err, check.IsNil)
@@ -398,7 +398,7 @@ func (s *S) TestAutoScaleUpWaitTime(c *check.C) {
 	err := s.conn.Apps().Insert(app)
 	c.Assert(err, check.IsNil)
 	defer s.conn.Apps().Remove(bson.M{"name": app.Name})
-	event, err := NewAutoScaleEvent(&app, "increase")
+	event, err := NewEvent(&app, "increase")
 	c.Assert(err, check.IsNil)
 	err = event.update(nil)
 	c.Assert(err, check.IsNil)
@@ -429,7 +429,7 @@ func (s *S) TestAutoScaleMaxUnits(c *check.C) {
 	err = scaleApplicationIfNeeded(&newApp)
 	c.Assert(err, check.IsNil)
 	c.Assert(newApp.Units(), check.HasLen, 4)
-	var events []AutoScaleEvent
+	var events []Event
 	err = s.conn.AutoScale().Find(nil).All(&events)
 	c.Assert(err, check.IsNil)
 	c.Assert(events, check.HasLen, 1)
@@ -458,7 +458,7 @@ func (s *S) TestAutoScaleDownWaitEventStillRunning(c *check.C) {
 	err := s.conn.Apps().Insert(app)
 	c.Assert(err, check.IsNil)
 	defer s.conn.Apps().Remove(bson.M{"name": app.Name})
-	event, err := NewAutoScaleEvent(&app, "decrease")
+	event, err := NewEvent(&app, "decrease")
 	c.Assert(err, check.IsNil)
 	err = scaleApplicationIfNeeded(&app)
 	c.Assert(err, check.IsNil)
@@ -485,7 +485,7 @@ func (s *S) TestAutoScaleDownWaitTime(c *check.C) {
 	err := s.conn.Apps().Insert(app)
 	c.Assert(err, check.IsNil)
 	defer s.conn.Apps().Remove(bson.M{"name": app.Name})
-	event, err := NewAutoScaleEvent(&app, "increase")
+	event, err := NewEvent(&app, "increase")
 	c.Assert(err, check.IsNil)
 	err = event.update(nil)
 	c.Assert(err, check.IsNil)
@@ -518,7 +518,7 @@ func (s *S) TestAutoScaleMinUnits(c *check.C) {
 	err = scaleApplicationIfNeeded(&newApp)
 	c.Assert(err, check.IsNil)
 	c.Assert(newApp.Units(), check.HasLen, 3)
-	var events []AutoScaleEvent
+	var events []Event
 	err = s.conn.AutoScale().Find(nil).All(&events)
 	c.Assert(err, check.IsNil)
 	c.Assert(events, check.HasLen, 1)
@@ -582,7 +582,7 @@ func (s *S) TestAutoScaleDownMin(c *check.C) {
 	err = scaleApplicationIfNeeded(&newApp)
 	c.Assert(err, check.IsNil)
 	c.Assert(newApp.Units(), check.HasLen, 1)
-	var events []AutoScaleEvent
+	var events []Event
 	err = s.conn.AutoScale().Find(nil).All(&events)
 	c.Assert(err, check.IsNil)
 	c.Assert(events, check.HasLen, 0)
@@ -607,7 +607,7 @@ func (s *S) TestAutoScaleUpMax(c *check.C) {
 	err = scaleApplicationIfNeeded(&newApp)
 	c.Assert(err, check.IsNil)
 	c.Assert(newApp.Units(), check.HasLen, 2)
-	var events []AutoScaleEvent
+	var events []Event
 	err = s.conn.AutoScale().Find(nil).All(&events)
 	c.Assert(err, check.IsNil)
 	c.Assert(events, check.HasLen, 0)
