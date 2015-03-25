@@ -13,7 +13,7 @@ import (
 	"testing"
 	"time"
 
-        "github.com/tsuru/config"
+	"github.com/tsuru/config"
 	"github.com/tsuru/tsuru-autoscale/db"
 	"gopkg.in/check.v1"
 	"gopkg.in/mgo.v2"
@@ -50,7 +50,7 @@ func (s *S) TestAutoScale(c *check.C) {
 	defer ts.Close()
 	newApp := App{
 		Name: "myApp",
-		AutoScaleConfig: &AutoScaleConfig{
+		Config: &Config{
 			Increase: Action{Units: 1, Expression: "{cpu} > 80"},
 			Decrease: Action{Units: 1, Expression: "{cpu} < 20"},
 			Enabled:  true,
@@ -70,7 +70,7 @@ func (s *S) TestAutoScaleUp(c *check.C) {
 	defer ts.Close()
 	newApp := App{
 		Name: "myApp",
-		AutoScaleConfig: &AutoScaleConfig{
+		Config: &Config{
 			Increase: Action{Units: 1, Expression: "{cpu_max} > 80"},
 			Enabled:  true,
 			MaxUnits: uint(10),
@@ -92,7 +92,7 @@ func (s *S) TestAutoScaleUp(c *check.C) {
 	c.Assert(events[0].EndTime, check.Not(check.DeepEquals), time.Time{})
 	c.Assert(events[0].Error, check.Equals, "")
 	c.Assert(events[0].Successful, check.Equals, true)
-	c.Assert(events[0].AutoScaleConfig, check.DeepEquals, newApp.AutoScaleConfig)
+	c.Assert(events[0].Config, check.DeepEquals, newApp.Config)
 }
 
 func (s *S) TestAutoScaleDown(c *check.C) {
@@ -101,7 +101,7 @@ func (s *S) TestAutoScaleDown(c *check.C) {
 	defer ts.Close()
 	newApp := App{
 		Name: "myApp",
-		AutoScaleConfig: &AutoScaleConfig{
+		Config: &Config{
 			Increase: Action{Units: 1, Expression: "{cpu_max} > 80"},
 			Decrease: Action{Units: 1, Expression: "{cpu_max} < 20"},
 			Enabled:  true,
@@ -123,7 +123,7 @@ func (s *S) TestAutoScaleDown(c *check.C) {
 	c.Assert(events[0].EndTime, check.Not(check.DeepEquals), time.Time{})
 	c.Assert(events[0].Error, check.Equals, "")
 	c.Assert(events[0].Successful, check.Equals, true)
-	c.Assert(events[0].AutoScaleConfig, check.DeepEquals, newApp.AutoScaleConfig)
+	c.Assert(events[0].Config, check.DeepEquals, newApp.Config)
 }
 
 type autoscaleHandler struct {
@@ -152,7 +152,7 @@ func (s *S) TestRunAutoScaleOnce(c *check.C) {
 	defer ts.Close()
 	up := App{
 		Name: "myApp",
-		AutoScaleConfig: &AutoScaleConfig{
+		Config: &Config{
 			Increase: Action{Units: 1, Expression: "{cpu_max} > 80"},
 			Enabled:  true,
 			MaxUnits: uint(10),
@@ -166,7 +166,7 @@ func (s *S) TestRunAutoScaleOnce(c *check.C) {
 	defer dts.Close()
 	down := App{
 		Name: "anotherApp",
-		AutoScaleConfig: &AutoScaleConfig{
+		Config: &Config{
 			Increase: Action{Units: 1, Expression: "{cpu_max} > 80"},
 			Decrease: Action{Units: 1, Expression: "{cpu_max} < 20"},
 			Enabled:  true,
@@ -189,14 +189,14 @@ func (s *S) TestRunAutoScaleOnce(c *check.C) {
 	c.Assert(events[0].EndTime, check.Not(check.DeepEquals), time.Time{})
 	c.Assert(events[0].Error, check.Equals, "")
 	c.Assert(events[0].Successful, check.Equals, true)
-	c.Assert(events[0].AutoScaleConfig, check.DeepEquals, up.AutoScaleConfig)
+	c.Assert(events[0].Config, check.DeepEquals, up.Config)
 	c.Assert(events[1].Type, check.Equals, "decrease")
 	c.Assert(events[1].AppName, check.Equals, down.Name)
 	c.Assert(events[1].StartTime, check.Not(check.DeepEquals), time.Time{})
 	c.Assert(events[1].EndTime, check.Not(check.DeepEquals), time.Time{})
 	c.Assert(events[1].Error, check.Equals, "")
 	c.Assert(events[1].Successful, check.Equals, true)
-	c.Assert(events[1].AutoScaleConfig, check.DeepEquals, down.AutoScaleConfig)
+	c.Assert(events[1].Config, check.DeepEquals, down.Config)
 }
 
 func (s *S) TestActionMetric(c *check.C) {
@@ -253,7 +253,7 @@ func (s *S) TestNewAction(c *check.C) {
 func (s *S) TestAutoScalebleApps(c *check.C) {
 	newApp := App{
 		Name: "myApp",
-		AutoScaleConfig: &AutoScaleConfig{
+		Config: &Config{
 			Enabled: true,
 		},
 	}
@@ -262,7 +262,7 @@ func (s *S) TestAutoScalebleApps(c *check.C) {
 	defer s.conn.Apps().Remove(bson.M{"name": newApp.Name})
 	disabledApp := App{
 		Name: "disabled",
-		AutoScaleConfig: &AutoScaleConfig{
+		Config: &Config{
 			Enabled: false,
 		},
 	}
@@ -329,7 +329,7 @@ func (s *S) TestAutoScaleEnable(c *check.C) {
 	defer s.conn.Apps().Remove(bson.M{"name": a.Name})
 	err = AutoScaleEnable(&a)
 	c.Assert(err, check.IsNil)
-	c.Assert(a.AutoScaleConfig.Enabled, check.Equals, true)
+	c.Assert(a.Config.Enabled, check.Equals, true)
 }
 
 func (s *S) TestAutoScaleDisable(c *check.C) {
@@ -339,22 +339,22 @@ func (s *S) TestAutoScaleDisable(c *check.C) {
 	defer s.conn.Apps().Remove(bson.M{"name": a.Name})
 	err = AutoScaleDisable(&a)
 	c.Assert(err, check.IsNil)
-	c.Assert(a.AutoScaleConfig.Enabled, check.Equals, false)
+	c.Assert(a.Config.Enabled, check.Equals, false)
 }
 
-func (s *S) TestAutoScaleConfig(c *check.C) {
+func (s *S) TestConfig(c *check.C) {
 	a := App{Name: "myApp"}
 	err := s.conn.Apps().Insert(a)
 	c.Assert(err, check.IsNil)
 	defer s.conn.Apps().Remove(bson.M{"name": a.Name})
-	config := AutoScaleConfig{
+	config := Config{
 		Enabled:  true,
 		MinUnits: 2,
 		MaxUnits: 10,
 	}
-	err = SetAutoScaleConfig(&a, &config)
+	err = SetConfig(&a, &config)
 	c.Assert(err, check.IsNil)
-	c.Assert(a.AutoScaleConfig, check.DeepEquals, &config)
+	c.Assert(a.Config, check.DeepEquals, &config)
 }
 
 func (s *S) TestAutoScaleUpWaitEventStillRunning(c *check.C) {
@@ -363,7 +363,7 @@ func (s *S) TestAutoScaleUpWaitEventStillRunning(c *check.C) {
 	defer ts.Close()
 	app := App{
 		Name: "rush",
-		AutoScaleConfig: &AutoScaleConfig{
+		Config: &Config{
 			Increase: Action{Units: 5, Expression: "{cpu_max} > 80", Wait: 30e9},
 			Enabled:  true,
 			MaxUnits: 4,
@@ -389,7 +389,7 @@ func (s *S) TestAutoScaleUpWaitTime(c *check.C) {
 	defer ts.Close()
 	app := App{
 		Name: "rush",
-		AutoScaleConfig: &AutoScaleConfig{
+		Config: &Config{
 			Increase: Action{Units: 5, Expression: "{cpu_max} > 80", Wait: 1 * time.Hour},
 			Enabled:  true,
 			MaxUnits: 4,
@@ -417,7 +417,7 @@ func (s *S) TestAutoScaleMaxUnits(c *check.C) {
 	defer ts.Close()
 	newApp := App{
 		Name: "myApp",
-		AutoScaleConfig: &AutoScaleConfig{
+		Config: &Config{
 			Increase: Action{Units: 5, Expression: "{cpu_max} > 80"},
 			Enabled:  true,
 			MaxUnits: 4,
@@ -439,7 +439,7 @@ func (s *S) TestAutoScaleMaxUnits(c *check.C) {
 	c.Assert(events[0].EndTime, check.Not(check.DeepEquals), time.Time{})
 	c.Assert(events[0].Error, check.Equals, "")
 	c.Assert(events[0].Successful, check.Equals, true)
-	c.Assert(events[0].AutoScaleConfig, check.DeepEquals, newApp.AutoScaleConfig)
+	c.Assert(events[0].Config, check.DeepEquals, newApp.Config)
 }
 
 func (s *S) TestAutoScaleDownWaitEventStillRunning(c *check.C) {
@@ -448,7 +448,7 @@ func (s *S) TestAutoScaleDownWaitEventStillRunning(c *check.C) {
 	defer ts.Close()
 	app := App{
 		Name: "rush",
-		AutoScaleConfig: &AutoScaleConfig{
+		Config: &Config{
 			Increase: Action{Units: 5, Expression: "{cpu_max} > 80", Wait: 30e9},
 			Decrease: Action{Units: 3, Expression: "{cpu_max} < 20", Wait: 30e9},
 			Enabled:  true,
@@ -475,7 +475,7 @@ func (s *S) TestAutoScaleDownWaitTime(c *check.C) {
 	defer ts.Close()
 	app := App{
 		Name: "rush",
-		AutoScaleConfig: &AutoScaleConfig{
+		Config: &Config{
 			Increase: Action{Units: 5, Expression: "{cpu_max} > 80", Wait: 1 * time.Hour},
 			Decrease: Action{Units: 3, Expression: "{cpu_max} < 20", Wait: 3 * time.Hour},
 			Enabled:  true,
@@ -504,7 +504,7 @@ func (s *S) TestAutoScaleMinUnits(c *check.C) {
 	defer ts.Close()
 	newApp := App{
 		Name: "myApp",
-		AutoScaleConfig: &AutoScaleConfig{
+		Config: &Config{
 			Increase: Action{Units: 1, Expression: "{cpu_max} > 80"},
 			Decrease: Action{Units: 3, Expression: "{cpu_max} < 20"},
 			Enabled:  true,
@@ -528,11 +528,11 @@ func (s *S) TestAutoScaleMinUnits(c *check.C) {
 	c.Assert(events[0].EndTime, check.Not(check.DeepEquals), time.Time{})
 	c.Assert(events[0].Error, check.Equals, "")
 	c.Assert(events[0].Successful, check.Equals, true)
-	c.Assert(events[0].AutoScaleConfig, check.DeepEquals, newApp.AutoScaleConfig)
+	c.Assert(events[0].Config, check.DeepEquals, newApp.Config)
 }
 
-func (s *S) TestAutoScaleConfigMarshalJSON(c *check.C) {
-	conf := &AutoScaleConfig{
+func (s *S) TestConfigMarshalJSON(c *check.C) {
+	conf := &Config{
 		Increase: Action{Units: 1, Expression: "{cpu} > 80"},
 		Decrease: Action{Units: 1, Expression: "{cpu} < 20"},
 		Enabled:  true,
@@ -568,7 +568,7 @@ func (s *S) TestAutoScaleDownMin(c *check.C) {
 	defer ts.Close()
 	newApp := App{
 		Name: "myApp",
-		AutoScaleConfig: &AutoScaleConfig{
+		Config: &Config{
 			Increase: Action{Units: 1, Expression: "{cpu_max} > 80"},
 			Decrease: Action{Units: 1, Expression: "{cpu_max} < 20"},
 			Enabled:  true,
@@ -594,7 +594,7 @@ func (s *S) TestAutoScaleUpMax(c *check.C) {
 	defer ts.Close()
 	newApp := App{
 		Name: "myApp",
-		AutoScaleConfig: &AutoScaleConfig{
+		Config: &Config{
 			Increase: Action{Units: 1, Expression: "{cpu_max} > 80"},
 			Enabled:  true,
 			MaxUnits: uint(2),

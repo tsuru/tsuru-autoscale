@@ -25,23 +25,23 @@ func StartAutoScale() {
 // AutoScaleEvent represents an auto scale event with
 // the scale metadata.
 type AutoScaleEvent struct {
-	ID              bson.ObjectId `bson:"_id"`
-	AppName         string
-	StartTime       time.Time
-	EndTime         time.Time `bson:",omitempty"`
-	AutoScaleConfig *AutoScaleConfig
-	Type            string
-	Successful      bool
-	Error           string `bson:",omitempty"`
+	ID         bson.ObjectId `bson:"_id"`
+	AppName    string
+	StartTime  time.Time
+	EndTime    time.Time `bson:",omitempty"`
+	Config     *Config
+	Type       string
+	Successful bool
+	Error      string `bson:",omitempty"`
 }
 
 func NewAutoScaleEvent(a *App, scaleType string) (*AutoScaleEvent, error) {
 	evt := AutoScaleEvent{
-		ID:              bson.NewObjectId(),
-		StartTime:       time.Now().UTC(),
-		AutoScaleConfig: a.AutoScaleConfig,
-		AppName:         a.Name,
-		Type:            scaleType,
+		ID:        bson.NewObjectId(),
+		StartTime: time.Now().UTC(),
+		Config:    a.Config,
+		AppName:   a.Name,
+		Type:      scaleType,
 	}
 	conn, err := db.Conn()
 	if err != nil {
@@ -98,8 +98,9 @@ func (action *Action) value() (float64, error) {
 	return strconv.ParseFloat(expressionRegex.FindStringSubmatch(action.Expression)[3], 64)
 }
 
-// AutoScaleConfig represents the App configuration for the auto scale.
-type AutoScaleConfig struct {
+// Config represents the configuration for the auto scale.
+type Config struct {
+	Name     string `json:"increase"`
 	Increase Action `json:"increase"`
 	Decrease Action `json:"decrease"`
 	MinUnits uint   `json:"minUnits"`
@@ -108,8 +109,8 @@ type AutoScaleConfig struct {
 }
 
 type App struct {
-	AutoScaleConfig *AutoScaleConfig
-	Name            string
+	Config *Config
+	Name   string
 }
 
 func (a *App) Units() []string {
@@ -159,21 +160,21 @@ func runAutoScale() {
 }
 
 func scaleApplicationIfNeeded(app *App) error {
-	if app.AutoScaleConfig == nil {
+	if app.Config == nil {
 		return errors.New("AutoScale is not configured.")
 	}
-	increaseMetric, _ := app.Metric(app.AutoScaleConfig.Increase.metric())
-	value, _ := app.AutoScaleConfig.Increase.value()
+	increaseMetric, _ := app.Metric(app.Config.Increase.metric())
+	value, _ := app.Config.Increase.value()
 	if increaseMetric > value {
 		currentUnits := uint(len(app.Units()))
-		maxUnits := app.AutoScaleConfig.MaxUnits
+		maxUnits := app.Config.MaxUnits
 		if maxUnits == 0 {
 			maxUnits = 1
 		}
 		if currentUnits >= maxUnits {
 			return nil
 		}
-		if wait, err := shouldWait(app, app.AutoScaleConfig.Increase.Wait); err != nil {
+		if wait, err := shouldWait(app, app.Config.Increase.Wait); err != nil {
 			return err
 		} else if wait {
 			return nil
@@ -182,9 +183,9 @@ func scaleApplicationIfNeeded(app *App) error {
 		if err != nil {
 			return fmt.Errorf("Error trying to insert auto scale event, auto scale aborted: %s", err.Error())
 		}
-		inc := app.AutoScaleConfig.Increase.Units
-		if currentUnits+inc > app.AutoScaleConfig.MaxUnits {
-			inc = app.AutoScaleConfig.MaxUnits - currentUnits
+		inc := app.Config.Increase.Units
+		if currentUnits+inc > app.Config.MaxUnits {
+			inc = app.Config.MaxUnits - currentUnits
 		}
 		addUnitsErr := app.AddUnits(inc, nil)
 		err = evt.update(addUnitsErr)
@@ -193,18 +194,18 @@ func scaleApplicationIfNeeded(app *App) error {
 		}
 		return addUnitsErr
 	}
-	decreaseMetric, _ := app.Metric(app.AutoScaleConfig.Decrease.metric())
-	value, _ = app.AutoScaleConfig.Decrease.value()
+	decreaseMetric, _ := app.Metric(app.Config.Decrease.metric())
+	value, _ = app.Config.Decrease.value()
 	if decreaseMetric < value {
 		currentUnits := uint(len(app.Units()))
-		minUnits := app.AutoScaleConfig.MinUnits
+		minUnits := app.Config.MinUnits
 		if minUnits == 0 {
 			minUnits = 1
 		}
 		if currentUnits <= minUnits {
 			return nil
 		}
-		if wait, err := shouldWait(app, app.AutoScaleConfig.Decrease.Wait); err != nil {
+		if wait, err := shouldWait(app, app.Config.Decrease.Wait); err != nil {
 			return err
 		} else if wait {
 			return nil
@@ -213,9 +214,9 @@ func scaleApplicationIfNeeded(app *App) error {
 		if err != nil {
 			return fmt.Errorf("Error trying to insert auto scale event, auto scale aborted: %s", err.Error())
 		}
-		dec := app.AutoScaleConfig.Decrease.Units
-		if currentUnits-dec < app.AutoScaleConfig.MinUnits {
-			dec = currentUnits - app.AutoScaleConfig.MinUnits
+		dec := app.Config.Decrease.Units
+		if currentUnits-dec < app.Config.MinUnits {
+			dec = currentUnits - app.Config.MinUnits
 		}
 		removeUnitsErr := app.RemoveUnits(dec)
 		err = evt.update(removeUnitsErr)
@@ -273,10 +274,10 @@ func ListAutoScaleHistory(appName string) ([]AutoScaleEvent, error) {
 }
 
 func AutoScaleEnable(app *App) error {
-	if app.AutoScaleConfig == nil {
-		app.AutoScaleConfig = &AutoScaleConfig{}
+	if app.Config == nil {
+		app.Config = &Config{}
 	}
-	app.AutoScaleConfig.Enabled = true
+	app.Config.Enabled = true
 	conn, err := db.Conn()
 	if err != nil {
 		return err
@@ -285,10 +286,10 @@ func AutoScaleEnable(app *App) error {
 }
 
 func AutoScaleDisable(app *App) error {
-	if app.AutoScaleConfig == nil {
-		app.AutoScaleConfig = &AutoScaleConfig{}
+	if app.Config == nil {
+		app.Config = &Config{}
 	}
-	app.AutoScaleConfig.Enabled = false
+	app.Config.Enabled = false
 	conn, err := db.Conn()
 	if err != nil {
 		return err
@@ -296,8 +297,8 @@ func AutoScaleDisable(app *App) error {
 	return nil
 }
 
-func SetAutoScaleConfig(app *App, config *AutoScaleConfig) error {
-	app.AutoScaleConfig = config
+func SetConfig(app *App, config *Config) error {
+	app.Config = config
 	conn, err := db.Conn()
 	if err != nil {
 		return err
