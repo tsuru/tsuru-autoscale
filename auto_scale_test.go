@@ -414,6 +414,7 @@ func (s *S) TestConfigMarshalJSON(c *check.C) {
 		MinUnits: 2,
 	}
 	expected := map[string]interface{}{
+		"name": "",
 		"increase": map[string]interface{}{
 			"wait":       float64(0),
 			"expression": "{cpu} > 80",

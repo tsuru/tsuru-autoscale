@@ -96,7 +96,7 @@ func (action *Action) value() (float64, error) {
 
 // Config represents the configuration for the auto scale.
 type Config struct {
-	Name     string `json:"increase"`
+	Name     string `json:"name"`
 	Increase Action `json:"increase"`
 	Decrease Action `json:"decrease"`
 	MinUnits uint   `json:"minUnits"`
