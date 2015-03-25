@@ -16,18 +16,18 @@ type S struct{}
 
 var _ = check.Suite(&S{})
 
-func (s *S) TestEvent(c *check.C) {
+func (s *S) TestEvents(c *check.C) {
 	strg, err := Conn()
 	c.Assert(err, check.IsNil)
-	event := strg.Event()
-	eventc := strg.Collection("event")
+	event := strg.Events()
+	eventc := strg.Collection("events")
 	c.Assert(event, check.DeepEquals, eventc)
 }
 
-func (s *S) TestConfig(c *check.C) {
+func (s *S) TestConfigs(c *check.C) {
 	strg, err := Conn()
 	c.Assert(err, check.IsNil)
-	config := strg.Config()
-	configc := strg.Collection("config")
+	config := strg.Configs()
+	configc := strg.Collection("configs")
 	c.Assert(config, check.DeepEquals, configc)
 }
