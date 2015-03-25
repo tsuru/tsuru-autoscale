@@ -16,10 +16,18 @@ type S struct{}
 
 var _ = check.Suite(&S{})
 
-func (s *S) TestAutoScale(c *check.C) {
+func (s *S) TestEvent(c *check.C) {
 	strg, err := Conn()
 	c.Assert(err, check.IsNil)
-	autoscale := strg.AutoScale()
-	autoscalec := strg.Collection("autoscale")
-	c.Assert(autoscale, check.DeepEquals, autoscalec)
+	event := strg.Event()
+	eventc := strg.Collection("event")
+	c.Assert(event, check.DeepEquals, eventc)
+}
+
+func (s *S) TestConfig(c *check.C) {
+	strg, err := Conn()
+	c.Assert(err, check.IsNil)
+	config := strg.Config()
+	configc := strg.Collection("config")
+	c.Assert(config, check.DeepEquals, configc)
 }

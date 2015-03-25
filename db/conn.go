@@ -47,8 +47,14 @@ func Conn() (*Storage, error) {
 	return &strg, err
 }
 
-// AutoScale returns the auto scale collection from MongoDB.
-func (s *Storage) AutoScale() *storage.Collection {
-	c := s.Collection("autoscale")
+// Event returns the event collection from MongoDB.
+func (s *Storage) Event() *storage.Collection {
+	c := s.Collection("event")
+	return c
+}
+
+// Config returns the config collection from MongoDB.
+func (s *Storage) Config() *storage.Collection {
+	c := s.Collection("config")
 	return c
 }
