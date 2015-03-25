@@ -25,23 +25,21 @@ func StartAutoScale() {
 // Event represents an auto scale event with
 // the scale metadata.
 type Event struct {
-	ID              bson.ObjectId `bson:"_id"`
-	AppName         string
-	StartTime       time.Time
-	EndTime         time.Time `bson:",omitempty"`
-	Config		*Config
-	Type            string
-	Successful      bool
-	Error           string `bson:",omitempty"`
+	ID         bson.ObjectId `bson:"_id"`
+	StartTime  time.Time
+	EndTime    time.Time `bson:",omitempty"`
+	Config     *Config
+	Type       string
+	Successful bool
+	Error      string `bson:",omitempty"`
 }
 
 func NewEvent(a *App, scaleType string) (*Event, error) {
 	evt := Event{
-		ID:              bson.NewObjectId(),
-		StartTime:       time.Now().UTC(),
-		Config: a.Config,
-		AppName:         a.Name,
-		Type:            scaleType,
+		ID:        bson.NewObjectId(),
+		StartTime: time.Now().UTC(),
+		Config:    a.Config,
+		Type:      scaleType,
 	}
 	conn, err := db.Conn()
 	if err != nil {
@@ -100,7 +98,7 @@ func (action *Action) value() (float64, error) {
 
 // Config represents the configuration for the auto scale.
 type Config struct {
-	Name	 string `json:"increase"`
+	Name     string `json:"increase"`
 	Increase Action `json:"increase"`
 	Decrease Action `json:"decrease"`
 	MinUnits uint   `json:"minUnits"`
@@ -110,7 +108,7 @@ type Config struct {
 
 type App struct {
 	Config *Config
-	Name            string
+	Name   string
 }
 
 func (a *App) Units() []string {
