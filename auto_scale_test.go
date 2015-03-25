@@ -17,7 +17,6 @@ import (
 	"github.com/tsuru/tsuru-autoscale/db"
 	"gopkg.in/check.v1"
 	"gopkg.in/mgo.v2"
-	"gopkg.in/mgo.v2/bson"
 )
 
 func Test(t *testing.T) { check.TestingT(t) }
@@ -48,15 +47,12 @@ func (s *S) TestAutoScale(c *check.C) {
 	h := metricHandler{cpuMax: "50.2"}
 	ts := httptest.NewServer(&h)
 	defer ts.Close()
-	newApp := App{
-		Name: "myApp",
-		Config: &Config{
-			Increase: Action{Units: 1, Expression: "{cpu} > 80"},
-			Decrease: Action{Units: 1, Expression: "{cpu} < 20"},
-			Enabled:  true,
-		},
+	config := &Config{
+		Increase: Action{Units: 1, Expression: "{cpu} > 80"},
+		Decrease: Action{Units: 1, Expression: "{cpu} < 20"},
+		Enabled:  true,
 	}
-	err := scaleApplicationIfNeeded(&newApp)
+	err := scaleIfNeeded(config)
 	c.Assert(err, check.IsNil)
 	var events []Event
 	err = s.conn.AutoScale().Find(nil).All(&events)
@@ -68,20 +64,13 @@ func (s *S) TestAutoScaleUp(c *check.C) {
 	h := metricHandler{cpuMax: "90.2"}
 	ts := httptest.NewServer(&h)
 	defer ts.Close()
-	newApp := App{
-		Name: "myApp",
-		Config: &Config{
-			Increase: Action{Units: 1, Expression: "{cpu_max} > 80"},
-			Enabled:  true,
-			MaxUnits: uint(10),
-		},
+	config := &Config{
+		Increase: Action{Units: 1, Expression: "{cpu_max} > 80"},
+		Enabled:  true,
+		MaxUnits: uint(10),
 	}
-	err := s.conn.Apps().Insert(newApp)
+	err := scaleIfNeeded(config)
 	c.Assert(err, check.IsNil)
-	defer s.conn.Apps().Remove(bson.M{"name": newApp.Name})
-	err = scaleApplicationIfNeeded(&newApp)
-	c.Assert(err, check.IsNil)
-	c.Assert(newApp.Units(), check.HasLen, 1)
 	var events []Event
 	err = s.conn.AutoScale().Find(nil).All(&events)
 	c.Assert(err, check.IsNil)
@@ -91,27 +80,20 @@ func (s *S) TestAutoScaleUp(c *check.C) {
 	c.Assert(events[0].EndTime, check.Not(check.DeepEquals), time.Time{})
 	c.Assert(events[0].Error, check.Equals, "")
 	c.Assert(events[0].Successful, check.Equals, true)
-	c.Assert(events[0].Config, check.DeepEquals, newApp.Config)
+	c.Assert(events[0].Config, check.DeepEquals, config)
 }
 
 func (s *S) TestAutoScaleDown(c *check.C) {
 	h := metricHandler{cpuMax: "10.2"}
 	ts := httptest.NewServer(&h)
 	defer ts.Close()
-	newApp := App{
-		Name: "myApp",
-		Config: &Config{
-			Increase: Action{Units: 1, Expression: "{cpu_max} > 80"},
-			Decrease: Action{Units: 1, Expression: "{cpu_max} < 20"},
-			Enabled:  true,
-		},
+	config := &Config{
+		Increase: Action{Units: 1, Expression: "{cpu_max} > 80"},
+		Decrease: Action{Units: 1, Expression: "{cpu_max} < 20"},
+		Enabled:  true,
 	}
-	err := s.conn.Apps().Insert(newApp)
+	err := scaleIfNeeded(config)
 	c.Assert(err, check.IsNil)
-	defer s.conn.Apps().Remove(bson.M{"name": newApp.Name})
-	err = scaleApplicationIfNeeded(&newApp)
-	c.Assert(err, check.IsNil)
-	c.Assert(newApp.Units(), check.HasLen, 1)
 	var events []Event
 	err = s.conn.AutoScale().Find(nil).All(&events)
 	c.Assert(err, check.IsNil)
@@ -121,7 +103,7 @@ func (s *S) TestAutoScaleDown(c *check.C) {
 	c.Assert(events[0].EndTime, check.Not(check.DeepEquals), time.Time{})
 	c.Assert(events[0].Error, check.Equals, "")
 	c.Assert(events[0].Successful, check.Equals, true)
-	c.Assert(events[0].Config, check.DeepEquals, newApp.Config)
+	c.Assert(events[0].Config, check.DeepEquals, config)
 }
 
 type autoscaleHandler struct {
@@ -148,37 +130,22 @@ func (s *S) TestRunAutoScaleOnce(c *check.C) {
 	}
 	ts := httptest.NewServer(&h)
 	defer ts.Close()
-	up := App{
-		Name: "myApp",
-		Config: &Config{
-			Increase: Action{Units: 1, Expression: "{cpu_max} > 80"},
-			Enabled:  true,
-			MaxUnits: uint(10),
-		},
+	up := &Config{
+		Increase: Action{Units: 1, Expression: "{cpu_max} > 80"},
+		Enabled:  true,
+		MaxUnits: uint(10),
 	}
-	err := s.conn.Apps().Insert(up)
-	c.Assert(err, check.IsNil)
-	defer s.conn.Apps().Remove(bson.M{"name": up.Name})
 	dh := metricHandler{cpuMax: "9.2"}
 	dts := httptest.NewServer(&dh)
 	defer dts.Close()
-	down := App{
-		Name: "anotherApp",
-		Config: &Config{
-			Increase: Action{Units: 1, Expression: "{cpu_max} > 80"},
-			Decrease: Action{Units: 1, Expression: "{cpu_max} < 20"},
-			Enabled:  true,
-		},
+	down := &Config{
+		Increase: Action{Units: 1, Expression: "{cpu_max} > 80"},
+		Decrease: Action{Units: 1, Expression: "{cpu_max} < 20"},
+		Enabled:  true,
 	}
-	err = s.conn.Apps().Insert(down)
-	c.Assert(err, check.IsNil)
-	defer s.conn.Apps().Remove(bson.M{"name": down.Name})
-	//s.provisioner.AddUnits(&down, 3, nil)
 	runAutoScaleOnce()
-	c.Assert(up.Units(), check.HasLen, 1)
-	c.Assert(down.Units(), check.HasLen, 2)
 	var events []Event
-	err = s.conn.AutoScale().Find(nil).All(&events)
+	err := s.conn.AutoScale().Find(nil).All(&events)
 	c.Assert(err, check.IsNil)
 	c.Assert(events, check.HasLen, 2)
 	c.Assert(events[0].Type, check.Equals, "increase")
@@ -186,13 +153,13 @@ func (s *S) TestRunAutoScaleOnce(c *check.C) {
 	c.Assert(events[0].EndTime, check.Not(check.DeepEquals), time.Time{})
 	c.Assert(events[0].Error, check.Equals, "")
 	c.Assert(events[0].Successful, check.Equals, true)
-	c.Assert(events[0].Config, check.DeepEquals, up.Config)
+	c.Assert(events[0].Config, check.DeepEquals, up)
 	c.Assert(events[1].Type, check.Equals, "decrease")
 	c.Assert(events[1].StartTime, check.Not(check.DeepEquals), time.Time{})
 	c.Assert(events[1].EndTime, check.Not(check.DeepEquals), time.Time{})
 	c.Assert(events[1].Error, check.Equals, "")
 	c.Assert(events[1].Successful, check.Equals, true)
-	c.Assert(events[1].Config, check.DeepEquals, down.Config)
+	c.Assert(events[1].Config, check.DeepEquals, down)
 }
 
 func (s *S) TestActionMetric(c *check.C) {
@@ -246,54 +213,28 @@ func (s *S) TestNewAction(c *check.C) {
 	c.Assert(a, check.IsNil)
 }
 
-func (s *S) TestAutoScalebleApps(c *check.C) {
-	newApp := App{
-		Name: "myApp",
-		Config: &Config{
-			Enabled: true,
-		},
-	}
-	err := s.conn.Apps().Insert(newApp)
-	c.Assert(err, check.IsNil)
-	defer s.conn.Apps().Remove(bson.M{"name": newApp.Name})
-	disabledApp := App{
-		Name: "disabled",
-		Config: &Config{
-			Enabled: false,
-		},
-	}
-	err = s.conn.Apps().Insert(disabledApp)
-	c.Assert(err, check.IsNil)
-	defer s.conn.Apps().Remove(bson.M{"name": disabledApp.Name})
-	apps, err := autoScalableApps()
-	c.Assert(err, check.Equals, nil)
-	c.Assert(apps[0].Name, check.DeepEquals, newApp.Name)
-	c.Assert(apps, check.HasLen, 1)
-}
-
 func (s *S) TestLastScaleEvent(c *check.C) {
-	a := App{Name: "myApp"}
-	event1, err := NewEvent(&a, "increase")
+	config := Config{Name: "newconfig"}
+	event1, err := NewEvent(&config, "increase")
 	c.Assert(err, check.IsNil)
 	event1.StartTime = event1.StartTime.Add(-1 * time.Hour)
 	err = event1.update(nil)
 	c.Assert(err, check.IsNil)
-	event2, err := NewEvent(&a, "increase")
+	event2, err := NewEvent(&config, "increase")
 	c.Assert(err, check.IsNil)
-	event, err := lastScaleEvent(a.Name)
+	event, err := lastScaleEvent(config.Name)
 	c.Assert(err, check.IsNil)
 	c.Assert(event.ID, check.DeepEquals, event2.ID)
 }
 
 func (s *S) TestLastScaleEventNotFound(c *check.C) {
-	a := App{Name: "sam"}
-	_, err := lastScaleEvent(a.Name)
+	_, err := lastScaleEvent("notfound")
 	c.Assert(err, check.Equals, mgo.ErrNotFound)
 }
 
 func (s *S) TestListAutoScaleHistory(c *check.C) {
-	a := App{Name: "myApp"}
-	_, err := NewEvent(&a, "increase")
+	config := Config{Name: "config"}
+	_, err := NewEvent(&config, "increase")
 	c.Assert(err, check.IsNil)
 	events, err := ListAutoScaleHistory("")
 	c.Assert(err, check.IsNil)
@@ -303,11 +244,11 @@ func (s *S) TestListAutoScaleHistory(c *check.C) {
 }
 
 func (s *S) TestListAutoScaleHistoryByAppName(c *check.C) {
-	a := App{Name: "myApp"}
-	_, err := NewEvent(&a, "increase")
+	config := Config{Name: "config"}
+	_, err := NewEvent(&config, "increase")
 	c.Assert(err, check.IsNil)
-	a = App{Name: "another"}
-	_, err = NewEvent(&a, "increase")
+	config = Config{Name: "another"}
+	_, err = NewEvent(&config, "increase")
 	c.Assert(err, check.IsNil)
 	events, err := ListAutoScaleHistory("another")
 	c.Assert(err, check.IsNil)
@@ -317,200 +258,136 @@ func (s *S) TestListAutoScaleHistoryByAppName(c *check.C) {
 }
 
 func (s *S) TestAutoScaleEnable(c *check.C) {
-	a := App{Name: "myApp"}
-	err := s.conn.Apps().Insert(a)
+	config := Config{Name: "config"}
+	err := AutoScaleEnable(&config)
 	c.Assert(err, check.IsNil)
-	defer s.conn.Apps().Remove(bson.M{"name": a.Name})
-	err = AutoScaleEnable(&a)
-	c.Assert(err, check.IsNil)
-	c.Assert(a.Config.Enabled, check.Equals, true)
+	c.Assert(config.Enabled, check.Equals, true)
 }
 
 func (s *S) TestAutoScaleDisable(c *check.C) {
-	a := App{Name: "myApp"}
-	err := s.conn.Apps().Insert(a)
+	config := Config{Name: "config", Enabled: true}
+	err := AutoScaleDisable(&config)
 	c.Assert(err, check.IsNil)
-	defer s.conn.Apps().Remove(bson.M{"name": a.Name})
-	err = AutoScaleDisable(&a)
-	c.Assert(err, check.IsNil)
-	c.Assert(a.Config.Enabled, check.Equals, false)
-}
-
-func (s *S) TestConfig(c *check.C) {
-	a := App{Name: "myApp"}
-	err := s.conn.Apps().Insert(a)
-	c.Assert(err, check.IsNil)
-	defer s.conn.Apps().Remove(bson.M{"name": a.Name})
-	config := Config{
-		Enabled:  true,
-		MinUnits: 2,
-		MaxUnits: 10,
-	}
-	err = SetConfig(&a, &config)
-	c.Assert(err, check.IsNil)
-	c.Assert(a.Config, check.DeepEquals, &config)
+	c.Assert(config.Enabled, check.Equals, false)
 }
 
 func (s *S) TestAutoScaleUpWaitEventStillRunning(c *check.C) {
 	h := metricHandler{cpuMax: "90.2"}
 	ts := httptest.NewServer(&h)
 	defer ts.Close()
-	app := App{
-		Name: "rush",
-		Config: &Config{
-			Increase: Action{Units: 5, Expression: "{cpu_max} > 80", Wait: 30e9},
-			Enabled:  true,
-			MaxUnits: 4,
-		},
+	config := &Config{
+		Increase: Action{Units: 5, Expression: "{cpu_max} > 80", Wait: 30e9},
+		Enabled:  true,
+		MaxUnits: 4,
 	}
-	err := s.conn.Apps().Insert(app)
+	event, err := NewEvent(config, "increase")
 	c.Assert(err, check.IsNil)
-	defer s.conn.Apps().Remove(bson.M{"name": app.Name})
-	event, err := NewEvent(&app, "increase")
+	err = scaleIfNeeded(config)
 	c.Assert(err, check.IsNil)
-	err = scaleApplicationIfNeeded(&app)
-	c.Assert(err, check.IsNil)
-	events, err := ListAutoScaleHistory(app.Name)
+	events, err := ListAutoScaleHistory(config.Name)
 	c.Assert(err, check.IsNil)
 	c.Assert(events, check.HasLen, 1)
 	c.Assert(events[0].ID, check.DeepEquals, event.ID)
-	c.Assert(app.Units(), check.HasLen, 0)
 }
 
 func (s *S) TestAutoScaleUpWaitTime(c *check.C) {
 	h := metricHandler{cpuMax: "90.2"}
 	ts := httptest.NewServer(&h)
 	defer ts.Close()
-	app := App{
-		Name: "rush",
-		Config: &Config{
-			Increase: Action{Units: 5, Expression: "{cpu_max} > 80", Wait: 1 * time.Hour},
-			Enabled:  true,
-			MaxUnits: 4,
-		},
+	config := &Config{
+		Increase: Action{Units: 5, Expression: "{cpu_max} > 80", Wait: 1 * time.Hour},
+		Enabled:  true,
+		MaxUnits: 4,
 	}
-	err := s.conn.Apps().Insert(app)
-	c.Assert(err, check.IsNil)
-	defer s.conn.Apps().Remove(bson.M{"name": app.Name})
-	event, err := NewEvent(&app, "increase")
+	event, err := NewEvent(config, "increase")
 	c.Assert(err, check.IsNil)
 	err = event.update(nil)
 	c.Assert(err, check.IsNil)
-	err = scaleApplicationIfNeeded(&app)
+	err = scaleIfNeeded(config)
 	c.Assert(err, check.IsNil)
-	events, err := ListAutoScaleHistory(app.Name)
+	events, err := ListAutoScaleHistory(config.Name)
 	c.Assert(err, check.IsNil)
 	c.Assert(events, check.HasLen, 1)
 	c.Assert(events[0].ID, check.DeepEquals, event.ID)
-	c.Assert(app.Units(), check.HasLen, 0)
 }
 
 func (s *S) TestAutoScaleMaxUnits(c *check.C) {
 	h := metricHandler{cpuMax: "90.2"}
 	ts := httptest.NewServer(&h)
 	defer ts.Close()
-	newApp := App{
-		Name: "myApp",
-		Config: &Config{
-			Increase: Action{Units: 5, Expression: "{cpu_max} > 80"},
-			Enabled:  true,
-			MaxUnits: 4,
-		},
+	config := &Config{
+		Increase: Action{Units: 5, Expression: "{cpu_max} > 80"},
+		Enabled:  true,
+		MaxUnits: 4,
 	}
-	err := s.conn.Apps().Insert(newApp)
+	err := scaleIfNeeded(config)
 	c.Assert(err, check.IsNil)
-	defer s.conn.Apps().Remove(bson.M{"name": newApp.Name})
-	err = scaleApplicationIfNeeded(&newApp)
-	c.Assert(err, check.IsNil)
-	c.Assert(newApp.Units(), check.HasLen, 4)
 	var events []Event
-	err = s.conn.AutoScale().Find(nil).All(&events)
-	c.Assert(err, check.IsNil)
 	c.Assert(events, check.HasLen, 1)
 	c.Assert(events[0].Type, check.Equals, "increase")
 	c.Assert(events[0].StartTime, check.Not(check.DeepEquals), time.Time{})
 	c.Assert(events[0].EndTime, check.Not(check.DeepEquals), time.Time{})
 	c.Assert(events[0].Error, check.Equals, "")
 	c.Assert(events[0].Successful, check.Equals, true)
-	c.Assert(events[0].Config, check.DeepEquals, newApp.Config)
+	c.Assert(events[0].Config, check.DeepEquals, config)
 }
 
 func (s *S) TestAutoScaleDownWaitEventStillRunning(c *check.C) {
 	h := metricHandler{cpuMax: "10.2"}
 	ts := httptest.NewServer(&h)
 	defer ts.Close()
-	app := App{
-		Name: "rush",
-		Config: &Config{
-			Increase: Action{Units: 5, Expression: "{cpu_max} > 80", Wait: 30e9},
-			Decrease: Action{Units: 3, Expression: "{cpu_max} < 20", Wait: 30e9},
-			Enabled:  true,
-			MaxUnits: 4,
-		},
+	config := &Config{
+		Name:     "rush",
+		Increase: Action{Units: 5, Expression: "{cpu_max} > 80", Wait: 30e9},
+		Decrease: Action{Units: 3, Expression: "{cpu_max} < 20", Wait: 30e9},
+		Enabled:  true,
+		MaxUnits: 4,
 	}
-	err := s.conn.Apps().Insert(app)
+	event, err := NewEvent(config, "decrease")
 	c.Assert(err, check.IsNil)
-	defer s.conn.Apps().Remove(bson.M{"name": app.Name})
-	event, err := NewEvent(&app, "decrease")
+	err = scaleIfNeeded(config)
 	c.Assert(err, check.IsNil)
-	err = scaleApplicationIfNeeded(&app)
-	c.Assert(err, check.IsNil)
-	events, err := ListAutoScaleHistory(app.Name)
+	events, err := ListAutoScaleHistory(config.Name)
 	c.Assert(err, check.IsNil)
 	c.Assert(events, check.HasLen, 1)
 	c.Assert(events[0].ID, check.DeepEquals, event.ID)
-	c.Assert(app.Units(), check.HasLen, 0)
 }
 
 func (s *S) TestAutoScaleDownWaitTime(c *check.C) {
 	h := metricHandler{cpuMax: "10.2"}
 	ts := httptest.NewServer(&h)
 	defer ts.Close()
-	app := App{
-		Name: "rush",
-		Config: &Config{
-			Increase: Action{Units: 5, Expression: "{cpu_max} > 80", Wait: 1 * time.Hour},
-			Decrease: Action{Units: 3, Expression: "{cpu_max} < 20", Wait: 3 * time.Hour},
-			Enabled:  true,
-			MaxUnits: 4,
-		},
+	config := &Config{
+		Name:     "rush",
+		Increase: Action{Units: 5, Expression: "{cpu_max} > 80", Wait: 1 * time.Hour},
+		Decrease: Action{Units: 3, Expression: "{cpu_max} < 20", Wait: 3 * time.Hour},
+		Enabled:  true,
+		MaxUnits: 4,
 	}
-	err := s.conn.Apps().Insert(app)
-	c.Assert(err, check.IsNil)
-	defer s.conn.Apps().Remove(bson.M{"name": app.Name})
-	event, err := NewEvent(&app, "increase")
+	event, err := NewEvent(config, "increase")
 	c.Assert(err, check.IsNil)
 	err = event.update(nil)
 	c.Assert(err, check.IsNil)
-	err = scaleApplicationIfNeeded(&app)
+	err = scaleIfNeeded(config)
 	c.Assert(err, check.IsNil)
-	events, err := ListAutoScaleHistory(app.Name)
+	events, err := ListAutoScaleHistory(config.Name)
 	c.Assert(err, check.IsNil)
 	c.Assert(events, check.HasLen, 1)
 	c.Assert(events[0].ID, check.DeepEquals, event.ID)
-	c.Assert(app.Units(), check.HasLen, 0)
 }
 
 func (s *S) TestAutoScaleMinUnits(c *check.C) {
 	h := metricHandler{cpuMax: "10.2"}
 	ts := httptest.NewServer(&h)
 	defer ts.Close()
-	newApp := App{
-		Name: "myApp",
-		Config: &Config{
-			Increase: Action{Units: 1, Expression: "{cpu_max} > 80"},
-			Decrease: Action{Units: 3, Expression: "{cpu_max} < 20"},
-			Enabled:  true,
-			MinUnits: uint(3),
-		},
+	config := &Config{
+		Increase: Action{Units: 1, Expression: "{cpu_max} > 80"},
+		Decrease: Action{Units: 3, Expression: "{cpu_max} < 20"},
+		Enabled:  true,
+		MinUnits: uint(3),
 	}
-	err := s.conn.Apps().Insert(newApp)
+	err := scaleIfNeeded(config)
 	c.Assert(err, check.IsNil)
-	defer s.conn.Apps().Remove(bson.M{"name": newApp.Name})
-	//s.provisioner.AddUnits(&newApp, 5, nil)
-	err = scaleApplicationIfNeeded(&newApp)
-	c.Assert(err, check.IsNil)
-	c.Assert(newApp.Units(), check.HasLen, 3)
 	var events []Event
 	err = s.conn.AutoScale().Find(nil).All(&events)
 	c.Assert(err, check.IsNil)
@@ -520,7 +397,7 @@ func (s *S) TestAutoScaleMinUnits(c *check.C) {
 	c.Assert(events[0].EndTime, check.Not(check.DeepEquals), time.Time{})
 	c.Assert(events[0].Error, check.Equals, "")
 	c.Assert(events[0].Successful, check.Equals, true)
-	c.Assert(events[0].Config, check.DeepEquals, newApp.Config)
+	c.Assert(events[0].Config, check.DeepEquals, config)
 }
 
 func (s *S) TestConfigMarshalJSON(c *check.C) {
@@ -558,22 +435,14 @@ func (s *S) TestAutoScaleDownMin(c *check.C) {
 	h := metricHandler{cpuMax: "10.2"}
 	ts := httptest.NewServer(&h)
 	defer ts.Close()
-	newApp := App{
-		Name: "myApp",
-		Config: &Config{
-			Increase: Action{Units: 1, Expression: "{cpu_max} > 80"},
-			Decrease: Action{Units: 1, Expression: "{cpu_max} < 20"},
-			Enabled:  true,
-			MinUnits: 1,
-		},
+	config := &Config{
+		Increase: Action{Units: 1, Expression: "{cpu_max} > 80"},
+		Decrease: Action{Units: 1, Expression: "{cpu_max} < 20"},
+		Enabled:  true,
+		MinUnits: 1,
 	}
-	err := s.conn.Apps().Insert(newApp)
+	err := scaleIfNeeded(config)
 	c.Assert(err, check.IsNil)
-	defer s.conn.Apps().Remove(bson.M{"name": newApp.Name})
-	//s.provisioner.AddUnits(&newApp, 1, nil)
-	err = scaleApplicationIfNeeded(&newApp)
-	c.Assert(err, check.IsNil)
-	c.Assert(newApp.Units(), check.HasLen, 1)
 	var events []Event
 	err = s.conn.AutoScale().Find(nil).All(&events)
 	c.Assert(err, check.IsNil)
@@ -584,21 +453,13 @@ func (s *S) TestAutoScaleUpMax(c *check.C) {
 	h := metricHandler{cpuMax: "90.2"}
 	ts := httptest.NewServer(&h)
 	defer ts.Close()
-	newApp := App{
-		Name: "myApp",
-		Config: &Config{
-			Increase: Action{Units: 1, Expression: "{cpu_max} > 80"},
-			Enabled:  true,
-			MaxUnits: uint(2),
-		},
+	config := &Config{
+		Increase: Action{Units: 1, Expression: "{cpu_max} > 80"},
+		Enabled:  true,
+		MaxUnits: uint(2),
 	}
-	err := s.conn.Apps().Insert(newApp)
+	err := scaleIfNeeded(config)
 	c.Assert(err, check.IsNil)
-	defer s.conn.Apps().Remove(bson.M{"name": newApp.Name})
-	//s.provisioner.AddUnits(&newApp, 2, nil)
-	err = scaleApplicationIfNeeded(&newApp)
-	c.Assert(err, check.IsNil)
-	c.Assert(newApp.Units(), check.HasLen, 2)
 	var events []Event
 	err = s.conn.AutoScale().Find(nil).All(&events)
 	c.Assert(err, check.IsNil)

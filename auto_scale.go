@@ -6,7 +6,6 @@ package main
 
 import (
 	"errors"
-	"fmt"
 	"io"
 	"regexp"
 	"strconv"
@@ -34,11 +33,11 @@ type Event struct {
 	Error      string `bson:",omitempty"`
 }
 
-func NewEvent(a *App, scaleType string) (*Event, error) {
+func NewEvent(config *Config, scaleType string) (*Event, error) {
 	evt := Event{
 		ID:        bson.NewObjectId(),
 		StartTime: time.Now().UTC(),
-		Config:    a.Config,
+		Config:    config,
 		Type:      scaleType,
 	}
 	conn, err := db.Conn()
@@ -107,8 +106,7 @@ type Config struct {
 }
 
 type App struct {
-	Config *Config
-	Name   string
+	Name string
 }
 
 func (a *App) Units() []string {
@@ -127,23 +125,10 @@ func (a *App) RemoveUnits(n uint) error {
 	return nil
 }
 
-func autoScalableApps() ([]App, error) {
-	conn, err := db.Conn()
-	if err != nil {
-		return nil, err
-	}
-	defer conn.Close()
-	var apps []App
-	return apps, nil
-}
-
 func runAutoScaleOnce() {
-	apps, err := autoScalableApps()
-	if err != nil {
-		log.Error(err.Error())
-	}
-	for _, app := range apps {
-		err := scaleApplicationIfNeeded(&app)
+	configs := []Config{}
+	for _, config := range configs {
+		err := scaleIfNeeded(&config)
 		if err != nil {
 			log.Error(err.Error())
 		}
@@ -157,72 +142,74 @@ func runAutoScale() {
 	}
 }
 
-func scaleApplicationIfNeeded(app *App) error {
-	if app.Config == nil {
+func scaleIfNeeded(config *Config) error {
+	if config == nil {
 		return errors.New("AutoScale is not configured.")
 	}
-	increaseMetric, _ := app.Metric(app.Config.Increase.metric())
-	value, _ := app.Config.Increase.value()
-	if increaseMetric > value {
-		currentUnits := uint(len(app.Units()))
-		maxUnits := app.Config.MaxUnits
-		if maxUnits == 0 {
-			maxUnits = 1
+	/*
+		increaseMetric, _ := app.Metric(config.Increase.metric())
+		value, _ := config.Increase.value()
+		if increaseMetric > value {
+			currentUnits := uint(len(app.Units()))
+			maxUnits := config.MaxUnits
+			if maxUnits == 0 {
+				maxUnits = 1
+			}
+			if currentUnits >= maxUnits {
+				return nil
+			}
+			if wait, err := shouldWait(app, config.Increase.Wait); err != nil {
+				return err
+			} else if wait {
+				return nil
+			}
+			evt, err := NewEvent(app, "increase")
+			if err != nil {
+				return fmt.Errorf("Error trying to insert auto scale event, auto scale aborted: %s", err.Error())
+		 	}
+			inc := config.Increase.Units
+			if currentUnits+inc > config.MaxUnits {
+				inc = config.MaxUnits - currentUnits
+			}
+			addUnitsErr := app.AddUnits(inc, nil)
+			err = evt.update(addUnitsErr)
+			if err != nil {
+				log.Errorf("Error trying to update auto scale event: %s", err.Error())
+			}
+			return addUnitsErr
 		}
-		if currentUnits >= maxUnits {
-			return nil
+		decreaseMetric, _ := app.Metric(config.Decrease.metric())
+		value, _ = config.Decrease.value()
+		if decreaseMetric < value {
+			currentUnits := uint(len(app.Units()))
+			minUnits := config.MinUnits
+			if minUnits == 0 {
+				minUnits = 1
+			}
+			if currentUnits <= minUnits {
+				return nil
+			}
+			if wait, err := shouldWait(app, config.Decrease.Wait); err != nil {
+				return err
+			} else if wait {
+				return nil
+			}
+			evt, err := NewEvent(app, "decrease")
+			if err != nil {
+				return fmt.Errorf("Error trying to insert auto scale event, auto scale aborted: %s", err.Error())
+			}
+			dec := config.Decrease.Units
+			if currentUnits-dec < config.MinUnits {
+				dec = currentUnits - config.MinUnits
+			}
+			removeUnitsErr := app.RemoveUnits(dec)
+			err = evt.update(removeUnitsErr)
+			if err != nil {
+				log.Errorf("Error trying to update auto scale event: %s", err.Error())
+			}
+			return removeUnitsErr
 		}
-		if wait, err := shouldWait(app, app.Config.Increase.Wait); err != nil {
-			return err
-		} else if wait {
-			return nil
-		}
-		evt, err := NewEvent(app, "increase")
-		if err != nil {
-			return fmt.Errorf("Error trying to insert auto scale event, auto scale aborted: %s", err.Error())
-		}
-		inc := app.Config.Increase.Units
-		if currentUnits+inc > app.Config.MaxUnits {
-			inc = app.Config.MaxUnits - currentUnits
-		}
-		addUnitsErr := app.AddUnits(inc, nil)
-		err = evt.update(addUnitsErr)
-		if err != nil {
-			log.Errorf("Error trying to update auto scale event: %s", err.Error())
-		}
-		return addUnitsErr
-	}
-	decreaseMetric, _ := app.Metric(app.Config.Decrease.metric())
-	value, _ = app.Config.Decrease.value()
-	if decreaseMetric < value {
-		currentUnits := uint(len(app.Units()))
-		minUnits := app.Config.MinUnits
-		if minUnits == 0 {
-			minUnits = 1
-		}
-		if currentUnits <= minUnits {
-			return nil
-		}
-		if wait, err := shouldWait(app, app.Config.Decrease.Wait); err != nil {
-			return err
-		} else if wait {
-			return nil
-		}
-		evt, err := NewEvent(app, "decrease")
-		if err != nil {
-			return fmt.Errorf("Error trying to insert auto scale event, auto scale aborted: %s", err.Error())
-		}
-		dec := app.Config.Decrease.Units
-		if currentUnits-dec < app.Config.MinUnits {
-			dec = currentUnits - app.Config.MinUnits
-		}
-		removeUnitsErr := app.RemoveUnits(dec)
-		err = evt.update(removeUnitsErr)
-		if err != nil {
-			log.Errorf("Error trying to update auto scale event: %s", err.Error())
-		}
-		return removeUnitsErr
-	}
+	*/
 	return nil
 }
 
@@ -271,35 +258,12 @@ func ListAutoScaleHistory(appName string) ([]Event, error) {
 	return history, nil
 }
 
-func AutoScaleEnable(app *App) error {
-	if app.Config == nil {
-		app.Config = &Config{}
-	}
-	app.Config.Enabled = true
-	conn, err := db.Conn()
-	if err != nil {
-		return err
-	}
+func AutoScaleEnable(config *Config) error {
+	config.Enabled = true
 	return nil
 }
 
-func AutoScaleDisable(app *App) error {
-	if app.Config == nil {
-		app.Config = &Config{}
-	}
-	app.Config.Enabled = false
-	conn, err := db.Conn()
-	if err != nil {
-		return err
-	}
-	return nil
-}
-
-func SetConfig(app *App, config *Config) error {
-	app.Config = config
-	conn, err := db.Conn()
-	if err != nil {
-		return err
-	}
+func AutoScaleDisable(config *Config) error {
+	config.Enabled = false
 	return nil
 }
