@@ -44,7 +44,7 @@ func NewEvent(config *Config, scaleType string) (*Event, error) {
 		return nil, err
 	}
 	defer conn.Close()
-	return &evt, conn.AutoScale().Insert(evt)
+	return &evt, conn.Events().Insert(evt)
 }
 
 func (evt *Event) update(err error) error {
@@ -58,7 +58,7 @@ func (evt *Event) update(err error) error {
 		return err
 	}
 	defer conn.Close()
-	return conn.AutoScale().UpdateId(evt.ID, evt)
+	return conn.Events().UpdateId(evt.ID, evt)
 }
 
 // Action represents an AutoScale action to increase or decrease the
@@ -215,7 +215,7 @@ func lastScaleEvent(appName string) (Event, error) {
 		return event, err
 	}
 	defer conn.Close()
-	err = conn.AutoScale().Find(bson.M{"appname": appName}).Sort("-starttime").One(&event)
+	err = conn.Events().Find(bson.M{"appname": appName}).Sort("-starttime").One(&event)
 	return event, err
 }
 
@@ -230,7 +230,7 @@ func ListAutoScaleHistory(appName string) ([]Event, error) {
 	if appName != "" {
 		q["appname"] = appName
 	}
-	err = conn.AutoScale().Find(q).Sort("-_id").Limit(200).All(&history)
+	err = conn.Events().Find(q).Sort("-_id").Limit(200).All(&history)
 	if err != nil {
 		return nil, err
 	}

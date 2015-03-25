@@ -55,7 +55,7 @@ func (s *S) TestAutoScale(c *check.C) {
 	err := scaleIfNeeded(config)
 	c.Assert(err, check.IsNil)
 	var events []Event
-	err = s.conn.AutoScale().Find(nil).All(&events)
+	err = s.conn.Events().Find(nil).All(&events)
 	c.Assert(err, check.IsNil)
 	c.Assert(events, check.HasLen, 0)
 }
@@ -72,7 +72,7 @@ func (s *S) TestAutoScaleUp(c *check.C) {
 	err := scaleIfNeeded(config)
 	c.Assert(err, check.IsNil)
 	var events []Event
-	err = s.conn.AutoScale().Find(nil).All(&events)
+	err = s.conn.Events().Find(nil).All(&events)
 	c.Assert(err, check.IsNil)
 	c.Assert(events, check.HasLen, 1)
 	c.Assert(events[0].Type, check.Equals, "increase")
@@ -95,7 +95,7 @@ func (s *S) TestAutoScaleDown(c *check.C) {
 	err := scaleIfNeeded(config)
 	c.Assert(err, check.IsNil)
 	var events []Event
-	err = s.conn.AutoScale().Find(nil).All(&events)
+	err = s.conn.Events().Find(nil).All(&events)
 	c.Assert(err, check.IsNil)
 	c.Assert(events, check.HasLen, 1)
 	c.Assert(events[0].Type, check.Equals, "decrease")
@@ -145,7 +145,7 @@ func (s *S) TestRunAutoScaleOnce(c *check.C) {
 	}
 	runAutoScaleOnce()
 	var events []Event
-	err := s.conn.AutoScale().Find(nil).All(&events)
+	err := s.conn.Events().Find(nil).All(&events)
 	c.Assert(err, check.IsNil)
 	c.Assert(events, check.HasLen, 2)
 	c.Assert(events[0].Type, check.Equals, "increase")
@@ -389,7 +389,7 @@ func (s *S) TestAutoScaleMinUnits(c *check.C) {
 	err := scaleIfNeeded(config)
 	c.Assert(err, check.IsNil)
 	var events []Event
-	err = s.conn.AutoScale().Find(nil).All(&events)
+	err = s.conn.Events().Find(nil).All(&events)
 	c.Assert(err, check.IsNil)
 	c.Assert(events, check.HasLen, 1)
 	c.Assert(events[0].Type, check.Equals, "decrease")
@@ -444,7 +444,7 @@ func (s *S) TestAutoScaleDownMin(c *check.C) {
 	err := scaleIfNeeded(config)
 	c.Assert(err, check.IsNil)
 	var events []Event
-	err = s.conn.AutoScale().Find(nil).All(&events)
+	err = s.conn.Events().Find(nil).All(&events)
 	c.Assert(err, check.IsNil)
 	c.Assert(events, check.HasLen, 0)
 }
@@ -461,7 +461,7 @@ func (s *S) TestAutoScaleUpMax(c *check.C) {
 	err := scaleIfNeeded(config)
 	c.Assert(err, check.IsNil)
 	var events []Event
-	err = s.conn.AutoScale().Find(nil).All(&events)
+	err = s.conn.Events().Find(nil).All(&events)
 	c.Assert(err, check.IsNil)
 	c.Assert(events, check.HasLen, 0)
 }
