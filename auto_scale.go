@@ -6,7 +6,6 @@ package main
 
 import (
 	"errors"
-	"io"
 	"regexp"
 	"strconv"
 	"time"
@@ -105,26 +104,6 @@ type Config struct {
 	Enabled  bool   `json:"enabled"`
 }
 
-type App struct {
-	Name string
-}
-
-func (a *App) Units() []string {
-	return nil
-}
-
-func (a *App) Metric(kind string) (float64, error) {
-	return float64(0), nil
-}
-
-func (a *App) AddUnits(n uint, writer io.Writer) error {
-	return nil
-}
-
-func (a *App) RemoveUnits(n uint) error {
-	return nil
-}
-
 func runAutoScaleOnce() {
 	configs := []Config{}
 	for _, config := range configs {
@@ -213,9 +192,9 @@ func scaleIfNeeded(config *Config) error {
 	return nil
 }
 
-func shouldWait(app *App, waitPeriod time.Duration) (bool, error) {
+func shouldWait(config *Config, waitPeriod time.Duration) (bool, error) {
 	now := time.Now().UTC()
-	lastEvent, err := lastScaleEvent(app.Name)
+	lastEvent, err := lastScaleEvent(config.Name)
 	if err != nil && err != mgo.ErrNotFound {
 		return false, err
 	}
