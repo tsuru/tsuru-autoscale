@@ -11,3 +11,12 @@ type dataSource interface {
 	// in the value pointed to by v.
 	Get(v interface{}) error
 }
+
+type dataSourceFactory func(conf map[string]interface{}) (dataSource, error)
+
+var dataSources = make(map[string]dataSourceFactory)
+
+// Register registers a new dataSource.
+func Register(name string, ds dataSourceFactory) {
+	dataSources[name] = ds
+}
