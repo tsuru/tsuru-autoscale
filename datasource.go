@@ -4,6 +4,12 @@
 
 package main
 
+import (
+	"encoding/json"
+	"io/ioutil"
+	"net/http"
+)
+
 // dataSource represents a data source.
 type dataSource interface {
 	// Get gets data from data source and
@@ -24,4 +30,27 @@ func Register(name string, ds dataSourceFactory) {
 // NewDataSource creates a new data source instance.
 func NewDataSource(name string, conf map[string]interface{}) (dataSource, error) {
 	return dataSources[name](conf)
+}
+
+type httpDataSource struct {
+	url    string
+	method string
+	body   string
+}
+
+func (ds *httpDataSource) Get(v interface{}) error {
+	req, err := http.NewRequest(ds.method, ds.url, nil)
+	if err != nil {
+		return err
+	}
+	response, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return err
+	}
+	defer response.Body.Close()
+	data, err := ioutil.ReadAll(response.Body)
+	if err != nil {
+		return err
+	}
+	return json.Unmarshal(data, v)
 }
