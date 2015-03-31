@@ -2,15 +2,25 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-package main
+package datasource
 
 import (
 	"errors"
 	"net/http"
 	"net/http/httptest"
+	"testing"
 
+	"github.com/tsuru/tsuru-autoscale/db"
 	"gopkg.in/check.v1"
 )
+
+func Test(t *testing.T) { check.TestingT(t) }
+
+type S struct {
+	conn *db.Storage
+}
+
+var _ = check.Suite(&S{})
 
 func (s *S) TestRegister(c *check.C) {
 	var ds dataSource
