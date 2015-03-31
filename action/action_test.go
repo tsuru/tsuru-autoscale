@@ -8,26 +8,12 @@ import (
 	"testing"
 	"time"
 
-	"github.com/tsuru/tsuru-autoscale/db"
 	"gopkg.in/check.v1"
 )
 
 func Test(t *testing.T) { check.TestingT(t) }
 
-type S struct {
-	conn *db.Storage
-}
-
-func (s *S) SetUpSuite(c *check.C) {
-	var err error
-	s.conn, err = db.Conn()
-	c.Assert(err, check.IsNil)
-}
-
-func (s *S) TearDownTest(c *check.C) {
-	s.conn.Events().RemoveAll(nil)
-}
-
+type S struct{}
 var _ = check.Suite(&S{})
 
 func (s *S) TestActionMetric(c *check.C) {

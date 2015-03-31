@@ -10,15 +10,12 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/tsuru/tsuru-autoscale/db"
 	"gopkg.in/check.v1"
 )
 
 func Test(t *testing.T) { check.TestingT(t) }
 
-type S struct {
-	conn *db.Storage
-}
+type S struct{}
 
 var _ = check.Suite(&S{})
 
