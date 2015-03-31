@@ -2,13 +2,33 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-package main
+package action
 
 import (
+	"testing"
 	"time"
 
+	"github.com/tsuru/tsuru-autoscale/db"
 	"gopkg.in/check.v1"
 )
+
+func Test(t *testing.T) { check.TestingT(t) }
+
+type S struct {
+	conn *db.Storage
+}
+
+func (s *S) SetUpSuite(c *check.C) {
+	var err error
+	s.conn, err = db.Conn()
+	c.Assert(err, check.IsNil)
+}
+
+func (s *S) TearDownTest(c *check.C) {
+	s.conn.Events().RemoveAll(nil)
+}
+
+var _ = check.Suite(&S{})
 
 func (s *S) TestActionMetric(c *check.C) {
 	a := &Action{Expression: "{cpu} > 80"}

@@ -14,6 +14,7 @@ import (
 	"time"
 
 	"github.com/tsuru/config"
+	"github.com/tsuru/tsuru-autoscale/action"
 	"github.com/tsuru/tsuru-autoscale/db"
 	"gopkg.in/check.v1"
 )
@@ -51,8 +52,8 @@ func (s *S) TestAutoScale(c *check.C) {
 	ts := httptest.NewServer(&h)
 	defer ts.Close()
 	config := &Config{
-		Increase: Action{Units: 1, Expression: "{cpu} > 80"},
-		Decrease: Action{Units: 1, Expression: "{cpu} < 20"},
+		Increase: action.Action{Units: 1, Expression: "{cpu} > 80"},
+		Decrease: action.Action{Units: 1, Expression: "{cpu} < 20"},
 		Enabled:  true,
 	}
 	err := scaleIfNeeded(config)
@@ -68,7 +69,7 @@ func (s *S) TestAutoScaleUp(c *check.C) {
 	ts := httptest.NewServer(&h)
 	defer ts.Close()
 	config := &Config{
-		Increase: Action{Units: 1, Expression: "{cpu_max} > 80"},
+		Increase: action.Action{Units: 1, Expression: "{cpu_max} > 80"},
 		Enabled:  true,
 		MaxUnits: uint(10),
 	}
@@ -91,8 +92,8 @@ func (s *S) TestAutoScaleDown(c *check.C) {
 	ts := httptest.NewServer(&h)
 	defer ts.Close()
 	config := &Config{
-		Increase: Action{Units: 1, Expression: "{cpu_max} > 80"},
-		Decrease: Action{Units: 1, Expression: "{cpu_max} < 20"},
+		Increase: action.Action{Units: 1, Expression: "{cpu_max} > 80"},
+		Decrease: action.Action{Units: 1, Expression: "{cpu_max} < 20"},
 		Enabled:  true,
 	}
 	err := scaleIfNeeded(config)
@@ -134,7 +135,7 @@ func (s *S) TestRunAutoScaleOnce(c *check.C) {
 	ts := httptest.NewServer(&h)
 	defer ts.Close()
 	up := &Config{
-		Increase: Action{Units: 1, Expression: "{cpu_max} > 80"},
+		Increase: action.Action{Units: 1, Expression: "{cpu_max} > 80"},
 		Enabled:  true,
 		MaxUnits: uint(10),
 	}
@@ -142,8 +143,8 @@ func (s *S) TestRunAutoScaleOnce(c *check.C) {
 	dts := httptest.NewServer(&dh)
 	defer dts.Close()
 	down := &Config{
-		Increase: Action{Units: 1, Expression: "{cpu_max} > 80"},
-		Decrease: Action{Units: 1, Expression: "{cpu_max} < 20"},
+		Increase: action.Action{Units: 1, Expression: "{cpu_max} > 80"},
+		Decrease: action.Action{Units: 1, Expression: "{cpu_max} < 20"},
 		Enabled:  true,
 	}
 	runAutoScaleOnce()
@@ -184,7 +185,7 @@ func (s *S) TestAutoScaleUpWaitEventStillRunning(c *check.C) {
 	ts := httptest.NewServer(&h)
 	defer ts.Close()
 	config := &Config{
-		Increase: Action{Units: 5, Expression: "{cpu_max} > 80", Wait: 30e9},
+		Increase: action.Action{Units: 5, Expression: "{cpu_max} > 80", Wait: 30e9},
 		Enabled:  true,
 		MaxUnits: 4,
 	}
@@ -203,7 +204,7 @@ func (s *S) TestAutoScaleUpWaitTime(c *check.C) {
 	ts := httptest.NewServer(&h)
 	defer ts.Close()
 	config := &Config{
-		Increase: Action{Units: 5, Expression: "{cpu_max} > 80", Wait: 1 * time.Hour},
+		Increase: action.Action{Units: 5, Expression: "{cpu_max} > 80", Wait: 1 * time.Hour},
 		Enabled:  true,
 		MaxUnits: 4,
 	}
@@ -224,7 +225,7 @@ func (s *S) TestAutoScaleMaxUnits(c *check.C) {
 	ts := httptest.NewServer(&h)
 	defer ts.Close()
 	config := &Config{
-		Increase: Action{Units: 5, Expression: "{cpu_max} > 80"},
+		Increase: action.Action{Units: 5, Expression: "{cpu_max} > 80"},
 		Enabled:  true,
 		MaxUnits: 4,
 	}
@@ -246,8 +247,8 @@ func (s *S) TestAutoScaleDownWaitEventStillRunning(c *check.C) {
 	defer ts.Close()
 	config := &Config{
 		Name:     "rush",
-		Increase: Action{Units: 5, Expression: "{cpu_max} > 80", Wait: 30e9},
-		Decrease: Action{Units: 3, Expression: "{cpu_max} < 20", Wait: 30e9},
+		Increase: action.Action{Units: 5, Expression: "{cpu_max} > 80", Wait: 30e9},
+		Decrease: action.Action{Units: 3, Expression: "{cpu_max} < 20", Wait: 30e9},
 		Enabled:  true,
 		MaxUnits: 4,
 	}
@@ -267,8 +268,8 @@ func (s *S) TestAutoScaleDownWaitTime(c *check.C) {
 	defer ts.Close()
 	config := &Config{
 		Name:     "rush",
-		Increase: Action{Units: 5, Expression: "{cpu_max} > 80", Wait: 1 * time.Hour},
-		Decrease: Action{Units: 3, Expression: "{cpu_max} < 20", Wait: 3 * time.Hour},
+		Increase: action.Action{Units: 5, Expression: "{cpu_max} > 80", Wait: 1 * time.Hour},
+		Decrease: action.Action{Units: 3, Expression: "{cpu_max} < 20", Wait: 3 * time.Hour},
 		Enabled:  true,
 		MaxUnits: 4,
 	}
@@ -289,8 +290,8 @@ func (s *S) TestAutoScaleMinUnits(c *check.C) {
 	ts := httptest.NewServer(&h)
 	defer ts.Close()
 	config := &Config{
-		Increase: Action{Units: 1, Expression: "{cpu_max} > 80"},
-		Decrease: Action{Units: 3, Expression: "{cpu_max} < 20"},
+		Increase: action.Action{Units: 1, Expression: "{cpu_max} > 80"},
+		Decrease: action.Action{Units: 3, Expression: "{cpu_max} < 20"},
 		Enabled:  true,
 		MinUnits: uint(3),
 	}
@@ -310,8 +311,8 @@ func (s *S) TestAutoScaleMinUnits(c *check.C) {
 
 func (s *S) TestConfigMarshalJSON(c *check.C) {
 	conf := &Config{
-		Increase: Action{Units: 1, Expression: "{cpu} > 80"},
-		Decrease: Action{Units: 1, Expression: "{cpu} < 20"},
+		Increase: action.Action{Units: 1, Expression: "{cpu} > 80"},
+		Decrease: action.Action{Units: 1, Expression: "{cpu} < 20"},
 		Enabled:  true,
 		MaxUnits: 10,
 		MinUnits: 2,
@@ -345,8 +346,8 @@ func (s *S) TestAutoScaleDownMin(c *check.C) {
 	ts := httptest.NewServer(&h)
 	defer ts.Close()
 	config := &Config{
-		Increase: Action{Units: 1, Expression: "{cpu_max} > 80"},
-		Decrease: Action{Units: 1, Expression: "{cpu_max} < 20"},
+		Increase: action.Action{Units: 1, Expression: "{cpu_max} > 80"},
+		Decrease: action.Action{Units: 1, Expression: "{cpu_max} < 20"},
 		Enabled:  true,
 		MinUnits: 1,
 	}
@@ -363,7 +364,7 @@ func (s *S) TestAutoScaleUpMax(c *check.C) {
 	ts := httptest.NewServer(&h)
 	defer ts.Close()
 	config := &Config{
-		Increase: Action{Units: 1, Expression: "{cpu_max} > 80"},
+		Increase: action.Action{Units: 1, Expression: "{cpu_max} > 80"},
 		Enabled:  true,
 		MaxUnits: uint(2),
 	}

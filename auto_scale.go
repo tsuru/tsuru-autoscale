@@ -8,6 +8,7 @@ import (
 	"errors"
 	"time"
 
+	"github.com/tsuru/tsuru-autoscale/action"
 	"github.com/tsuru/tsuru/log"
 	"gopkg.in/mgo.v2"
 )
@@ -18,12 +19,12 @@ func StartAutoScale() {
 
 // Config represents the configuration for the auto scale.
 type Config struct {
-	Name     string `json:"name"`
-	Increase Action `json:"increase"`
-	Decrease Action `json:"decrease"`
-	MinUnits uint   `json:"minUnits"`
-	MaxUnits uint   `json:"maxUnits"`
-	Enabled  bool   `json:"enabled"`
+	Name     string        `json:"name"`
+	Increase action.Action `json:"increase"`
+	Decrease action.Action `json:"decrease"`
+	MinUnits uint          `json:"minUnits"`
+	MaxUnits uint          `json:"maxUnits"`
+	Enabled  bool          `json:"enabled"`
 }
 
 func runAutoScaleOnce() {
