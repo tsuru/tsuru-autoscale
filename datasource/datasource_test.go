@@ -62,11 +62,11 @@ func (s *S) TestHttpDataSourceFactory(c *check.C) {
 		conf map[string]interface{}
 		err  error
 	}{
-		{nil, errors.New("url required")},
+		{nil, errors.New("datasource: url required")},
 		{map[string]interface{}{"url": "", "method": "", "body": ""}, nil},
-		{map[string]interface{}{"url": "", "body": ""}, errors.New("method required")},
-		{map[string]interface{}{"url": "", "method": ""}, errors.New("body required")},
-		{map[string]interface{}{"method": "", "body": ""}, errors.New("url required")},
+		{map[string]interface{}{"url": "", "body": ""}, errors.New("datasource: method required")},
+		{map[string]interface{}{"url": "", "method": ""}, errors.New("datasource: body required")},
+		{map[string]interface{}{"method": "", "body": ""}, errors.New("datasource: url required")},
 	}
 	for _, tt := range dsConfigTests {
 		_, err := httpDataSourceFactory(tt.conf)

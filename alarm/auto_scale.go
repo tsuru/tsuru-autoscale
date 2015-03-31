@@ -46,7 +46,7 @@ func runAutoScale() {
 
 func scaleIfNeeded(config *Config) error {
 	if config == nil {
-		return errors.New("AutoScale is not configured.")
+		return errors.New("alarm: auto scale is not configured.")
 	}
 	/*
 		increaseMetric, _ := app.Metric(config.Increase.metric())

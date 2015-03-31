@@ -23,7 +23,7 @@ func NewAction(expression string, units uint, wait time.Duration) (*Action, erro
 	if expressionIsValid(expression) {
 		return &Action{Wait: wait, Expression: expression, Units: units}, nil
 	}
-	return nil, errors.New("Expression is not valid.")
+	return nil, errors.New("action: expression is not valid.")
 }
 
 var expressionRegex = regexp.MustCompile("{(.*)} ([><=]) ([0-9]+)")

@@ -46,15 +46,15 @@ type httpDataSource struct {
 func httpDataSourceFactory(conf map[string]interface{}) (dataSource, error) {
 	url, ok := conf["url"]
 	if !ok {
-		return nil, errors.New("url required")
+		return nil, errors.New("datasource: url required")
 	}
 	method, ok := conf["method"]
 	if !ok {
-		return nil, errors.New("method required")
+		return nil, errors.New("datasource: method required")
 	}
 	body, ok := conf["body"]
 	if !ok {
-		return nil, errors.New("body required")
+		return nil, errors.New("datasource: body required")
 	}
 	ds := httpDataSource{
 		url:    url.(string),
