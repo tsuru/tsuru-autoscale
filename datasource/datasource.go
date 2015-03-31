@@ -80,3 +80,12 @@ func (ds *httpDataSource) Get(v interface{}) error {
 	}
 	return json.Unmarshal(data, v)
 }
+
+// List returns a list of the available data source names.
+func List() []string {
+	var dataSourceNames []string
+	for name := range dataSources {
+		dataSourceNames = append(dataSourceNames, name)
+	}
+	return dataSourceNames
+}
