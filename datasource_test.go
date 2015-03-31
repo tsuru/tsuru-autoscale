@@ -5,6 +5,7 @@
 package main
 
 import (
+	"errors"
 	"net/http"
 	"net/http/httptest"
 
@@ -29,6 +30,12 @@ func (h *testHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte(content))
 }
 
+func (s *S) TestHttpDataSourceImplements(c *check.C) {
+	ds := httpDataSource{}
+	var expected dataSource
+	c.Assert(&ds, check.Implements, &expected)
+}
+
 func (s *S) TestHttpDataSourceGet(c *check.C) {
 	h := testHandler{}
 	ts := httptest.NewServer(&h)
@@ -41,4 +48,28 @@ func (s *S) TestHttpDataSourceGet(c *check.C) {
 	err := ds.Get(&data)
 	c.Assert(err, check.IsNil)
 	c.Assert(data.Name, check.Equals, "Paul")
+}
+
+func (s *S) TestHttpDataSourceFactory(c *check.C) {
+	dsConfigTests := []struct {
+		conf map[string]interface{}
+		err  error
+	}{
+		{nil, errors.New("url required")},
+		{map[string]interface{}{"url": "", "method": "", "body": ""}, nil},
+		{map[string]interface{}{"url": "", "body": ""}, errors.New("method required")},
+		{map[string]interface{}{"url": "", "method": ""}, errors.New("body required")},
+		{map[string]interface{}{"method": "", "body": ""}, errors.New("url required")},
+	}
+	for _, tt := range dsConfigTests {
+		_, err := httpDataSourceFactory(tt.conf)
+		c.Check(err, check.DeepEquals, tt.err)
+	}
+}
+
+func (s *S) TestHttpDataSourceFactoryRegistered(c *check.C) {
+	dsFactory, ok := dataSources["http"]
+	c.Assert(ok, check.Equals, true)
+	var expected dataSourceFactory
+	c.Assert(dsFactory, check.FitsTypeOf, expected)
 }

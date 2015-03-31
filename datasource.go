@@ -6,9 +6,14 @@ package main
 
 import (
 	"encoding/json"
+	"errors"
 	"io/ioutil"
 	"net/http"
 )
+
+func init() {
+	Register("http", httpDataSourceFactory)
+}
 
 // dataSource represents a data source.
 type dataSource interface {
@@ -36,6 +41,27 @@ type httpDataSource struct {
 	url    string
 	method string
 	body   string
+}
+
+func httpDataSourceFactory(conf map[string]interface{}) (dataSource, error) {
+	url, ok := conf["url"]
+	if !ok {
+		return nil, errors.New("url required")
+	}
+	method, ok := conf["method"]
+	if !ok {
+		return nil, errors.New("method required")
+	}
+	body, ok := conf["body"]
+	if !ok {
+		return nil, errors.New("body required")
+	}
+	ds := httpDataSource{
+		url:    url.(string),
+		method: method.(string),
+		body:   body.(string),
+	}
+	return &ds, nil
 }
 
 func (ds *httpDataSource) Get(v interface{}) error {
