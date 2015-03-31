@@ -25,7 +25,7 @@ func (s *S) TestRegister(c *check.C) {
 		return ds, nil
 	}
 	Register("graphite", dsFactory)
-	d, err := NewDataSource("graphite", nil)
+	d, err := New("graphite", nil)
 	c.Assert(err, check.IsNil)
 	c.Assert(d, check.DeepEquals, ds)
 }

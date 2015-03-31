@@ -32,8 +32,8 @@ func Register(name string, ds dataSourceFactory) {
 	dataSources[name] = ds
 }
 
-// NewDataSource creates a new data source instance.
-func NewDataSource(name string, conf map[string]interface{}) (dataSource, error) {
+// New creates a new data source instance.
+func New(name string, conf map[string]interface{}) (dataSource, error) {
 	return dataSources[name](conf)
 }
 
