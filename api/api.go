@@ -2,17 +2,12 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-package main
+package api
 
 import (
-	"log"
-	"net/http"
-
-	"github.com/tsuru/tsuru-autoscale/api"
+	"github.com/gorilla/mux"
 )
 
-func main() {
-	r := api.Router()
-	http.Handle("/", r)
-	log.Fatal(http.ListenAndServe(":8080", nil))
+func Router() *mux.Router {
+	return mux.NewRouter()
 }
