@@ -5,9 +5,25 @@
 package api
 
 import (
+	"encoding/json"
+	"net/http"
+
+	"github.com/codegangsta/negroni"
 	"github.com/gorilla/mux"
+	"github.com/tsuru/tsuru-autoscale/datasource"
 )
 
-func Router() *mux.Router {
-	return mux.NewRouter()
+func dataSourceType(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(datasource.List())
+}
+
+func Router() http.Handler {
+	m := mux.NewRouter()
+	m.HandleFunc("/datasource/type", dataSourceType)
+	n := negroni.New()
+	n.Use(negroni.NewRecovery())
+	n.Use(negroni.NewLogger())
+	n.UseHandler(m)
+	return n
 }
