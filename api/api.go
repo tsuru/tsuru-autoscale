@@ -21,6 +21,10 @@ func dataSourceType(w http.ResponseWriter, r *http.Request) {
 func Router() http.Handler {
 	m := mux.NewRouter()
 	m.HandleFunc("/datasource/type", dataSourceType)
+	m.HandleFunc("/resources", serviceAdd)
+	m.HandleFunc("/resources/{name}/bind", serviceBind).Methods("POST")
+	m.HandleFunc("/resources/{name}/bind", serviceUnbind).Methods("DELETE")
+	m.HandleFunc("/resources/{name}", serviceUnbind).Methods("DELETE")
 	n := negroni.New()
 	n.Use(negroni.NewRecovery())
 	n.Use(negroni.NewLogger())
