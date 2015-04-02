@@ -47,14 +47,20 @@ func Conn() (*Storage, error) {
 	return &strg, err
 }
 
-// Events returns the event collection from MongoDB.
+// Events returns the events collection from MongoDB.
 func (s *Storage) Events() *storage.Collection {
 	c := s.Collection("events")
 	return c
 }
 
-// Configs returns the config collection from MongoDB.
+// Configs returns the configs collection from MongoDB.
 func (s *Storage) Configs() *storage.Collection {
 	c := s.Collection("configs")
+	return c
+}
+
+// Services returns the services collection from MongoDB.
+func (s *Storage) Services() *storage.Collection {
+	c := s.Collection("services")
 	return c
 }

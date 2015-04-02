@@ -31,3 +31,11 @@ func (s *S) TestConfigs(c *check.C) {
 	configc := strg.Collection("configs")
 	c.Assert(config, check.DeepEquals, configc)
 }
+
+func (s *S) TestServices(c *check.C) {
+	strg, err := Conn()
+	c.Assert(err, check.IsNil)
+	service := strg.Services()
+	servicec := strg.Collection("services")
+	c.Assert(service, check.DeepEquals, servicec)
+}
