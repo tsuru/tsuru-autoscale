@@ -32,10 +32,10 @@ func (s *S) TestConfigs(c *check.C) {
 	c.Assert(config, check.DeepEquals, configc)
 }
 
-func (s *S) TestServices(c *check.C) {
+func (s *S) TestInstances(c *check.C) {
 	strg, err := Conn()
 	c.Assert(err, check.IsNil)
-	service := strg.Services()
-	servicec := strg.Collection("services")
-	c.Assert(service, check.DeepEquals, servicec)
+	instance := strg.Instances()
+	instancec := strg.Collection("instances")
+	c.Assert(instance, check.DeepEquals, instancec)
 }

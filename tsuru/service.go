@@ -9,22 +9,22 @@ import (
 	"gopkg.in/mgo.v2/bson"
 )
 
-type service struct {
+type instance struct {
 	ID     bson.ObjectId `bson:"_id"`
 	Name   string
-	Params map[string]string
+	Metadata map[string]string
 }
 
-func serviceAdd(name string, params map[string]string) (*service, error) {
-	srv := &service{
+func NewInstance(name string, metadata map[string]string) (*instance, error) {
+	i := &instance{
 		ID:     bson.NewObjectId(),
 		Name:   name,
-		Params: params,
+		Metadata: metadata,
 	}
 	conn, err := db.Conn()
 	if err != nil {
 		return nil, err
 	}
 	defer conn.Close()
-	return srv, conn.Services().Insert(srv)
+	return i, conn.Instances().Insert(i)
 }

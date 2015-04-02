@@ -59,8 +59,8 @@ func (s *Storage) Configs() *storage.Collection {
 	return c
 }
 
-// Services returns the services collection from MongoDB.
-func (s *Storage) Services() *storage.Collection {
-	c := s.Collection("services")
+// Instances returns the instances collection from MongoDB.
+func (s *Storage) Instances() *storage.Collection {
+	c := s.Collection("instances")
 	return c
 }

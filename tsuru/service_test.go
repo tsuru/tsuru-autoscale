@@ -16,13 +16,13 @@ type S struct{}
 
 var _ = check.Suite(&S{})
 
-func (s *S) TestServiceAdd(c *check.C) {
+func (s *S) TestInstanceAdd(c *check.C) {
 	name := "name"
-	params := map[string]string{
+	metadata := map[string]string{
 		"key": "value",
 	}
-	srv, err := serviceAdd(name, params)
+	i, err := NewInstance(name, metadata)
 	c.Assert(err, check.IsNil)
-	c.Assert(srv.Name, check.Equals, name)
-	c.Assert(srv.Params, check.DeepEquals, params)
+	c.Assert(i.Name, check.Equals, name)
+	c.Assert(i.Params, check.DeepEquals, metadata)
 }
