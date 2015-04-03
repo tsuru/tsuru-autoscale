@@ -24,5 +24,5 @@ func (s *S) TestInstanceAdd(c *check.C) {
 	i, err := NewInstance(name, metadata)
 	c.Assert(err, check.IsNil)
 	c.Assert(i.Name, check.Equals, name)
-	c.Assert(i.Params, check.DeepEquals, metadata)
+	c.Assert(i.Metadata, check.DeepEquals, metadata)
 }
