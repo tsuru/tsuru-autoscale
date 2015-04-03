@@ -11,6 +11,7 @@ import (
 	"net/http"
 
 	"github.com/tsuru/tsuru-autoscale/db"
+	"gopkg.in/mgo.v2/bson"
 )
 
 func init() {
@@ -55,6 +56,20 @@ func New(name string, metadata map[string]string) (dataSource, error) {
 		return nil, err
 	}
 	return dataSources[name](metadata)
+}
+
+func Get(name string) (*Instance, error) {
+	conn, err := db.Conn()
+	if err != nil {
+		return nil, err
+	}
+	defer conn.Close()
+	var i Instance
+	err = conn.Instances().Find(bson.M{"name": name}).One(&i)
+	if err != nil {
+		return nil, err
+	}
+	return &i, nil
 }
 
 type httpDataSource struct {

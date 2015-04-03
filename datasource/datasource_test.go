@@ -10,12 +10,21 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"github.com/tsuru/tsuru-autoscale/db"
 	"gopkg.in/check.v1"
 )
 
 func Test(t *testing.T) { check.TestingT(t) }
 
-type S struct{}
+type S struct {
+	conn *db.Storage
+}
+
+func (s *S) SetUpSuite(c *check.C) {
+	var err error
+	s.conn, err = db.Conn()
+	c.Assert(err, check.IsNil)
+}
 
 var _ = check.Suite(&S{})
 
@@ -88,4 +97,16 @@ func (s *S) TestList(c *check.C) {
 	}
 	ds := List()
 	c.Assert(ds, check.DeepEquals, expected)
+}
+
+func (s *S) TestGet(c *check.C) {
+	i := Instance{
+		Name:     "xpto",
+		Metadata: map[string]string{},
+	}
+	s.conn.Instances().Insert(&i)
+	instance, err := Get(i.Name)
+	c.Assert(err, check.IsNil)
+	c.Assert(instance, check.DeepEquals, &i)
+
 }
