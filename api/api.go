@@ -15,7 +15,7 @@ import (
 
 func dataSourceType(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(datasource.List())
+	json.NewEncoder(w).Encode(datasource.Types())
 }
 
 func Router() http.Handler {

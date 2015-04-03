@@ -90,12 +90,12 @@ func (s *S) TestHttpDataSourceFactoryRegistered(c *check.C) {
 	c.Assert(dsFactory, check.FitsTypeOf, expected)
 }
 
-func (s *S) TestList(c *check.C) {
+func (s *S) TestTypes(c *check.C) {
 	var expected []string
 	for name := range dataSources {
 		expected = append(expected, name)
 	}
-	ds := List()
+	ds := Types()
 	c.Assert(ds, check.DeepEquals, expected)
 }
 
