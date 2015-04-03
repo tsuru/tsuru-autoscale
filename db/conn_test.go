@@ -39,3 +39,11 @@ func (s *S) TestInstances(c *check.C) {
 	instancec := strg.Collection("instances")
 	c.Assert(instance, check.DeepEquals, instancec)
 }
+
+func (s *S) TestDataSources(c *check.C) {
+	strg, err := Conn()
+	c.Assert(err, check.IsNil)
+	datasource := strg.DataSources()
+	datasourcec := strg.Collection("datasources")
+	c.Assert(datasource, check.DeepEquals, datasourcec)
+}
