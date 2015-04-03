@@ -21,7 +21,7 @@ var _ = check.Suite(&S{})
 
 func (s *S) TestRegister(c *check.C) {
 	var ds dataSource
-	dsFactory := func(conf map[string]interface{}) (dataSource, error) {
+	dsFactory := func(metadata map[string]string) (dataSource, error) {
 		return ds, nil
 	}
 	Register("graphite", dsFactory)
@@ -59,14 +59,14 @@ func (s *S) TestHttpDataSourceGet(c *check.C) {
 
 func (s *S) TestHttpDataSourceFactory(c *check.C) {
 	dsConfigTests := []struct {
-		conf map[string]interface{}
+		conf map[string]string
 		err  error
 	}{
 		{nil, errors.New("datasource: url required")},
-		{map[string]interface{}{"url": "", "method": "", "body": ""}, nil},
-		{map[string]interface{}{"url": "", "body": ""}, errors.New("datasource: method required")},
-		{map[string]interface{}{"url": "", "method": ""}, errors.New("datasource: body required")},
-		{map[string]interface{}{"method": "", "body": ""}, errors.New("datasource: url required")},
+		{map[string]string{"url": "", "method": "", "body": ""}, nil},
+		{map[string]string{"url": "", "body": ""}, errors.New("datasource: method required")},
+		{map[string]string{"url": "", "method": ""}, errors.New("datasource: body required")},
+		{map[string]string{"method": "", "body": ""}, errors.New("datasource: url required")},
 	}
 	for _, tt := range dsConfigTests {
 		_, err := httpDataSourceFactory(tt.conf)

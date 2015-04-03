@@ -9,6 +9,8 @@ import (
 	"errors"
 	"io/ioutil"
 	"net/http"
+
+	"github.com/tsuru/tsuru-autoscale/db"
 )
 
 func init() {
@@ -23,7 +25,7 @@ type dataSource interface {
 	Get(v interface{}) error
 }
 
-type dataSourceFactory func(conf map[string]interface{}) (dataSource, error)
+type dataSourceFactory func(metadata map[string]string) (dataSource, error)
 
 var dataSources = make(map[string]dataSourceFactory)
 
@@ -32,9 +34,27 @@ func Register(name string, ds dataSourceFactory) {
 	dataSources[name] = ds
 }
 
+type Instance struct {
+	Name     string
+	Metadata map[string]string
+}
+
 // New creates a new data source instance.
-func New(name string, conf map[string]interface{}) (dataSource, error) {
-	return dataSources[name](conf)
+func New(name string, metadata map[string]string) (dataSource, error) {
+	instance := Instance{
+		Name:     name,
+		Metadata: metadata,
+	}
+	conn, err := db.Conn()
+	if err != nil {
+		return nil, err
+	}
+	defer conn.Close()
+	err = conn.DataSources().Insert(&instance)
+	if err != nil {
+		return nil, err
+	}
+	return dataSources[name](metadata)
 }
 
 type httpDataSource struct {
@@ -43,23 +63,23 @@ type httpDataSource struct {
 	body   string
 }
 
-func httpDataSourceFactory(conf map[string]interface{}) (dataSource, error) {
-	url, ok := conf["url"]
+func httpDataSourceFactory(metadata map[string]string) (dataSource, error) {
+	url, ok := metadata["url"]
 	if !ok {
 		return nil, errors.New("datasource: url required")
 	}
-	method, ok := conf["method"]
+	method, ok := metadata["method"]
 	if !ok {
 		return nil, errors.New("datasource: method required")
 	}
-	body, ok := conf["body"]
+	body, ok := metadata["body"]
 	if !ok {
 		return nil, errors.New("datasource: body required")
 	}
 	ds := httpDataSource{
-		url:    url.(string),
-		method: method.(string),
-		body:   body.(string),
+		url:    url,
+		method: method,
+		body:   body,
 	}
 	return &ds, nil
 }
