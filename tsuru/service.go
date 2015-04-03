@@ -10,15 +10,16 @@ import (
 )
 
 type instance struct {
-	ID     bson.ObjectId `bson:"_id"`
-	Name   string
+	ID       bson.ObjectId `bson:"_id"`
+	Name     string
 	Metadata map[string]string
+	Apps     []string
 }
 
 func NewInstance(name string, metadata map[string]string) (*instance, error) {
 	i := &instance{
-		ID:     bson.NewObjectId(),
-		Name:   name,
+		ID:       bson.NewObjectId(),
+		Name:     name,
 		Metadata: metadata,
 	}
 	conn, err := db.Conn()
