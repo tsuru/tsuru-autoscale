@@ -17,20 +17,19 @@ func StartAutoScale() {
 	go runAutoScale()
 }
 
-// Config represents the configuration for the auto scale.
-type Config struct {
-	Name     string        `json:"name"`
-	Increase action.Action `json:"increase"`
-	Decrease action.Action `json:"decrease"`
-	MinUnits uint          `json:"minUnits"`
-	MaxUnits uint          `json:"maxUnits"`
-	Enabled  bool          `json:"enabled"`
+// Alarm represents the configuration for the auto scale.
+type Alarm struct {
+	Name       string        `json:"name"`
+	Action     action.Action `json:"action"`
+	Expression string        `json:"expression"`
+	Enabled    bool          `json:"enabled"`
+	Wait       time.Duration `json:"wait"`
 }
 
 func runAutoScaleOnce() {
-	configs := []Config{}
-	for _, config := range configs {
-		err := scaleIfNeeded(&config)
+	alarms := []Alarm{}
+	for _, alarm := range alarms {
+		err := scaleIfNeeded(&alarm)
 		if err != nil {
 			log.Error(err.Error())
 		}
@@ -44,9 +43,9 @@ func runAutoScale() {
 	}
 }
 
-func scaleIfNeeded(config *Config) error {
-	if config == nil {
-		return errors.New("alarm: auto scale is not configured.")
+func scaleIfNeeded(alarm *Alarm) error {
+	if alarm == nil {
+		return errors.New("alarm: alarm is not configured.")
 	}
 	/*
 		increaseMetric, _ := app.Metric(config.Increase.metric())
@@ -68,7 +67,7 @@ func scaleIfNeeded(config *Config) error {
 			evt, err := NewEvent(app, "increase")
 			if err != nil {
 				return fmt.Errorf("Error trying to insert auto scale event, auto scale aborted: %s", err.Error())
-		 	}
+			}
 			inc := config.Increase.Units
 			if currentUnits+inc > config.MaxUnits {
 				inc = config.MaxUnits - currentUnits
@@ -115,9 +114,9 @@ func scaleIfNeeded(config *Config) error {
 	return nil
 }
 
-func shouldWait(config *Config, waitPeriod time.Duration) (bool, error) {
+func shouldWait(alarm *Alarm, waitPeriod time.Duration) (bool, error) {
 	now := time.Now().UTC()
-	lastEvent, err := lastScaleEvent(config)
+	lastEvent, err := lastScaleEvent(alarm)
 	if err != nil && err != mgo.ErrNotFound {
 		return false, err
 	}
@@ -131,12 +130,12 @@ func shouldWait(config *Config, waitPeriod time.Duration) (bool, error) {
 	return true, nil
 }
 
-func AutoScaleEnable(config *Config) error {
-	config.Enabled = true
+func AutoScaleEnable(alarm *Alarm) error {
+	alarm.Enabled = true
 	return nil
 }
 
-func AutoScaleDisable(config *Config) error {
-	config.Enabled = false
+func AutoScaleDisable(alarm *Alarm) error {
+	alarm.Enabled = false
 	return nil
 }

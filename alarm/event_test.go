@@ -12,44 +12,44 @@ import (
 )
 
 func (s *S) TestLastScaleEvent(c *check.C) {
-	config := &Config{Name: "newconfig"}
-	event1, err := NewEvent(config, "increase")
+	alarm := &Alarm{Name: "newconfig"}
+	event1, err := NewEvent(alarm, "increase")
 	c.Assert(err, check.IsNil)
 	event1.StartTime = event1.StartTime.Add(-1 * time.Hour)
 	err = event1.update(nil)
 	c.Assert(err, check.IsNil)
-	event2, err := NewEvent(config, "increase")
+	event2, err := NewEvent(alarm, "increase")
 	c.Assert(err, check.IsNil)
-	event, err := lastScaleEvent(config)
+	event, err := lastScaleEvent(alarm)
 	c.Assert(err, check.IsNil)
 	c.Assert(event.ID, check.DeepEquals, event2.ID)
 }
 
 func (s *S) TestLastScaleEventNotFound(c *check.C) {
-	config := &Config{Name: "not found"}
-	_, err := lastScaleEvent(config)
+	alarm := &Alarm{Name: "not found"}
+	_, err := lastScaleEvent(alarm)
 	c.Assert(err, check.Equals, mgo.ErrNotFound)
 }
 
-func (s *S) TestEventsByConfigNameWithoutName(c *check.C) {
-	config := Config{Name: "config"}
-	_, err := NewEvent(&config, "increase")
+func (s *S) TestEventsByAlarmNameWithoutName(c *check.C) {
+	alarm := Alarm{Name: "config"}
+	_, err := NewEvent(&alarm, "increase")
 	c.Assert(err, check.IsNil)
-	events, err := eventsByConfigName(nil)
+	events, err := eventsByAlarmName(nil)
 	c.Assert(err, check.IsNil)
 	c.Assert(events, check.HasLen, 1)
 	c.Assert(events[0].Type, check.Equals, "increase")
 	c.Assert(events[0].StartTime, check.Not(check.DeepEquals), time.Time{})
 }
 
-func (s *S) TestEventsByConfigName(c *check.C) {
-	config := Config{Name: "config"}
-	_, err := NewEvent(&config, "increase")
+func (s *S) TestEventsByAlarmName(c *check.C) {
+	alarm := Alarm{Name: "config"}
+	_, err := NewEvent(&alarm, "increase")
 	c.Assert(err, check.IsNil)
-	config = Config{Name: "another"}
-	_, err = NewEvent(&config, "increase")
+	alarm = Alarm{Name: "another"}
+	_, err = NewEvent(&alarm, "increase")
 	c.Assert(err, check.IsNil)
-	events, err := eventsByConfigName(&config)
+	events, err := eventsByAlarmName(&alarm)
 	c.Assert(err, check.IsNil)
 	c.Assert(events, check.HasLen, 1)
 	c.Assert(events[0].Type, check.Equals, "increase")

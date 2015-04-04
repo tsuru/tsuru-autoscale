@@ -17,17 +17,17 @@ type Event struct {
 	ID         bson.ObjectId `bson:"_id"`
 	StartTime  time.Time
 	EndTime    time.Time `bson:",omitempty"`
-	Config     *Config
+	Alarm      *Alarm
 	Type       string
 	Successful bool
 	Error      string `bson:",omitempty"`
 }
 
-func NewEvent(config *Config, scaleType string) (*Event, error) {
+func NewEvent(alarm *Alarm, scaleType string) (*Event, error) {
 	evt := Event{
 		ID:        bson.NewObjectId(),
 		StartTime: time.Now().UTC(),
-		Config:    config,
+		Alarm:     alarm,
 		Type:      scaleType,
 	}
 	conn, err := db.Conn()
@@ -52,18 +52,18 @@ func (evt *Event) update(err error) error {
 	return conn.Events().UpdateId(evt.ID, evt)
 }
 
-func lastScaleEvent(config *Config) (Event, error) {
+func lastScaleEvent(alarm *Alarm) (Event, error) {
 	var event Event
 	conn, err := db.Conn()
 	if err != nil {
 		return event, err
 	}
 	defer conn.Close()
-	err = conn.Events().Find(bson.M{"config.name": config.Name}).Sort("-starttime").One(&event)
+	err = conn.Events().Find(bson.M{"alarm.name": alarm.Name}).Sort("-starttime").One(&event)
 	return event, err
 }
 
-func eventsByConfigName(config *Config) ([]Event, error) {
+func eventsByAlarmName(alarm *Alarm) ([]Event, error) {
 	conn, err := db.Conn()
 	if err != nil {
 		return nil, err
@@ -71,8 +71,8 @@ func eventsByConfigName(config *Config) ([]Event, error) {
 	defer conn.Close()
 	var events []Event
 	q := bson.M{}
-	if config != nil {
-		q["config.name"] = config.Name
+	if alarm != nil {
+		q["alarm.name"] = alarm.Name
 	}
 	err = conn.Events().Find(q).Sort("-_id").Limit(200).All(&events)
 	if err != nil {
