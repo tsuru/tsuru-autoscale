@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/tsuru/tsuru-autoscale/action"
+	"github.com/tsuru/tsuru-autoscale/datasource"
 	"github.com/tsuru/tsuru/log"
 	"gopkg.in/mgo.v2"
 )
@@ -20,10 +21,11 @@ func StartAutoScale() {
 // Alarm represents the configuration for the auto scale.
 type Alarm struct {
 	Name       string        `json:"name"`
-	Action     action.Action `json:"action"`
+	Actions    []action.Action `json:"actions"`
 	Expression string        `json:"expression"`
 	Enabled    bool          `json:"enabled"`
 	Wait       time.Duration `json:"wait"`
+	DataSource datasource.Instance `json:"datasource"`
 }
 
 func runAutoScaleOnce() {

@@ -5,7 +5,6 @@
 package alarm
 
 import (
-	"encoding/json"
 	"fmt"
 	"net/http"
 	"net/http/httptest"
@@ -52,7 +51,7 @@ func (s *S) TestAlarm(c *check.C) {
 	ts := httptest.NewServer(&h)
 	defer ts.Close()
 	alarm := &Alarm{
-		Action:  action.Action{Units: 1, Expression: "{cpu} > 80"},
+		Actions:  []action.Action{{Units: 1, Expression: "{cpu} > 80"}},
 		Enabled: true,
 	}
 	err := scaleIfNeeded(alarm)
@@ -88,14 +87,14 @@ func (s *S) TestRunAutoScaleOnce(c *check.C) {
 	ts := httptest.NewServer(&h)
 	defer ts.Close()
 	up := &Alarm{
-		Action:  action.Action{Units: 1, Expression: "{cpu_max} > 80"},
+		Actions:  []action.Action{{Units: 1, Expression: "{cpu_max} > 80"}},
 		Enabled: true,
 	}
 	dh := metricHandler{cpuMax: "9.2"}
 	dts := httptest.NewServer(&dh)
 	defer dts.Close()
 	down := &Alarm{
-		Action:  action.Action{Units: 1, Expression: "{cpu_max} > 80"},
+		Actions:  []action.Action{{Units: 1, Expression: "{cpu_max} > 80"}},
 		Enabled: true,
 	}
 	runAutoScaleOnce()
@@ -137,7 +136,7 @@ func (s *S) TestAlarmWaitEventStillRunning(c *check.C) {
 	defer ts.Close()
 	alarm := &Alarm{
 		Name:    "rush",
-		Action:  action.Action{Units: 5, Expression: "{cpu_max} > 80", Wait: 30e9},
+		Actions:  []action.Action{{Units: 5, Expression: "{cpu_max} > 80", Wait: 30e9}},
 		Enabled: true,
 	}
 	event, err := NewEvent(alarm, "decrease")
@@ -156,7 +155,7 @@ func (s *S) TestAlarmWaitTime(c *check.C) {
 	defer ts.Close()
 	alarm := &Alarm{
 		Name:    "rush",
-		Action:  action.Action{Units: 5, Expression: "{cpu_max} > 80", Wait: 1 * time.Hour},
+		Actions:  []action.Action{{Units: 5, Expression: "{cpu_max} > 80", Wait: 1 * time.Hour}},
 		Enabled: true,
 	}
 	event, err := NewEvent(alarm, "increase")
@@ -169,28 +168,4 @@ func (s *S) TestAlarmWaitTime(c *check.C) {
 	c.Assert(err, check.IsNil)
 	c.Assert(events, check.HasLen, 1)
 	c.Assert(events[0].ID, check.DeepEquals, event.ID)
-}
-
-func (s *S) TestAlarmMarshalJSON(c *check.C) {
-	conf := &Alarm{
-		Action:  action.Action{Units: 1, Expression: "{cpu} > 80"},
-		Enabled: true,
-	}
-	expected := map[string]interface{}{
-		"name":       "",
-		"expression": "",
-		"wait":       float64(0),
-		"action": map[string]interface{}{
-			"wait":       float64(0),
-			"expression": "{cpu} > 80",
-			"units":      float64(1),
-		},
-		"enabled": true,
-	}
-	data, err := json.Marshal(conf)
-	c.Assert(err, check.IsNil)
-	result := make(map[string]interface{})
-	err = json.Unmarshal(data, &result)
-	c.Assert(err, check.IsNil)
-	c.Assert(result, check.DeepEquals, expected)
 }
