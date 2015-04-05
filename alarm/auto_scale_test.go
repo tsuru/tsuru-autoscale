@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/http/httptest"
+	"net/url"
 	"strings"
 	"testing"
 	"time"
@@ -50,11 +51,13 @@ func (s *S) TestAlarm(c *check.C) {
 	h := metricHandler{cpuMax: "50.2"}
 	ts := httptest.NewServer(&h)
 	defer ts.Close()
+	url, err := url.Parse("http://tsuru.io")
+	c.Assert(err, check.IsNil)
 	alarm := &Alarm{
-		Actions:  []action.Action{{Units: 1, Expression: "{cpu} > 80"}},
+		Actions: []action.Action{{"action", url}},
 		Enabled: true,
 	}
-	err := scaleIfNeeded(alarm)
+	err = scaleIfNeeded(alarm)
 	c.Assert(err, check.IsNil)
 	var events []Event
 	err = s.conn.Events().Find(nil).All(&events)
@@ -86,20 +89,22 @@ func (s *S) TestRunAutoScaleOnce(c *check.C) {
 	}
 	ts := httptest.NewServer(&h)
 	defer ts.Close()
+	url, err := url.Parse("http://tsuru.io")
+	c.Assert(err, check.IsNil)
 	up := &Alarm{
-		Actions:  []action.Action{{Units: 1, Expression: "{cpu_max} > 80"}},
+		Actions: []action.Action{{"name", url}},
 		Enabled: true,
 	}
 	dh := metricHandler{cpuMax: "9.2"}
 	dts := httptest.NewServer(&dh)
 	defer dts.Close()
 	down := &Alarm{
-		Actions:  []action.Action{{Units: 1, Expression: "{cpu_max} > 80"}},
+		Actions: []action.Action{{"name", url}},
 		Enabled: true,
 	}
 	runAutoScaleOnce()
 	var events []Event
-	err := s.conn.Events().Find(nil).All(&events)
+	err = s.conn.Events().Find(nil).All(&events)
 	c.Assert(err, check.IsNil)
 	c.Assert(events, check.HasLen, 2)
 	c.Assert(events[0].Type, check.Equals, "increase")
@@ -134,9 +139,10 @@ func (s *S) TestAlarmWaitEventStillRunning(c *check.C) {
 	h := metricHandler{cpuMax: "10.2"}
 	ts := httptest.NewServer(&h)
 	defer ts.Close()
+	url, err := url.Parse("http://tsuru.io")
 	alarm := &Alarm{
 		Name:    "rush",
-		Actions:  []action.Action{{Units: 5, Expression: "{cpu_max} > 80", Wait: 30e9}},
+		Actions: []action.Action{{"name", url}},
 		Enabled: true,
 	}
 	event, err := NewEvent(alarm, "decrease")
@@ -153,9 +159,11 @@ func (s *S) TestAlarmWaitTime(c *check.C) {
 	h := metricHandler{cpuMax: "10.2"}
 	ts := httptest.NewServer(&h)
 	defer ts.Close()
+	url, err := url.Parse("http://tsuru.io")
+	c.Assert(err, check.IsNil)
 	alarm := &Alarm{
 		Name:    "rush",
-		Actions:  []action.Action{{Units: 5, Expression: "{cpu_max} > 80", Wait: 1 * time.Hour}},
+		Actions: []action.Action{{"name", url}},
 		Enabled: true,
 	}
 	event, err := NewEvent(alarm, "increase")

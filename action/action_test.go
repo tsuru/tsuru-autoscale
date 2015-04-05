@@ -5,8 +5,8 @@
 package action
 
 import (
+	"net/url"
 	"testing"
-	"time"
 
 	"gopkg.in/check.v1"
 )
@@ -14,55 +14,14 @@ import (
 func Test(t *testing.T) { check.TestingT(t) }
 
 type S struct{}
+
 var _ = check.Suite(&S{})
 
-func (s *S) TestActionMetric(c *check.C) {
-	a := &Action{Expression: "{cpu} > 80"}
-	c.Assert(a.metric(), check.Equals, "cpu")
-}
-
-func (s *S) TestActionOperator(c *check.C) {
-	a := &Action{Expression: "{cpu} > 80"}
-	c.Assert(a.operator(), check.Equals, ">")
-}
-
-func (s *S) TestActionValue(c *check.C) {
-	a := &Action{Expression: "{cpu} > 80"}
-	value, err := a.value()
+func (s *S) TestNew(c *check.C) {
+	url, err := url.Parse("http://tsuru.io")
 	c.Assert(err, check.IsNil)
-	c.Assert(value, check.Equals, float64(80))
-}
-
-func (s *S) TestValidateExpression(c *check.C) {
-	cases := map[string]bool{
-		"{cpu} > 10": true,
-		"{cpu} = 10": true,
-		"{cpu} < 10": true,
-		"cpu < 10":   false,
-		"{cpu} 10":   false,
-		"{cpu} <":    false,
-		"{cpu}":      false,
-		"<":          false,
-		"100":        false,
-	}
-	for expression, expected := range cases {
-		c.Assert(expressionIsValid(expression), check.Equals, expected)
-	}
-}
-
-func (s *S) TestNewAction(c *check.C) {
-	expression := "{cpu} > 10"
-	units := uint(2)
-	wait := time.Second
-	a, err := NewAction(expression, units, wait)
+	a, err := New("action", url)
 	c.Assert(err, check.IsNil)
-	c.Assert(a.Expression, check.Equals, expression)
-	c.Assert(a.Units, check.Equals, units)
-	c.Assert(a.Wait, check.Equals, wait)
-	expression = "{cpu} >"
-	units = uint(2)
-	wait = time.Second
-	a, err = NewAction(expression, units, wait)
-	c.Assert(err, check.NotNil)
-	c.Assert(a, check.IsNil)
+	c.Assert(a.Name, check.Equals, "action")
+	c.Assert(a.URL, check.Equals, url)
 }

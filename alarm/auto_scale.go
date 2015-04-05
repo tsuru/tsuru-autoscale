@@ -20,11 +20,11 @@ func StartAutoScale() {
 
 // Alarm represents the configuration for the auto scale.
 type Alarm struct {
-	Name       string        `json:"name"`
-	Actions    []action.Action `json:"actions"`
-	Expression string        `json:"expression"`
-	Enabled    bool          `json:"enabled"`
-	Wait       time.Duration `json:"wait"`
+	Name       string              `json:"name"`
+	Actions    []action.Action     `json:"actions"`
+	Expression string              `json:"expression"`
+	Enabled    bool                `json:"enabled"`
+	Wait       time.Duration       `json:"wait"`
 	DataSource datasource.Instance `json:"datasource"`
 }
 
