@@ -9,7 +9,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/tsuru/config"
 	"github.com/tsuru/tsuru-autoscale/action"
 	"github.com/tsuru/tsuru-autoscale/db"
 	"gopkg.in/check.v1"
@@ -22,8 +21,7 @@ type S struct {
 }
 
 func (s *S) SetUpSuite(c *check.C) {
-	err := config.ReadConfigFile("testdata/config.yaml")
-	c.Assert(err, check.IsNil)
+	var err error
 	s.conn, err = db.Conn()
 	c.Assert(err, check.IsNil)
 }
