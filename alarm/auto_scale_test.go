@@ -5,11 +5,7 @@
 package alarm
 
 import (
-	"fmt"
-	"net/http"
-	"net/http/httptest"
 	"net/url"
-	"strings"
 	"testing"
 	"time"
 
@@ -38,19 +34,7 @@ func (s *S) TearDownTest(c *check.C) {
 
 var _ = check.Suite(&S{})
 
-type metricHandler struct {
-	cpuMax string
-}
-
-func (h *metricHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	content := fmt.Sprintf(`[{"target": "sometarget", "datapoints": [[2.2, 1415129040], [2.2, 1415129050], [2.2, 1415129060], [2.2, 1415129070], [%s, 1415129080]]}]`, h.cpuMax)
-	w.Write([]byte(content))
-}
-
 func (s *S) TestAlarm(c *check.C) {
-	h := metricHandler{cpuMax: "50.2"}
-	ts := httptest.NewServer(&h)
-	defer ts.Close()
 	url, err := url.Parse("http://tsuru.io")
 	c.Assert(err, check.IsNil)
 	alarm := &Alarm{
@@ -65,39 +49,13 @@ func (s *S) TestAlarm(c *check.C) {
 	c.Assert(events, check.HasLen, 0)
 }
 
-type autoscaleHandler struct {
-	matches map[string]string
-}
-
-func (h *autoscaleHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	var cpu string
-	for key, value := range h.matches {
-		if strings.Contains(r.URL.String(), key) {
-			cpu = value
-		}
-	}
-	content := fmt.Sprintf(`[{"target": "sometarget", "datapoints": [[2.2, 1415129040], [2.2, 1415129050], [2.2, 1415129060], [2.2, 1415129070], [%s, 1415129080]]}]`, cpu)
-	w.Write([]byte(content))
-}
-
 func (s *S) TestRunAutoScaleOnce(c *check.C) {
-	h := autoscaleHandler{
-		matches: map[string]string{
-			"myApp":      "90.2",
-			"anotherApp": "9.2",
-		},
-	}
-	ts := httptest.NewServer(&h)
-	defer ts.Close()
 	url, err := url.Parse("http://tsuru.io")
 	c.Assert(err, check.IsNil)
 	up := &Alarm{
 		Actions: []action.Action{{"name", url}},
 		Enabled: true,
 	}
-	dh := metricHandler{cpuMax: "9.2"}
-	dts := httptest.NewServer(&dh)
-	defer dts.Close()
 	down := &Alarm{
 		Actions: []action.Action{{"name", url}},
 		Enabled: true,
@@ -136,9 +94,6 @@ func (s *S) TestAutoScaleDisable(c *check.C) {
 }
 
 func (s *S) TestAlarmWaitEventStillRunning(c *check.C) {
-	h := metricHandler{cpuMax: "10.2"}
-	ts := httptest.NewServer(&h)
-	defer ts.Close()
 	url, err := url.Parse("http://tsuru.io")
 	alarm := &Alarm{
 		Name:    "rush",
@@ -156,9 +111,6 @@ func (s *S) TestAlarmWaitEventStillRunning(c *check.C) {
 }
 
 func (s *S) TestAlarmWaitTime(c *check.C) {
-	h := metricHandler{cpuMax: "10.2"}
-	ts := httptest.NewServer(&h)
-	defer ts.Close()
 	url, err := url.Parse("http://tsuru.io")
 	c.Assert(err, check.IsNil)
 	alarm := &Alarm{
