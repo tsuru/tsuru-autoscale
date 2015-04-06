@@ -147,10 +147,19 @@ func (s *S) TestAlarmCheck(c *check.C) {
 	alarm := &Alarm{
 		Name:       "rush",
 		Enabled:    true,
-		Expression: `data.id ==  "ble"`,
+		Expression: `data.id == "ble"`,
 		DataSource: instance,
 	}
 	ok, err := alarm.Check()
 	c.Assert(err, check.IsNil)
 	c.Assert(ok, check.Equals, true)
+	alarm = &Alarm{
+		Name:       "rush",
+		Enabled:    true,
+		Expression: `data.id != "ble"`,
+		DataSource: instance,
+	}
+	ok, err = alarm.Check()
+	c.Assert(err, check.IsNil)
+	c.Assert(ok, check.Equals, false)
 }
