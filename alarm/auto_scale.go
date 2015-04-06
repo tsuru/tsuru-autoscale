@@ -6,8 +6,10 @@ package alarm
 
 import (
 	"errors"
+	"fmt"
 	"time"
 
+	"github.com/robertkrimen/otto"
 	"github.com/tsuru/tsuru-autoscale/action"
 	"github.com/tsuru/tsuru-autoscale/datasource"
 	"github.com/tsuru/tsuru/log"
@@ -140,4 +142,23 @@ func AutoScaleEnable(alarm *Alarm) error {
 func AutoScaleDisable(alarm *Alarm) error {
 	alarm.Enabled = false
 	return nil
+}
+
+func (a *Alarm) Check() (bool, error) {
+	data, err := a.DataSource.Get()
+	if err != nil {
+		return false, err
+	}
+	vm := otto.New()
+	vm.Run(fmt.Sprintf("var data=%s;", data))
+	vm.Run(fmt.Sprintf("var expression=%s", a.Expression))
+	expression, err := vm.Get("expression")
+	if err != nil {
+		return false, err
+	}
+	check, err := expression.ToBoolean()
+	if err != nil {
+		return false, err
+	}
+	return check, nil
 }

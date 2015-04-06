@@ -5,11 +5,14 @@
 package alarm
 
 import (
+	"net/http"
+	"net/http/httptest"
 	"net/url"
 	"testing"
 	"time"
 
 	"github.com/tsuru/tsuru-autoscale/action"
+	"github.com/tsuru/tsuru-autoscale/datasource"
 	"github.com/tsuru/tsuru-autoscale/db"
 	"gopkg.in/check.v1"
 )
@@ -126,4 +129,28 @@ func (s *S) TestAlarmWaitTime(c *check.C) {
 	c.Assert(err, check.IsNil)
 	c.Assert(events, check.HasLen, 1)
 	c.Assert(events[0].ID, check.DeepEquals, event.ID)
+}
+
+func (s *S) TestAlarmCheck(c *check.C) {
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Write([]byte(`{"id":"ble"}`))
+	}))
+	defer ts.Close()
+	instance := datasource.Instance{
+		Name: "ds",
+		Metadata: map[string]string{
+			"url":    ts.URL,
+			"method": "GET",
+			"body":   "",
+		},
+	}
+	alarm := &Alarm{
+		Name:       "rush",
+		Enabled:    true,
+		Expression: `data.id ==  "ble"`,
+		DataSource: instance,
+	}
+	ok, err := alarm.Check()
+	c.Assert(err, check.IsNil)
+	c.Assert(ok, check.Equals, true)
 }

@@ -5,7 +5,6 @@
 package datasource
 
 import (
-	"encoding/json"
 	"errors"
 	"io/ioutil"
 	"net/http"
@@ -20,10 +19,8 @@ func init() {
 
 // dataSource represents a data source.
 type dataSource interface {
-	// Get gets data from data source and
-	// parses the JSON-encoded data and stores the result
-	// in the value pointed to by v.
-	Get(v interface{}) error
+	// Get gets data from data source.
+	Get() (string, error)
 }
 
 type dataSourceFactory func(metadata map[string]string) (dataSource, error)
@@ -56,6 +53,14 @@ func New(name string, metadata map[string]string) (dataSource, error) {
 		return nil, err
 	}
 	return dataSources[name](metadata)
+}
+
+func (i *Instance) Get() (string, error) {
+	ds, err := dataSources["http"](i.Metadata)
+	if err != nil {
+		return "", err
+	}
+	return ds.Get()
 }
 
 func Get(name string) (*Instance, error) {
@@ -99,21 +104,21 @@ func httpDataSourceFactory(metadata map[string]string) (dataSource, error) {
 	return &ds, nil
 }
 
-func (ds *httpDataSource) Get(v interface{}) error {
+func (ds *httpDataSource) Get() (string, error) {
 	req, err := http.NewRequest(ds.method, ds.url, nil)
 	if err != nil {
-		return err
+		return "", err
 	}
 	response, err := http.DefaultClient.Do(req)
 	if err != nil {
-		return err
+		return "", err
 	}
 	defer response.Body.Close()
 	data, err := ioutil.ReadAll(response.Body)
 	if err != nil {
-		return err
+		return "", err
 	}
-	return json.Unmarshal(data, v)
+	return string(data), nil
 }
 
 // Types returns a list of the available data source types.

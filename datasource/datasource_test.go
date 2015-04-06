@@ -5,6 +5,7 @@
 package datasource
 
 import (
+	"encoding/json"
 	"errors"
 	"net/http"
 	"net/http/httptest"
@@ -61,7 +62,9 @@ func (s *S) TestHttpDataSourceGet(c *check.C) {
 		Name string
 	}
 	data := dataType{}
-	err := ds.Get(&data)
+	result, err := ds.Get()
+	c.Assert(err, check.IsNil)
+	err = json.Unmarshal([]byte(result), &data)
 	c.Assert(err, check.IsNil)
 	c.Assert(data.Name, check.Equals, "Paul")
 }
