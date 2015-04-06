@@ -38,9 +38,22 @@ var _ = check.Suite(&S{})
 func (s *S) TestAlarm(c *check.C) {
 	url, err := url.Parse("http://tsuru.io")
 	c.Assert(err, check.IsNil)
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Write([]byte(`{"id":"ble"}`))
+	}))
+	defer ts.Close()
+	instance := datasource.Instance{
+		Name: "ds",
+		Metadata: map[string]string{
+			"url":    ts.URL,
+			"method": "GET",
+			"body":   "",
+		},
+	}
 	alarm := &Alarm{
-		Actions: []action.Action{{"action", url}},
-		Enabled: true,
+		Actions:    []action.Action{{"action", url}},
+		Enabled:    true,
+		DataSource: instance,
 	}
 	err = scaleIfNeeded(alarm)
 	c.Assert(err, check.IsNil)
@@ -96,10 +109,23 @@ func (s *S) TestAutoScaleDisable(c *check.C) {
 
 func (s *S) TestAlarmWaitEventStillRunning(c *check.C) {
 	url, err := url.Parse("http://tsuru.io")
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Write([]byte(`{"id":"ble"}`))
+	}))
+	defer ts.Close()
+	instance := datasource.Instance{
+		Name: "ds",
+		Metadata: map[string]string{
+			"url":    ts.URL,
+			"method": "GET",
+			"body":   "",
+		},
+	}
 	alarm := &Alarm{
-		Name:    "rush",
-		Actions: []action.Action{{"name", url}},
-		Enabled: true,
+		Name:       "rush",
+		Actions:    []action.Action{{"name", url}},
+		Enabled:    true,
+		DataSource: instance,
 	}
 	event, err := NewEvent(alarm, "decrease")
 	c.Assert(err, check.IsNil)
@@ -114,10 +140,23 @@ func (s *S) TestAlarmWaitEventStillRunning(c *check.C) {
 func (s *S) TestAlarmWaitTime(c *check.C) {
 	url, err := url.Parse("http://tsuru.io")
 	c.Assert(err, check.IsNil)
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Write([]byte(`{"id":"ble"}`))
+	}))
+	defer ts.Close()
+	instance := datasource.Instance{
+		Name: "ds",
+		Metadata: map[string]string{
+			"url":    ts.URL,
+			"method": "GET",
+			"body":   "",
+		},
+	}
 	alarm := &Alarm{
-		Name:    "rush",
-		Actions: []action.Action{{"name", url}},
-		Enabled: true,
+		Name:       "rush",
+		Actions:    []action.Action{{"name", url}},
+		Enabled:    true,
+		DataSource: instance,
 	}
 	event, err := NewEvent(alarm, "increase")
 	c.Assert(err, check.IsNil)

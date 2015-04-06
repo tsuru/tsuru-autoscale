@@ -51,70 +51,26 @@ func scaleIfNeeded(alarm *Alarm) error {
 	if alarm == nil {
 		return errors.New("alarm: alarm is not configured.")
 	}
-	/*
-		increaseMetric, _ := app.Metric(config.Increase.metric())
-		value, _ := config.Increase.value()
-		if increaseMetric > value {
-			currentUnits := uint(len(app.Units()))
-			maxUnits := config.MaxUnits
-			if maxUnits == 0 {
-				maxUnits = 1
-			}
-			if currentUnits >= maxUnits {
-				return nil
-			}
-			if wait, err := shouldWait(app, config.Increase.Wait); err != nil {
-				return err
-			} else if wait {
-				return nil
-			}
-			evt, err := NewEvent(app, "increase")
-			if err != nil {
-				return fmt.Errorf("Error trying to insert auto scale event, auto scale aborted: %s", err.Error())
-			}
-			inc := config.Increase.Units
-			if currentUnits+inc > config.MaxUnits {
-				inc = config.MaxUnits - currentUnits
-			}
-			addUnitsErr := app.AddUnits(inc, nil)
-			err = evt.update(addUnitsErr)
-			if err != nil {
-				log.Errorf("Error trying to update auto scale event: %s", err.Error())
-			}
-			return addUnitsErr
+	check, err := alarm.Check()
+	if err != nil {
+		return err
+	}
+	if check {
+		if wait, err := shouldWait(alarm, alarm.Wait); err != nil {
+			return err
+		} else if wait {
+			return nil
 		}
-		decreaseMetric, _ := app.Metric(config.Decrease.metric())
-		value, _ = config.Decrease.value()
-		if decreaseMetric < value {
-			currentUnits := uint(len(app.Units()))
-			minUnits := config.MinUnits
-			if minUnits == 0 {
-				minUnits = 1
-			}
-			if currentUnits <= minUnits {
-				return nil
-			}
-			if wait, err := shouldWait(app, config.Decrease.Wait); err != nil {
-				return err
-			} else if wait {
-				return nil
-			}
-			evt, err := NewEvent(app, "decrease")
-			if err != nil {
-				return fmt.Errorf("Error trying to insert auto scale event, auto scale aborted: %s", err.Error())
-			}
-			dec := config.Decrease.Units
-			if currentUnits-dec < config.MinUnits {
-				dec = currentUnits - config.MinUnits
-			}
-			removeUnitsErr := app.RemoveUnits(dec)
-			err = evt.update(removeUnitsErr)
-			if err != nil {
-				log.Errorf("Error trying to update auto scale event: %s", err.Error())
-			}
-			return removeUnitsErr
+		evt, err := NewEvent(alarm, "increase")
+		if err != nil {
+			return fmt.Errorf("Error trying to insert auto scale event, auto scale aborted: %s", err.Error())
 		}
-	*/
+		err = evt.update(nil)
+		if err != nil {
+			log.Errorf("Error trying to update auto scale event: %s", err.Error())
+		}
+		return nil
+	}
 	return nil
 }
 
