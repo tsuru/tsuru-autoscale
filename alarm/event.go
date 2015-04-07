@@ -18,17 +18,15 @@ type Event struct {
 	StartTime  time.Time
 	EndTime    time.Time `bson:",omitempty"`
 	Alarm      *Alarm
-	Type       string
 	Successful bool
 	Error      string `bson:",omitempty"`
 }
 
-func NewEvent(alarm *Alarm, scaleType string) (*Event, error) {
+func NewEvent(alarm *Alarm) (*Event, error) {
 	evt := Event{
 		ID:        bson.NewObjectId(),
 		StartTime: time.Now().UTC(),
 		Alarm:     alarm,
-		Type:      scaleType,
 	}
 	conn, err := db.Conn()
 	if err != nil {

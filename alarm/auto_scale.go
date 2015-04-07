@@ -90,7 +90,7 @@ func scaleIfNeeded(alarm *Alarm) error {
 		} else if wait {
 			return nil
 		}
-		evt, err := NewEvent(alarm, "increase")
+		evt, err := NewEvent(alarm)
 		if err != nil {
 			return fmt.Errorf("Error trying to insert auto scale event, auto scale aborted: %s", err.Error())
 		}

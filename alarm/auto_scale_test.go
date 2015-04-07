@@ -78,7 +78,6 @@ func (s *S) TestRunAutoScaleOnce(c *check.C) {
 	err = s.conn.Events().Find(nil).All(&events)
 	c.Assert(err, check.IsNil)
 	c.Assert(events, check.HasLen, 1)
-	c.Assert(events[0].Type, check.Equals, "increase")
 	c.Assert(events[0].StartTime, check.Not(check.DeepEquals), time.Time{})
 	c.Assert(events[0].EndTime, check.Not(check.DeepEquals), time.Time{})
 	c.Assert(events[0].Error, check.Equals, "")
@@ -119,7 +118,7 @@ func (s *S) TestAlarmWaitEventStillRunning(c *check.C) {
 		Enabled:    true,
 		DataSource: instance,
 	}
-	event, err := NewEvent(alarm, "decrease")
+	event, err := NewEvent(alarm)
 	c.Assert(err, check.IsNil)
 	err = scaleIfNeeded(alarm)
 	c.Assert(err, check.IsNil)
@@ -150,7 +149,7 @@ func (s *S) TestAlarmWaitTime(c *check.C) {
 		Enabled:    true,
 		DataSource: instance,
 	}
-	event, err := NewEvent(alarm, "increase")
+	event, err := NewEvent(alarm)
 	c.Assert(err, check.IsNil)
 	err = event.update(nil)
 	c.Assert(err, check.IsNil)
