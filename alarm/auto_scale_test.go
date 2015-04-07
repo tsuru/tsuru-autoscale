@@ -36,8 +36,6 @@ func (s *S) TearDownTest(c *check.C) {
 var _ = check.Suite(&S{})
 
 func (s *S) TestAlarm(c *check.C) {
-	url, err := url.Parse("http://tsuru.io")
-	c.Assert(err, check.IsNil)
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte(`{"id":"ble"}`))
 	}))
@@ -50,17 +48,14 @@ func (s *S) TestAlarm(c *check.C) {
 			"body":   "",
 		},
 	}
-	alarm := &Alarm{
-		Actions:    []action.Action{{"action", url}},
-		Enabled:    true,
-		DataSource: instance,
-	}
+	alarm, err := NewAlarm("name", `data.id == "ble"`, instance)
+	c.Assert(err, check.IsNil)
 	err = scaleIfNeeded(alarm)
 	c.Assert(err, check.IsNil)
 	var events []Event
 	err = s.conn.Events().Find(nil).All(&events)
 	c.Assert(err, check.IsNil)
-	c.Assert(events, check.HasLen, 0)
+	c.Assert(events, check.HasLen, 1)
 }
 
 func (s *S) TestRunAutoScaleOnce(c *check.C) {

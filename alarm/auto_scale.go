@@ -12,6 +12,7 @@ import (
 	"github.com/robertkrimen/otto"
 	"github.com/tsuru/tsuru-autoscale/action"
 	"github.com/tsuru/tsuru-autoscale/datasource"
+	"github.com/tsuru/tsuru-autoscale/db"
 	"github.com/tsuru/tsuru/log"
 	"gopkg.in/mgo.v2"
 )
@@ -28,6 +29,25 @@ type Alarm struct {
 	Enabled    bool                `json:"enabled"`
 	Wait       time.Duration       `json:"wait"`
 	DataSource datasource.Instance `json:"datasource"`
+}
+
+func NewAlarm(name, expression string, ds datasource.Instance) (*Alarm, error) {
+	alarm := &Alarm{
+		Name:       name,
+		Expression: expression,
+		Enabled:    true,
+		DataSource: ds,
+	}
+	conn, err := db.Conn()
+	if err != nil {
+		return nil, err
+	}
+	defer conn.Close()
+	err = conn.Alarms().Insert(&alarm)
+	if err != nil {
+		return nil, err
+	}
+	return alarm, nil
 }
 
 func runAutoScaleOnce() {

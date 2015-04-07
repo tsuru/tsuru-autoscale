@@ -47,3 +47,11 @@ func (s *S) TestDataSources(c *check.C) {
 	datasourcec := strg.Collection("datasources")
 	c.Assert(datasource, check.DeepEquals, datasourcec)
 }
+
+func (s *S) TestAlarms(c *check.C) {
+	strg, err := Conn()
+	c.Assert(err, check.IsNil)
+	alarm := strg.Alarms()
+	alarmc := strg.Collection("alarms")
+	c.Assert(alarm, check.DeepEquals, alarmc)
+}

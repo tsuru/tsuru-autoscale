@@ -70,3 +70,9 @@ func (s *Storage) DataSources() *storage.Collection {
 	c := s.Collection("datasources")
 	return c
 }
+
+// Alarms returns the instances collection from MongoDB.
+func (s *Storage) Alarms() *storage.Collection {
+	c := s.Collection("alarms")
+	return c
+}
