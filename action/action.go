@@ -4,15 +4,31 @@
 
 package action
 
-import "net/url"
+import (
+	"io"
+	"net/http"
+	"net/url"
+)
 
 // Action represents an AutoScale action to increase or decrease the
 // number of the units.
 type Action struct {
 	Name string
 	URL  *url.URL
+	Method string
+	Body io.Reader
 }
 
 func New(name string, url *url.URL) (*Action, error) {
 	return &Action{Name: name, URL: url}, nil
+}
+
+func (a *Action) Do() error {
+	req, err := http.NewRequest(a.Method, a.URL.String(), a.Body)
+	if err != nil {
+		return err
+	}
+	client := &http.Client{}
+	_, err = client.Do(req)
+	return err
 }

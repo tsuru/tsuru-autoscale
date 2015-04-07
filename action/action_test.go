@@ -5,6 +5,8 @@
 package action
 
 import (
+	"net/http"
+	"net/http/httptest"
 	"net/url"
 	"testing"
 
@@ -24,4 +26,18 @@ func (s *S) TestNew(c *check.C) {
 	c.Assert(err, check.IsNil)
 	c.Assert(a.Name, check.Equals, "action")
 	c.Assert(a.URL, check.Equals, url)
+}
+
+func (s *S) TestDo(c *check.C) {
+	var called bool
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		called = true
+	}))
+	defer ts.Close()
+	url, err := url.Parse(ts.URL)
+	a, err := New("action", url)
+	c.Assert(err, check.IsNil)
+	err = a.Do()
+	c.Assert(err, check.IsNil)
+	c.Assert(called, check.Equals, true)
 }
