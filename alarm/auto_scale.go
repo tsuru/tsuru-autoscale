@@ -85,7 +85,7 @@ func scaleIfNeeded(alarm *Alarm) error {
 		return err
 	}
 	if check {
-		if wait, err := shouldWait(alarm, alarm.Wait); err != nil {
+		if wait, err := shouldWait(alarm); err != nil {
 			return err
 		} else if wait {
 			return nil
@@ -103,7 +103,7 @@ func scaleIfNeeded(alarm *Alarm) error {
 	return nil
 }
 
-func shouldWait(alarm *Alarm, waitPeriod time.Duration) (bool, error) {
+func shouldWait(alarm *Alarm) (bool, error) {
 	now := time.Now().UTC()
 	lastEvent, err := lastScaleEvent(alarm)
 	if err != nil && err != mgo.ErrNotFound {
@@ -113,7 +113,7 @@ func shouldWait(alarm *Alarm, waitPeriod time.Duration) (bool, error) {
 		return true, nil
 	}
 	diff := now.Sub(lastEvent.EndTime)
-	if diff > waitPeriod {
+	if diff > alarm.Wait {
 		return false, nil
 	}
 	return true, nil
