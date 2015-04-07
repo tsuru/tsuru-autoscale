@@ -1,5 +1,8 @@
 # tsuru-autoscale
 
+[![Build Status](https://drone.io/github.com/tsuru/tsuru-autoscale/status.png?branch=master)](https://drone.io/github.com/tsuru/tsuru-autoscale/latest)
+[![Build Status](https://travis-ci.org/tsuru/tsuru-autoscale.png?branch=master)](https://travis-ci.org/tsuru/tsuru-autoscale)
+
 ## roadmap
 
 ### 0.1
