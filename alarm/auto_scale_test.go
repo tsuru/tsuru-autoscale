@@ -59,33 +59,30 @@ func (s *S) TestAlarm(c *check.C) {
 }
 
 func (s *S) TestRunAutoScaleOnce(c *check.C) {
-	url, err := url.Parse("http://tsuru.io")
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Write([]byte(`{"id":"ble"}`))
+	}))
+	defer ts.Close()
+	instance := datasource.Instance{
+		Name: "ds",
+		Metadata: map[string]string{
+			"url":    ts.URL,
+			"method": "GET",
+			"body":   "",
+		},
+	}
+	_, err := NewAlarm("name", `data.id == "ble"`, instance)
 	c.Assert(err, check.IsNil)
-	up := &Alarm{
-		Actions: []action.Action{{"name", url}},
-		Enabled: true,
-	}
-	down := &Alarm{
-		Actions: []action.Action{{"name", url}},
-		Enabled: true,
-	}
 	runAutoScaleOnce()
 	var events []Event
 	err = s.conn.Events().Find(nil).All(&events)
 	c.Assert(err, check.IsNil)
-	c.Assert(events, check.HasLen, 2)
+	c.Assert(events, check.HasLen, 1)
 	c.Assert(events[0].Type, check.Equals, "increase")
 	c.Assert(events[0].StartTime, check.Not(check.DeepEquals), time.Time{})
 	c.Assert(events[0].EndTime, check.Not(check.DeepEquals), time.Time{})
 	c.Assert(events[0].Error, check.Equals, "")
 	c.Assert(events[0].Successful, check.Equals, true)
-	c.Assert(events[0].Alarm, check.DeepEquals, up)
-	c.Assert(events[1].Type, check.Equals, "decrease")
-	c.Assert(events[1].StartTime, check.Not(check.DeepEquals), time.Time{})
-	c.Assert(events[1].EndTime, check.Not(check.DeepEquals), time.Time{})
-	c.Assert(events[1].Error, check.Equals, "")
-	c.Assert(events[1].Successful, check.Equals, true)
-	c.Assert(events[1].Alarm, check.DeepEquals, down)
 }
 
 func (s *S) TestAutoScaleEnable(c *check.C) {

@@ -52,6 +52,15 @@ func NewAlarm(name, expression string, ds datasource.Instance) (*Alarm, error) {
 
 func runAutoScaleOnce() {
 	alarms := []Alarm{}
+	conn, err := db.Conn()
+	if err != nil {
+		return
+	}
+	defer conn.Close()
+	err = conn.Alarms().Find(nil).All(&alarms)
+	if err != nil {
+		return
+	}
 	for _, alarm := range alarms {
 		err := scaleIfNeeded(&alarm)
 		if err != nil {
