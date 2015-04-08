@@ -112,9 +112,11 @@ func (s *S) TestAlarmWaitEventStillRunning(c *check.C) {
 			"body":   "",
 		},
 	}
+	a, err := action.New("name", url)
+	c.Assert(err, check.IsNil)
 	alarm := &Alarm{
 		Name:       "rush",
-		Actions:    []action.Action{{"name", url}},
+		Actions:    []action.Action{*a},
 		Enabled:    true,
 		DataSource: instance,
 	}
@@ -143,9 +145,11 @@ func (s *S) TestAlarmWaitTime(c *check.C) {
 			"body":   "",
 		},
 	}
+	a, err := action.New("name", url)
+	c.Assert(err, check.IsNil)
 	alarm := &Alarm{
 		Name:       "rush",
-		Actions:    []action.Action{{"name", url}},
+		Actions:    []action.Action{*a},
 		Enabled:    true,
 		DataSource: instance,
 	}

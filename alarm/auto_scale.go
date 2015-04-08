@@ -90,13 +90,19 @@ func scaleIfNeeded(alarm *Alarm) error {
 		} else if wait {
 			return nil
 		}
+		for _, a := range alarm.Actions {
+			err := a.Do()
+			if err != nil {
+				log.Errorf("Error trying to update auto scale event: %s", err.Error())
+			}
+		}
 		evt, err := NewEvent(alarm)
 		if err != nil {
 			return fmt.Errorf("Error trying to insert auto scale event, auto scale aborted: %s", err.Error())
 		}
 		err = evt.update(nil)
 		if err != nil {
-			log.Errorf("Error trying to update auto scale event: %s", err.Error())
+			return fmt.Errorf("Error trying to update auto scale event: %s", err.Error())
 		}
 		return nil
 	}
