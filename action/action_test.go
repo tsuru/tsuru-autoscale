@@ -25,7 +25,7 @@ func (s *S) TestNew(c *check.C) {
 	a, err := New("action", url)
 	c.Assert(err, check.IsNil)
 	c.Assert(a.Name, check.Equals, "action")
-	c.Assert(a.URL, check.Equals, url)
+	c.Assert(a.URL, check.Equals, url.String())
 }
 
 func (s *S) TestDo(c *check.C) {

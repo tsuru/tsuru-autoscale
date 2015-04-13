@@ -5,26 +5,26 @@
 package action
 
 import (
-	"io"
 	"net/http"
 	"net/url"
+	"strings"
 )
 
 // Action represents an AutoScale action to increase or decrease the
 // number of the units.
 type Action struct {
-	Name string
-	URL  *url.URL
+	Name   string
+	URL    string
 	Method string
-	Body io.Reader
+	Body   string
 }
 
 func New(name string, url *url.URL) (*Action, error) {
-	return &Action{Name: name, URL: url}, nil
+	return &Action{Name: name, URL: url.String()}, nil
 }
 
 func (a *Action) Do() error {
-	req, err := http.NewRequest(a.Method, a.URL.String(), a.Body)
+	req, err := http.NewRequest(a.Method, a.URL, strings.NewReader(a.Body))
 	if err != nil {
 		return err
 	}

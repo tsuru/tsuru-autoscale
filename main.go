@@ -8,10 +8,12 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/tsuru/tsuru-autoscale/alarm"
 	"github.com/tsuru/tsuru-autoscale/api"
 )
 
 func main() {
+	alarm.StartAutoScale()
 	r := api.Router()
 	http.Handle("/", r)
 	log.Fatal(http.ListenAndServe(":8080", nil))
