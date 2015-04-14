@@ -7,14 +7,14 @@ package alarm
 import (
 	"errors"
 	"fmt"
-	"log"
-	"os"
+	stdlog "log"
 	"time"
 
 	"github.com/robertkrimen/otto"
 	"github.com/tsuru/tsuru-autoscale/action"
 	"github.com/tsuru/tsuru-autoscale/datasource"
 	"github.com/tsuru/tsuru-autoscale/db"
+	"github.com/tsuru/tsuru-autoscale/log"
 	"gopkg.in/mgo.v2"
 )
 
@@ -22,13 +22,8 @@ func StartAutoScale() {
 	go runAutoScale()
 }
 
-var lg *log.Logger
-
-func logger() *log.Logger {
-	if lg == nil {
-		lg = log.New(os.Stdout, "[alarm] ", 0)
-	}
-	return lg
+func logger() *stdlog.Logger {
+	return log.Logger()
 }
 
 // Alarm represents the configuration for the auto scale.
@@ -61,6 +56,7 @@ func NewAlarm(name, expression string, ds datasource.Instance) (*Alarm, error) {
 }
 
 func runAutoScaleOnce() {
+	logger().Print("checking alarms")
 	alarms := []Alarm{}
 	conn, err := db.Conn()
 	if err != nil {
@@ -72,6 +68,7 @@ func runAutoScaleOnce() {
 		return
 	}
 	for _, alarm := range alarms {
+		logger().Printf("checking %s alarm", alarm.Name)
 		err := scaleIfNeeded(&alarm)
 		if err != nil {
 			logger().Print(err.Error())
@@ -92,18 +89,24 @@ func scaleIfNeeded(alarm *Alarm) error {
 	}
 	check, err := alarm.Check()
 	if err != nil {
+		logger().Printf("alarm %s check error: %s", alarm.Name, err.Error())
 		return err
 	}
+	logger().Printf("alarm %s check: %t", alarm.Name, check)
 	if check {
 		if wait, err := shouldWait(alarm); err != nil {
+			logger().Printf("waiting for alarm %s", alarm.Name)
 			return err
 		} else if wait {
 			return nil
 		}
 		for _, a := range alarm.Actions {
+			logger().Printf("executing alarm %s action %s", alarm.Name, a.Name)
 			err := a.Do()
 			if err != nil {
-				logger().Printf("Error trying to update auto scale event: %s", err.Error())
+				logger().Printf("Error executing action %s in the alarm %s - error: ", a.Name, alarm.Name, err.Error())
+			} else {
+				logger().Printf("alarm %s action %s executed", alarm.Name, a.Name)
 			}
 		}
 		evt, err := NewEvent(alarm)
