@@ -149,15 +149,19 @@ func AutoScaleDisable(alarm *Alarm) error {
 }
 
 func (a *Alarm) Check() (bool, error) {
+	logger().Printf("getting data for alarm %s", a.Name)
 	data, err := a.DataSource.Get()
 	if err != nil {
+		logger().Printf("error getting data for alarm %s - error:", a.Name, err.Error())
 		return false, err
 	}
+	logger().Printf("data for alarm %s", data)
 	vm := otto.New()
 	vm.Run(fmt.Sprintf("var data=%s;", data))
 	vm.Run(fmt.Sprintf("var expression=%s", a.Expression))
 	expression, err := vm.Get("expression")
 	if err != nil {
+		logger().Printf("error executing expresion for alarm %s - error:", a.Name, err.Error())
 		return false, err
 	}
 	check, err := expression.ToBoolean()
