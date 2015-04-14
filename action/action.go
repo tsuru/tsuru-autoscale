@@ -13,10 +13,11 @@ import (
 // Action represents an AutoScale action to increase or decrease the
 // number of the units.
 type Action struct {
-	Name   string
-	URL    string
-	Method string
-	Body   string
+	Name    string
+	URL     string
+	Method  string
+	Body    string
+	Headers map[string]string
 }
 
 func New(name string, url *url.URL) (*Action, error) {
@@ -27,6 +28,9 @@ func (a *Action) Do() error {
 	req, err := http.NewRequest(a.Method, a.URL, strings.NewReader(a.Body))
 	if err != nil {
 		return err
+	}
+	for key, value := range a.Headers {
+		req.Header.Add(key, value)
 	}
 	client := &http.Client{}
 	_, err = client.Do(req)
