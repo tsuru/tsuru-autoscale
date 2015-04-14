@@ -22,8 +22,13 @@ func StartAutoScale() {
 	go runAutoScale()
 }
 
+var lg *log.Logger
+
 func logger() *log.Logger {
-	return log.New(os.Stdout, "[alarm] ", 0)
+	if lg == nil {
+		lg = log.New(os.Stdout, "[alarm] ", 0)
+	}
+	return lg
 }
 
 // Alarm represents the configuration for the auto scale.
