@@ -7,18 +7,23 @@ package alarm
 import (
 	"errors"
 	"fmt"
+	"log"
+	"os"
 	"time"
 
 	"github.com/robertkrimen/otto"
 	"github.com/tsuru/tsuru-autoscale/action"
 	"github.com/tsuru/tsuru-autoscale/datasource"
 	"github.com/tsuru/tsuru-autoscale/db"
-	"github.com/tsuru/tsuru/log"
 	"gopkg.in/mgo.v2"
 )
 
 func StartAutoScale() {
 	go runAutoScale()
+}
+
+func logger() *log.Logger {
+	return log.New(os.Stdout, "[alarm] ", 0)
 }
 
 // Alarm represents the configuration for the auto scale.
@@ -64,7 +69,7 @@ func runAutoScaleOnce() {
 	for _, alarm := range alarms {
 		err := scaleIfNeeded(&alarm)
 		if err != nil {
-			log.Error(err.Error())
+			logger().Print(err.Error())
 		}
 	}
 }
@@ -93,7 +98,7 @@ func scaleIfNeeded(alarm *Alarm) error {
 		for _, a := range alarm.Actions {
 			err := a.Do()
 			if err != nil {
-				log.Errorf("Error trying to update auto scale event: %s", err.Error())
+				logger().Printf("Error trying to update auto scale event: %s", err.Error())
 			}
 		}
 		evt, err := NewEvent(alarm)
