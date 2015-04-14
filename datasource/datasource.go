@@ -23,7 +23,7 @@ type dataSource interface {
 	Get() (string, error)
 }
 
-type dataSourceFactory func(metadata map[string]string) (dataSource, error)
+type dataSourceFactory func(metadata map[string]interface{}) (dataSource, error)
 
 var dataSources = make(map[string]dataSourceFactory)
 
@@ -34,11 +34,11 @@ func Register(name string, ds dataSourceFactory) {
 
 type Instance struct {
 	Name     string
-	Metadata map[string]string
+	Metadata map[string]interface{}
 }
 
 // New creates a new data source instance.
-func New(name string, metadata map[string]string) (dataSource, error) {
+func New(name string, metadata map[string]interface{}) (dataSource, error) {
 	instance := Instance{
 		Name:     name,
 		Metadata: metadata,
@@ -78,28 +78,34 @@ func Get(name string) (*Instance, error) {
 }
 
 type httpDataSource struct {
-	url    string
-	method string
-	body   string
+	url     string
+	method  string
+	body    string
+	headers map[string]string
 }
 
-func httpDataSourceFactory(metadata map[string]string) (dataSource, error) {
-	url, ok := metadata["url"]
+func httpDataSourceFactory(metadata map[string]interface{}) (dataSource, error) {
+	url, ok := metadata["url"].(string)
 	if !ok {
 		return nil, errors.New("datasource: url required")
 	}
-	method, ok := metadata["method"]
+	method, ok := metadata["method"].(string)
 	if !ok {
 		return nil, errors.New("datasource: method required")
 	}
-	body, ok := metadata["body"]
+	body, ok := metadata["body"].(string)
 	if !ok {
 		return nil, errors.New("datasource: body required")
 	}
+	headers := map[string]string{}
+	if _, ok := metadata["headers"].(map[string]string); ok {
+		headers = metadata["headers"].(map[string]string)
+	}
 	ds := httpDataSource{
-		url:    url,
-		method: method,
-		body:   body,
+		url:     url,
+		method:  method,
+		body:    body,
+		headers: headers,
 	}
 	return &ds, nil
 }
@@ -108,6 +114,9 @@ func (ds *httpDataSource) Get() (string, error) {
 	req, err := http.NewRequest(ds.method, ds.url, nil)
 	if err != nil {
 		return "", err
+	}
+	for key, value := range ds.headers {
+		req.Header.Add(key, value)
 	}
 	response, err := http.DefaultClient.Do(req)
 	if err != nil {

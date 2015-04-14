@@ -42,7 +42,7 @@ func (s *S) TestAlarm(c *check.C) {
 	defer ts.Close()
 	instance := datasource.Instance{
 		Name: "ds",
-		Metadata: map[string]string{
+		Metadata: map[string]interface{}{
 			"url":    ts.URL,
 			"method": "GET",
 			"body":   "",
@@ -65,7 +65,7 @@ func (s *S) TestRunAutoScaleOnce(c *check.C) {
 	defer ts.Close()
 	instance := datasource.Instance{
 		Name: "ds",
-		Metadata: map[string]string{
+		Metadata: map[string]interface{}{
 			"url":    ts.URL,
 			"method": "GET",
 			"body":   "",
@@ -106,7 +106,7 @@ func (s *S) TestAlarmWaitEventStillRunning(c *check.C) {
 	defer ts.Close()
 	instance := datasource.Instance{
 		Name: "ds",
-		Metadata: map[string]string{
+		Metadata: map[string]interface{}{
 			"url":    ts.URL,
 			"method": "GET",
 			"body":   "",
@@ -139,7 +139,7 @@ func (s *S) TestAlarmWaitTime(c *check.C) {
 	defer ts.Close()
 	instance := datasource.Instance{
 		Name: "ds",
-		Metadata: map[string]string{
+		Metadata: map[string]interface{}{
 			"url":    ts.URL,
 			"method": "GET",
 			"body":   "",
@@ -172,7 +172,7 @@ func (s *S) TestAlarmCheck(c *check.C) {
 	defer ts.Close()
 	instance := datasource.Instance{
 		Name: "ds",
-		Metadata: map[string]string{
+		Metadata: map[string]interface{}{
 			"url":    ts.URL,
 			"method": "GET",
 			"body":   "",
