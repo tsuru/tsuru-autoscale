@@ -8,6 +8,7 @@ import (
 	"errors"
 	"io/ioutil"
 	"net/http"
+	"strings"
 
 	"github.com/tsuru/tsuru-autoscale/db"
 	"gopkg.in/mgo.v2/bson"
@@ -111,7 +112,7 @@ func httpDataSourceFactory(metadata map[string]interface{}) (dataSource, error) 
 }
 
 func (ds *httpDataSource) Get() (string, error) {
-	req, err := http.NewRequest(ds.method, ds.url, nil)
+	req, err := http.NewRequest(ds.method, ds.url, strings.NewReader(ds.body))
 	if err != nil {
 		return "", err
 	}
