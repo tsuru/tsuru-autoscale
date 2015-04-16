@@ -7,3 +7,6 @@ test: deps
 
 deps:
 	go get -x -t -d ./...
+
+build: deps
+	go build -x
