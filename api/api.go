@@ -5,21 +5,15 @@
 package api
 
 import (
-	"encoding/json"
 	"net/http"
 
 	"github.com/codegangsta/negroni"
 	"github.com/gorilla/mux"
-	"github.com/tsuru/tsuru-autoscale/datasource"
 )
-
-func dataSourceType(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(datasource.Types())
-}
 
 func Router() http.Handler {
 	m := mux.NewRouter()
+	m.HandleFunc("/datasource", newDataSource).Methods("POST")
 	m.HandleFunc("/datasource/type", dataSourceType)
 	m.HandleFunc("/resources", serviceAdd)
 	m.HandleFunc("/resources/{name}/bind", serviceBind).Methods("POST")

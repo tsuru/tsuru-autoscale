@@ -35,9 +35,8 @@ func (s *S) TestRegister(c *check.C) {
 		return ds, nil
 	}
 	Register("graphite", dsFactory)
-	d, err := New("graphite", nil)
+	err := New("graphite", nil)
 	c.Assert(err, check.IsNil)
-	c.Assert(d, check.DeepEquals, ds)
 }
 
 type testHandler struct{}

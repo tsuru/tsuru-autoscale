@@ -40,21 +40,17 @@ type Instance struct {
 }
 
 // New creates a new data source instance.
-func New(name string, metadata map[string]interface{}) (dataSource, error) {
+func New(name string, metadata map[string]interface{}) error {
 	instance := Instance{
 		Name:     name,
 		Metadata: metadata,
 	}
 	conn, err := db.Conn()
 	if err != nil {
-		return nil, err
+		return err
 	}
 	defer conn.Close()
-	err = conn.DataSources().Insert(&instance)
-	if err != nil {
-		return nil, err
-	}
-	return dataSources[name](metadata)
+	return conn.DataSources().Insert(&instance)
 }
 
 // Get tries to get the data from the data source.
