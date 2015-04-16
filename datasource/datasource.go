@@ -33,6 +33,7 @@ func Register(name string, ds dataSourceFactory) {
 	dataSources[name] = ds
 }
 
+// Instance represents a data source instance.
 type Instance struct {
 	Name     string
 	Metadata map[string]interface{}
@@ -56,6 +57,7 @@ func New(name string, metadata map[string]interface{}) (dataSource, error) {
 	return dataSources[name](metadata)
 }
 
+// Get tries to get the data from the data source.
 func (i *Instance) Get() (string, error) {
 	ds, err := dataSources["http"](i.Metadata)
 	if err != nil {
@@ -64,6 +66,7 @@ func (i *Instance) Get() (string, error) {
 	return ds.Get()
 }
 
+// Get finds a data source instance by name.
 func Get(name string) (*Instance, error) {
 	conn, err := db.Conn()
 	if err != nil {
@@ -111,6 +114,7 @@ func httpDataSourceFactory(metadata map[string]interface{}) (dataSource, error) 
 	return &ds, nil
 }
 
+// Get tries to get the data from the data source.
 func (ds *httpDataSource) Get() (string, error) {
 	req, err := http.NewRequest(ds.method, ds.url, strings.NewReader(ds.body))
 	if err != nil {
