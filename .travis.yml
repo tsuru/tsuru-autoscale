@@ -2,9 +2,7 @@ language: go
 go:
   - 1.4
   - tip
-install:
-  - go get -x -t -d ./...
-script:
-  - go test -x ./...
+install: make deps
+script: make test
 services:
   - mongodb
