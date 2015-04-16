@@ -71,7 +71,7 @@ func Get(name string) (*Instance, error) {
 	}
 	defer conn.Close()
 	var i Instance
-	err = conn.Instances().Find(bson.M{"name": name}).One(&i)
+	err = conn.DataSources().Find(bson.M{"name": name}).One(&i)
 	if err != nil {
 		return nil, err
 	}

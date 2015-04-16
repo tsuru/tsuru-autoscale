@@ -107,7 +107,7 @@ func (s *S) TestGet(c *check.C) {
 		Name:     "xpto",
 		Metadata: map[string]interface{}{},
 	}
-	s.conn.Instances().Insert(&i)
+	s.conn.DataSources().Insert(&i)
 	instance, err := Get(i.Name)
 	c.Assert(err, check.IsNil)
 	c.Assert(instance, check.DeepEquals, &i)
