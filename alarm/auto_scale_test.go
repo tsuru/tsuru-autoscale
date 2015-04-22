@@ -7,7 +7,6 @@ package alarm
 import (
 	"net/http"
 	"net/http/httptest"
-	"net/url"
 	"testing"
 	"time"
 
@@ -93,7 +92,6 @@ func (s *S) TestAutoScaleDisable(c *check.C) {
 }
 
 func (s *S) TestAlarmWaitEventStillRunning(c *check.C) {
-	url, err := url.Parse("http://tsuru.io")
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte(`{"id":"ble"}`))
 	}))
@@ -103,11 +101,14 @@ func (s *S) TestAlarmWaitEventStillRunning(c *check.C) {
 		URL:    ts.URL,
 		Method: "GET",
 	}
-	a, err := action.New("name", url)
-	c.Assert(err, check.IsNil)
+	a := action.Action{
+		Name:   "name",
+		Method: "GET",
+		URL:    "http:/tsuru.io",
+	}
 	alarm := &Alarm{
 		Name:       "rush",
-		Actions:    []action.Action{*a},
+		Actions:    []action.Action{a},
 		Enabled:    true,
 		DataSource: instance,
 	}
@@ -122,8 +123,6 @@ func (s *S) TestAlarmWaitEventStillRunning(c *check.C) {
 }
 
 func (s *S) TestAlarmWaitTime(c *check.C) {
-	url, err := url.Parse("http://tsuru.io")
-	c.Assert(err, check.IsNil)
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte(`{"id":"ble"}`))
 	}))
@@ -133,11 +132,14 @@ func (s *S) TestAlarmWaitTime(c *check.C) {
 		URL:    ts.URL,
 		Method: "GET",
 	}
-	a, err := action.New("name", url)
-	c.Assert(err, check.IsNil)
+	a := action.Action{
+		Name:   "name",
+		URL:    "http://tsuru.io",
+		Method: "GET",
+	}
 	alarm := &Alarm{
 		Name:       "rush",
-		Actions:    []action.Action{*a},
+		Actions:    []action.Action{a},
 		Enabled:    true,
 		DataSource: instance,
 	}
