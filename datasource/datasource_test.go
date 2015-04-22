@@ -69,7 +69,8 @@ func (s *S) TestNew(c *check.C) {
 
 func (s *S) TestGet(c *check.C) {
 	ds := DataSource{
-		Name: "xpto",
+		Name:    "xpto",
+		Headers: nil,
 	}
 	s.conn.DataSources().Insert(&ds)
 	instance, err := Get(ds.Name)
