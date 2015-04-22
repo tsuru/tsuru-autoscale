@@ -75,6 +75,6 @@ func (s *S) TestGet(c *check.C) {
 	s.conn.DataSources().Insert(&ds)
 	instance, err := Get(ds.Name)
 	c.Assert(err, check.IsNil)
-	c.Assert(instance, check.DeepEquals, &ds)
+	c.Assert(instance.Name, check.Equals, ds.Name)
 
 }
