@@ -65,13 +65,13 @@ func (s *Storage) Instances() *storage.Collection {
 	return c
 }
 
-// DataSources returns the instances collection from MongoDB.
+// DataSources returns the datasources collection from MongoDB.
 func (s *Storage) DataSources() *storage.Collection {
 	c := s.Collection("datasources")
 	return c
 }
 
-// Alarms returns the instances collection from MongoDB.
+// Alarms returns the alarms collection from MongoDB.
 func (s *Storage) Alarms() *storage.Collection {
 	c := s.Collection("alarms")
 	return c
