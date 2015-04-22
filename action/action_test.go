@@ -7,7 +7,6 @@ package action
 import (
 	"net/http"
 	"net/http/httptest"
-	"net/url"
 	"testing"
 
 	"gopkg.in/check.v1"
@@ -20,12 +19,9 @@ type S struct{}
 var _ = check.Suite(&S{})
 
 func (s *S) TestNew(c *check.C) {
-	url, err := url.Parse("http://tsuru.io")
+	a := Action{URL: "http://tsuru.io", Method: "GET"}
+	err := New(&a)
 	c.Assert(err, check.IsNil)
-	a, err := New("action", url)
-	c.Assert(err, check.IsNil)
-	c.Assert(a.Name, check.Equals, "action")
-	c.Assert(a.URL, check.Equals, url.String())
 }
 
 func (s *S) TestDo(c *check.C) {
@@ -34,8 +30,8 @@ func (s *S) TestDo(c *check.C) {
 		called = true
 	}))
 	defer ts.Close()
-	url, err := url.Parse(ts.URL)
-	a, err := New("action", url)
+	a := Action{URL: ts.URL, Method: "GET"}
+	err := New(&a)
 	c.Assert(err, check.IsNil)
 	err = a.Do()
 	c.Assert(err, check.IsNil)

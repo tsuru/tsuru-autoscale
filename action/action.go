@@ -5,9 +5,11 @@
 package action
 
 import (
+	"errors"
 	"net/http"
-	"net/url"
 	"strings"
+
+	"github.com/tsuru/tsuru-autoscale/db"
 )
 
 // Action represents an AutoScale action to increase or decrease the
@@ -20,8 +22,19 @@ type Action struct {
 	Headers map[string]string
 }
 
-func New(name string, url *url.URL) (*Action, error) {
-	return &Action{Name: name, URL: url.String()}, nil
+func New(a *Action) error {
+	if a.URL == "" {
+		return errors.New("action: url required")
+	}
+	if a.Method == "" {
+		return errors.New("action: method required")
+	}
+	conn, err := db.Conn()
+	if err != nil {
+		return err
+	}
+	defer conn.Close()
+	return conn.DataSources().Insert(&a)
 }
 
 func (a *Action) Do() error {
