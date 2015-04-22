@@ -21,7 +21,7 @@ type S struct{}
 var _ = check.Suite(&S{})
 
 func (s *S) TestNewDataSource(c *check.C) {
-	body := `{"name":"new","url":"http://tsuru.io", "method": "GET"}`
+	body := `{"name":"new","url":"http://tsuru.io","method":"GET"}`
 	recorder := httptest.NewRecorder()
 	request, err := http.NewRequest("POST", "/datasource", strings.NewReader(body))
 	c.Assert(err, check.IsNil)
