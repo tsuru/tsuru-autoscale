@@ -5,7 +5,6 @@
 package api
 
 import (
-	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -27,6 +26,5 @@ func (s *S) TestNewDataSource(c *check.C) {
 	c.Assert(err, check.IsNil)
 	r := Router()
 	r.ServeHTTP(recorder, request)
-	fmt.Println(recorder)
 	c.Assert(recorder.Code, check.Equals, http.StatusCreated)
 }
