@@ -55,3 +55,11 @@ func (s *S) TestAlarms(c *check.C) {
 	alarmc := strg.Collection("alarms")
 	c.Assert(alarm, check.DeepEquals, alarmc)
 }
+
+func (s *S) TestActions(c *check.C) {
+	strg, err := Conn()
+	c.Assert(err, check.IsNil)
+	action := strg.Actions()
+	actionc := strg.Collection("actions")
+	c.Assert(action, check.DeepEquals, actionc)
+}

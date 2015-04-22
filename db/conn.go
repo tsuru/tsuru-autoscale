@@ -76,3 +76,9 @@ func (s *Storage) Alarms() *storage.Collection {
 	c := s.Collection("alarms")
 	return c
 }
+
+// Actions returns the actions collection from MongoDB.
+func (s *Storage) Actions() *storage.Collection {
+	c := s.Collection("actions")
+	return c
+}
