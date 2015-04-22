@@ -29,16 +29,6 @@ func (s *S) SetUpSuite(c *check.C) {
 
 var _ = check.Suite(&S{})
 
-func (s *S) TestRegister(c *check.C) {
-	var ds dataSource
-	dsFactory := func(metadata map[string]interface{}) (dataSource, error) {
-		return ds, nil
-	}
-	Register("graphite", dsFactory)
-	err := New("graphite", nil)
-	c.Assert(err, check.IsNil)
-}
-
 type testHandler struct{}
 
 func (h *testHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
@@ -46,17 +36,11 @@ func (h *testHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte(content))
 }
 
-func (s *S) TestHttpDataSourceImplements(c *check.C) {
-	ds := httpDataSource{}
-	var expected dataSource
-	c.Assert(&ds, check.Implements, &expected)
-}
-
 func (s *S) TestHttpDataSourceGet(c *check.C) {
 	h := testHandler{}
 	ts := httptest.NewServer(&h)
 	defer ts.Close()
-	ds := httpDataSource{method: "POST", url: ts.URL}
+	ds := DataSource{Method: "POST", URL: ts.URL}
 	type dataType struct {
 		Name string
 	}
@@ -68,47 +52,28 @@ func (s *S) TestHttpDataSourceGet(c *check.C) {
 	c.Assert(data.Name, check.Equals, "Paul")
 }
 
-func (s *S) TestHttpDataSourceFactory(c *check.C) {
+func (s *S) TestNew(c *check.C) {
 	dsConfigTests := []struct {
-		conf map[string]interface{}
+		conf *DataSource
 		err  error
 	}{
-		{nil, errors.New("datasource: url required")},
-		{map[string]interface{}{"url": "", "method": "", "body": ""}, nil},
-		{map[string]interface{}{"url": "", "body": ""}, errors.New("datasource: method required")},
-		{map[string]interface{}{"url": "", "method": ""}, errors.New("datasource: body required")},
-		{map[string]interface{}{"method": "", "body": ""}, errors.New("datasource: url required")},
+		{&DataSource{URL: "http://tsuru.io", Method: "GET"}, nil},
+		{&DataSource{URL: "http://tsuru.io"}, errors.New("datasource: method required")},
+		{&DataSource{Method: ""}, errors.New("datasource: url required")},
 	}
 	for _, tt := range dsConfigTests {
-		_, err := httpDataSourceFactory(tt.conf)
+		err := New(tt.conf)
 		c.Check(err, check.DeepEquals, tt.err)
 	}
 }
 
-func (s *S) TestHttpDataSourceFactoryRegistered(c *check.C) {
-	dsFactory, ok := dataSources["http"]
-	c.Assert(ok, check.Equals, true)
-	var expected dataSourceFactory
-	c.Assert(dsFactory, check.FitsTypeOf, expected)
-}
-
-func (s *S) TestTypes(c *check.C) {
-	var expected []string
-	for name := range dataSources {
-		expected = append(expected, name)
-	}
-	ds := Types()
-	c.Assert(ds, check.DeepEquals, expected)
-}
-
 func (s *S) TestGet(c *check.C) {
-	i := Instance{
-		Name:     "xpto",
-		Metadata: map[string]interface{}{},
+	ds := DataSource{
+		Name: "xpto",
 	}
-	s.conn.DataSources().Insert(&i)
-	instance, err := Get(i.Name)
+	s.conn.DataSources().Insert(&ds)
+	instance, err := Get(ds.Name)
 	c.Assert(err, check.IsNil)
-	c.Assert(instance, check.DeepEquals, &i)
+	c.Assert(instance, check.DeepEquals, &ds)
 
 }

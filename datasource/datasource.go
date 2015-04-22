@@ -14,109 +14,53 @@ import (
 	"gopkg.in/mgo.v2/bson"
 )
 
-func init() {
-	Register("http", httpDataSourceFactory)
-}
-
-// dataSource represents a data source.
-type dataSource interface {
-	// Get gets data from data source.
-	Get() (string, error)
-}
-
-type dataSourceFactory func(metadata map[string]interface{}) (dataSource, error)
-
-var dataSources = make(map[string]dataSourceFactory)
-
-// Register registers a new dataSource.
-func Register(name string, ds dataSourceFactory) {
-	dataSources[name] = ds
-}
-
-// Instance represents a data source instance.
-type Instance struct {
-	Name     string
-	Metadata map[string]interface{}
+// DataSource represents a data source.
+type DataSource struct {
+	Name    string
+	URL     string
+	Method  string
+	Body    string
+	Headers map[string]string
 }
 
 // New creates a new data source instance.
-func New(name string, metadata map[string]interface{}) error {
-	instance := Instance{
-		Name:     name,
-		Metadata: metadata,
+func New(ds *DataSource) error {
+	if ds.URL == "" {
+		return errors.New("datasource: url required")
+	}
+	if ds.Method == "" {
+		return errors.New("datasource: method required")
 	}
 	conn, err := db.Conn()
 	if err != nil {
 		return err
 	}
 	defer conn.Close()
-	return conn.DataSources().Insert(&instance)
+	return conn.DataSources().Insert(&ds)
 }
 
-// Get tries to get the data from the data source.
-func (i *Instance) Get() (string, error) {
-	ds, err := dataSources["http"](i.Metadata)
-	if err != nil {
-		return "", err
-	}
-	return ds.Get()
-}
-
-// Get finds a data source instance by name.
-func Get(name string) (*Instance, error) {
+// Get finds a data source by name.
+func Get(name string) (*DataSource, error) {
 	conn, err := db.Conn()
 	if err != nil {
 		return nil, err
 	}
 	defer conn.Close()
-	var i Instance
-	err = conn.DataSources().Find(bson.M{"name": name}).One(&i)
+	var ds DataSource
+	err = conn.DataSources().Find(bson.M{"name": name}).One(&ds)
 	if err != nil {
 		return nil, err
-	}
-	return &i, nil
-}
-
-type httpDataSource struct {
-	url     string
-	method  string
-	body    string
-	headers map[string]string
-}
-
-func httpDataSourceFactory(metadata map[string]interface{}) (dataSource, error) {
-	url, ok := metadata["url"].(string)
-	if !ok {
-		return nil, errors.New("datasource: url required")
-	}
-	method, ok := metadata["method"].(string)
-	if !ok {
-		return nil, errors.New("datasource: method required")
-	}
-	body, ok := metadata["body"].(string)
-	if !ok {
-		return nil, errors.New("datasource: body required")
-	}
-	headers := map[string]string{}
-	if _, ok := metadata["headers"].(map[string]string); ok {
-		headers = metadata["headers"].(map[string]string)
-	}
-	ds := httpDataSource{
-		url:     url,
-		method:  method,
-		body:    body,
-		headers: headers,
 	}
 	return &ds, nil
 }
 
 // Get tries to get the data from the data source.
-func (ds *httpDataSource) Get() (string, error) {
-	req, err := http.NewRequest(ds.method, ds.url, strings.NewReader(ds.body))
+func (ds *DataSource) Get() (string, error) {
+	req, err := http.NewRequest(ds.Method, ds.URL, strings.NewReader(ds.Body))
 	if err != nil {
 		return "", err
 	}
-	for key, value := range ds.headers {
+	for key, value := range ds.Headers {
 		req.Header.Add(key, value)
 	}
 	response, err := http.DefaultClient.Do(req)
@@ -129,13 +73,4 @@ func (ds *httpDataSource) Get() (string, error) {
 		return "", err
 	}
 	return string(data), nil
-}
-
-// Types returns a list of the available data source types.
-func Types() []string {
-	var dataSourceNames []string
-	for name := range dataSources {
-		dataSourceNames = append(dataSourceNames, name)
-	}
-	return dataSourceNames
 }

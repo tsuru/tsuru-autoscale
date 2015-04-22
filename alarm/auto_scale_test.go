@@ -40,13 +40,10 @@ func (s *S) TestAlarm(c *check.C) {
 		w.Write([]byte(`{"id":"ble"}`))
 	}))
 	defer ts.Close()
-	instance := datasource.Instance{
-		Name: "ds",
-		Metadata: map[string]interface{}{
-			"url":    ts.URL,
-			"method": "GET",
-			"body":   "",
-		},
+	instance := datasource.DataSource{
+		Name:   "ds",
+		URL:    ts.URL,
+		Method: "GET",
 	}
 	alarm, err := NewAlarm("name", `data.id == "ble"`, instance)
 	c.Assert(err, check.IsNil)
@@ -63,13 +60,10 @@ func (s *S) TestRunAutoScaleOnce(c *check.C) {
 		w.Write([]byte(`{"id":"ble"}`))
 	}))
 	defer ts.Close()
-	instance := datasource.Instance{
-		Name: "ds",
-		Metadata: map[string]interface{}{
-			"url":    ts.URL,
-			"method": "GET",
-			"body":   "",
-		},
+	instance := datasource.DataSource{
+		Name:   "ds",
+		URL:    ts.URL,
+		Method: "GET",
 	}
 	_, err := NewAlarm("name", `data.id == "ble"`, instance)
 	c.Assert(err, check.IsNil)
@@ -104,13 +98,10 @@ func (s *S) TestAlarmWaitEventStillRunning(c *check.C) {
 		w.Write([]byte(`{"id":"ble"}`))
 	}))
 	defer ts.Close()
-	instance := datasource.Instance{
-		Name: "ds",
-		Metadata: map[string]interface{}{
-			"url":    ts.URL,
-			"method": "GET",
-			"body":   "",
-		},
+	instance := datasource.DataSource{
+		Name:   "ds",
+		URL:    ts.URL,
+		Method: "GET",
 	}
 	a, err := action.New("name", url)
 	c.Assert(err, check.IsNil)
@@ -137,13 +128,10 @@ func (s *S) TestAlarmWaitTime(c *check.C) {
 		w.Write([]byte(`{"id":"ble"}`))
 	}))
 	defer ts.Close()
-	instance := datasource.Instance{
-		Name: "ds",
-		Metadata: map[string]interface{}{
-			"url":    ts.URL,
-			"method": "GET",
-			"body":   "",
-		},
+	instance := datasource.DataSource{
+		Name:   "ds",
+		URL:    ts.URL,
+		Method: "GET",
 	}
 	a, err := action.New("name", url)
 	c.Assert(err, check.IsNil)
@@ -170,13 +158,10 @@ func (s *S) TestAlarmCheck(c *check.C) {
 		w.Write([]byte(`{"id":"ble"}`))
 	}))
 	defer ts.Close()
-	instance := datasource.Instance{
-		Name: "ds",
-		Metadata: map[string]interface{}{
-			"url":    ts.URL,
-			"method": "GET",
-			"body":   "",
-		},
+	instance := datasource.DataSource{
+		Name:   "ds",
+		URL:    ts.URL,
+		Method: "GET",
 	}
 	alarm := &Alarm{
 		Name:       "rush",

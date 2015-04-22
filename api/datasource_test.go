@@ -5,6 +5,7 @@
 package api
 
 import (
+	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -19,21 +20,13 @@ type S struct{}
 
 var _ = check.Suite(&S{})
 
-func (s *S) TestDataSourceType(c *check.C) {
-	recorder := httptest.NewRecorder()
-	request, err := http.NewRequest("GET", "/datasource/type", nil)
-	c.Assert(err, check.IsNil)
-	r := Router()
-	r.ServeHTTP(recorder, request)
-	c.Assert(recorder.Code, check.Equals, http.StatusOK)
-}
-
 func (s *S) TestNewDataSource(c *check.C) {
-	body := `{"name":"new","metadata":{}}`
+	body := `{"name":"new","url":"http://tsuru.io", "method": "GET"}`
 	recorder := httptest.NewRecorder()
 	request, err := http.NewRequest("POST", "/datasource", strings.NewReader(body))
 	c.Assert(err, check.IsNil)
 	r := Router()
 	r.ServeHTTP(recorder, request)
+	fmt.Println(recorder)
 	c.Assert(recorder.Code, check.Equals, http.StatusCreated)
 }

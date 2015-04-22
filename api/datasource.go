@@ -12,23 +12,18 @@ import (
 	"github.com/tsuru/tsuru-autoscale/datasource"
 )
 
-func dataSourceType(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(datasource.Types())
-}
-
 func newDataSource(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 	}
-	data := map[string]interface{}{}
-	err = json.Unmarshal(body, &data)
+	var ds datasource.DataSource
+	err = json.Unmarshal(body, &ds)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 	}
-	err = datasource.New(data["name"].(string), data["metadata"].(map[string]interface{}))
+	err = datasource.New(&ds)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 	}
