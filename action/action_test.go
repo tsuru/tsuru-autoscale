@@ -5,6 +5,7 @@
 package action
 
 import (
+	"errors"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -19,9 +20,18 @@ type S struct{}
 var _ = check.Suite(&S{})
 
 func (s *S) TestNew(c *check.C) {
-	a := Action{URL: "http://tsuru.io", Method: "GET"}
-	err := New(&a)
-	c.Assert(err, check.IsNil)
+	actionTests := []struct {
+		a   *Action
+		err error
+	}{
+		{&Action{URL: "http://tsuru.io", Method: "GET"}, nil},
+		{&Action{URL: "http://tsuru.io"}, errors.New("action: method required")},
+		{&Action{Method: ""}, errors.New("action: url required")},
+	}
+	for _, tt := range actionTests {
+		err := New(tt.a)
+		c.Check(err, check.DeepEquals, tt.err)
+	}
 }
 
 func (s *S) TestDo(c *check.C) {
