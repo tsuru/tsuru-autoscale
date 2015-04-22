@@ -36,23 +36,17 @@ type Alarm struct {
 	DataSource datasource.DataSource `json:"datasource"`
 }
 
-func NewAlarm(name, expression string, ds datasource.DataSource) (*Alarm, error) {
-	alarm := &Alarm{
-		Name:       name,
-		Expression: expression,
-		Enabled:    true,
-		DataSource: ds,
-	}
+func NewAlarm(a *Alarm) error {
 	conn, err := db.Conn()
 	if err != nil {
-		return nil, err
+		return nil
 	}
 	defer conn.Close()
-	err = conn.Alarms().Insert(&alarm)
+	err = conn.Alarms().Insert(&a)
 	if err != nil {
-		return nil, err
+		return nil
 	}
-	return alarm, nil
+	return nil
 }
 
 func runAutoScaleOnce() {

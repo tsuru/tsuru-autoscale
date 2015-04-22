@@ -44,9 +44,14 @@ func (s *S) TestAlarm(c *check.C) {
 		URL:    ts.URL,
 		Method: "GET",
 	}
-	alarm, err := NewAlarm("name", `data.id == "ble"`, instance)
+	alarm := Alarm{
+		Name:       "name",
+		Expression: `data.id == "ble"`,
+		DataSource: instance,
+	}
+	err := NewAlarm(&alarm)
 	c.Assert(err, check.IsNil)
-	err = scaleIfNeeded(alarm)
+	err = scaleIfNeeded(&alarm)
 	c.Assert(err, check.IsNil)
 	var events []Event
 	err = s.conn.Events().Find(nil).All(&events)
@@ -64,7 +69,12 @@ func (s *S) TestRunAutoScaleOnce(c *check.C) {
 		URL:    ts.URL,
 		Method: "GET",
 	}
-	_, err := NewAlarm("name", `data.id == "ble"`, instance)
+	alarm := Alarm{
+		Name:       "name",
+		Expression: `data.id == "ble"`,
+		DataSource: instance,
+	}
+	err := NewAlarm(&alarm)
 	c.Assert(err, check.IsNil)
 	runAutoScaleOnce()
 	var events []Event
