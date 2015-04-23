@@ -12,11 +12,18 @@ func serviceAdd(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusCreated)
 }
 
-func serviceBind(w http.ResponseWriter, r *http.Request) {
+func serviceBindUnit(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusCreated)
 }
 
-func serviceUnbind(w http.ResponseWriter, r *http.Request) {
+func serviceBindApp(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusCreated)
+}
+
+func serviceUnbindUnit(w http.ResponseWriter, r *http.Request) {
+}
+
+func serviceUnbindApp(w http.ResponseWriter, r *http.Request) {
 }
 
 func serviceRemove(w http.ResponseWriter, r *http.Request) {

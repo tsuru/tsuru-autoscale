@@ -20,7 +20,7 @@ func (s *S) TestServiceAdd(c *check.C) {
 	c.Assert(recorder.Code, check.Equals, http.StatusCreated)
 }
 
-func (s *S) TestServiceBind(c *check.C) {
+func (s *S) TestServiceBindUnit(c *check.C) {
 	recorder := httptest.NewRecorder()
 	request, err := http.NewRequest("POST", "/resources/name/bind", nil)
 	c.Assert(err, check.IsNil)
@@ -29,9 +29,27 @@ func (s *S) TestServiceBind(c *check.C) {
 	c.Assert(recorder.Code, check.Equals, http.StatusCreated)
 }
 
-func (s *S) TestServiceUnbind(c *check.C) {
+func (s *S) TestServiceBindApp(c *check.C) {
+	recorder := httptest.NewRecorder()
+	request, err := http.NewRequest("POST", "/resources/name/bind-app", nil)
+	c.Assert(err, check.IsNil)
+	r := Router()
+	r.ServeHTTP(recorder, request)
+	c.Assert(recorder.Code, check.Equals, http.StatusCreated)
+}
+
+func (s *S) TestServiceUnbindUnit(c *check.C) {
 	recorder := httptest.NewRecorder()
 	request, err := http.NewRequest("DELETE", "/resources/name/bind", nil)
+	c.Assert(err, check.IsNil)
+	r := Router()
+	r.ServeHTTP(recorder, request)
+	c.Assert(recorder.Code, check.Equals, http.StatusOK)
+}
+
+func (s *S) TestServiceUnbindApp(c *check.C) {
+	recorder := httptest.NewRecorder()
+	request, err := http.NewRequest("DELETE", "/resources/name/bind-app", nil)
 	c.Assert(err, check.IsNil)
 	r := Router()
 	r.ServeHTTP(recorder, request)
