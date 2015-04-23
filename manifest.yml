@@ -1,0 +1,4 @@
+id: rpaas
+password: abc123
+endpoint:
+    production: autoscale.192.168.50.4.nip.io
