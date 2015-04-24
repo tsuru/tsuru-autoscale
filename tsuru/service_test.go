@@ -16,10 +16,21 @@ type S struct{}
 
 var _ = check.Suite(&S{})
 
-func (s *S) TestInstanceAdd(c *check.C) {
+func (s *S) TestNewInstance(c *check.C) {
 	i := &Instance{
 		Name: "name",
 	}
 	err := NewInstance(i)
 	c.Assert(err, check.IsNil)
+}
+
+func (s *S) TestGetInstanceByName(c *check.C) {
+	i := &Instance{
+		Name: "name",
+	}
+	err := NewInstance(i)
+	c.Assert(err, check.IsNil)
+	n, err := GetInstanceByName(i.Name)
+	c.Assert(err, check.IsNil)
+	c.Assert(n.Name, check.Equals, i.Name)
 }
