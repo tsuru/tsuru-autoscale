@@ -13,6 +13,7 @@ import (
 
 func Router() http.Handler {
 	m := mux.NewRouter()
+	m.HandleFunc("/healthcheck", healthcheck).Methods("GET")
 	m.HandleFunc("/datasource", newDataSource).Methods("POST")
 	m.HandleFunc("/action", newAction).Methods("POST")
 	m.HandleFunc("/alarm", newAlarm).Methods("POST")
