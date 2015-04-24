@@ -4,28 +4,21 @@
 
 package tsuru
 
-import (
-	"github.com/tsuru/tsuru-autoscale/db"
-	"gopkg.in/mgo.v2/bson"
-)
+import "github.com/tsuru/tsuru-autoscale/db"
 
-type instance struct {
-	ID       bson.ObjectId `bson:"_id"`
-	Name     string
-	Metadata map[string]string
-	Apps     []string
+// Instance represents a tsuru service instance.
+type Instance struct {
+	Name string
+	User string
+	Team string
+	Apps []string
 }
 
-func NewInstance(name string, metadata map[string]string) (*instance, error) {
-	i := &instance{
-		ID:       bson.NewObjectId(),
-		Name:     name,
-		Metadata: metadata,
-	}
+func NewInstance(i *Instance) error {
 	conn, err := db.Conn()
 	if err != nil {
-		return nil, err
+		return err
 	}
 	defer conn.Close()
-	return i, conn.Instances().Insert(i)
+	return conn.Instances().Insert(i)
 }

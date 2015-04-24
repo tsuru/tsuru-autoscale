@@ -17,12 +17,9 @@ type S struct{}
 var _ = check.Suite(&S{})
 
 func (s *S) TestInstanceAdd(c *check.C) {
-	name := "name"
-	metadata := map[string]string{
-		"key": "value",
+	i := &Instance{
+		Name: "name",
 	}
-	i, err := NewInstance(name, metadata)
+	err := NewInstance(i)
 	c.Assert(err, check.IsNil)
-	c.Assert(i.Name, check.Equals, name)
-	c.Assert(i.Metadata, check.DeepEquals, metadata)
 }
