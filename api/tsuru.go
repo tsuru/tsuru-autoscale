@@ -5,6 +5,7 @@
 package api
 
 import (
+	"fmt"
 	"net/http"
 )
 
@@ -18,6 +19,7 @@ func serviceBindUnit(w http.ResponseWriter, r *http.Request) {
 
 func serviceBindApp(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusCreated)
+	fmt.Fprint(w, "{}")
 }
 
 func serviceUnbindUnit(w http.ResponseWriter, r *http.Request) {

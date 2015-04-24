@@ -5,6 +5,7 @@
 package api
 
 import (
+	"encoding/json"
 	"net/http"
 	"net/http/httptest"
 
@@ -36,6 +37,9 @@ func (s *S) TestServiceBindApp(c *check.C) {
 	r := Router()
 	r.ServeHTTP(recorder, request)
 	c.Assert(recorder.Code, check.Equals, http.StatusCreated)
+	var i interface{}
+	err = json.Unmarshal(recorder.Body.Bytes(), &i)
+	c.Assert(err, check.IsNil)
 }
 
 func (s *S) TestServiceUnbindUnit(c *check.C) {
