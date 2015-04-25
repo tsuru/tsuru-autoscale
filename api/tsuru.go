@@ -5,11 +5,29 @@
 package api
 
 import (
+	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"net/http"
+
+	"github.com/tsuru/tsuru-autoscale/tsuru"
 )
 
 func serviceAdd(w http.ResponseWriter, r *http.Request) {
+	var i tsuru.Instance
+	defer r.Body.Close()
+	body, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		return
+	}
+	err = json.Unmarshal(body, &i)
+	if err != nil {
+		return
+	}
+	err = tsuru.NewInstance(&i)
+	if err != nil {
+		return
+	}
 	w.WriteHeader(http.StatusCreated)
 }
 

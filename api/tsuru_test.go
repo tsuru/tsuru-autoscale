@@ -8,13 +8,15 @@ import (
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
+	"strings"
 
 	"gopkg.in/check.v1"
 )
 
 func (s *S) TestServiceAdd(c *check.C) {
 	recorder := httptest.NewRecorder()
-	request, err := http.NewRequest("POST", "/resources", nil)
+	body := `{}`
+	request, err := http.NewRequest("POST", "/resources", strings.NewReader(body))
 	c.Assert(err, check.IsNil)
 	r := Router()
 	r.ServeHTTP(recorder, request)
