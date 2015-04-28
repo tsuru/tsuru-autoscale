@@ -5,20 +5,53 @@
 package tsuru
 
 import (
+	"errors"
+
 	"github.com/tsuru/tsuru-autoscale/db"
 	"gopkg.in/mgo.v2/bson"
 )
 
 // Instance represents a tsuru service instance.
 type Instance struct {
+	ID   bson.ObjectId `bson:"_id"`
 	Name string
 	User string
 	Team string
 	Apps []string
 }
 
+func (i *Instance) update() error {
+	conn, err := db.Conn()
+	if err != nil {
+		return err
+	}
+	defer conn.Close()
+	return conn.Instances().UpdateId(i.ID, i)
+}
+
+func contains(list []string, item string) bool {
+	for _, i := range list {
+		if i == item {
+			return true
+		}
+	}
+	return false
+}
+
+// AddApp add new app to an instance.
+func (i *Instance) AddApp(app string) error {
+	if contains(i.Apps, app) {
+		return errors.New("")
+	}
+	i.Apps = append(i.Apps, app)
+	return i.update()
+}
+
 // NewInstance creates a new service instance.
 func NewInstance(i *Instance) error {
+	if i.ID.Hex() == "" {
+		i.ID = bson.NewObjectId()
+	}
 	conn, err := db.Conn()
 	if err != nil {
 		return err

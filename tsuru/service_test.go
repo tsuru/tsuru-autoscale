@@ -7,14 +7,26 @@ package tsuru
 import (
 	"testing"
 
+	"github.com/tsuru/tsuru-autoscale/db"
 	"gopkg.in/check.v1"
 )
 
 func Test(t *testing.T) { check.TestingT(t) }
 
-type S struct{}
+type S struct {
+	conn *db.Storage
+}
 
 var _ = check.Suite(&S{})
+
+func (s *S) SetUpSuite(c *check.C) {
+	var err error
+	s.conn, err = db.Conn()
+	c.Assert(err, check.IsNil)
+}
+func (s *S) TearDownTest(c *check.C) {
+	s.conn.Instances().RemoveAll(nil)
+}
 
 func (s *S) TestNewInstance(c *check.C) {
 	i := &Instance{
@@ -33,4 +45,21 @@ func (s *S) TestGetInstanceByName(c *check.C) {
 	n, err := GetInstanceByName(i.Name)
 	c.Assert(err, check.IsNil)
 	c.Assert(n.Name, check.Equals, i.Name)
+}
+
+func (s *S) TestAddApp(c *check.C) {
+	i := &Instance{
+		Name: "name",
+	}
+	err := NewInstance(i)
+	c.Assert(err, check.IsNil)
+	i, err = GetInstanceByName(i.Name)
+	c.Assert(err, check.IsNil)
+	err = i.AddApp("app")
+	c.Assert(err, check.IsNil)
+	err = i.AddApp("app")
+	c.Assert(err, check.NotNil)
+	i, err = GetInstanceByName(i.Name)
+	c.Assert(err, check.IsNil)
+	c.Assert(i.Apps, check.DeepEquals, []string{"app"})
 }
