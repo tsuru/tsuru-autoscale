@@ -10,6 +10,7 @@ import (
 	"io/ioutil"
 	"net/http"
 
+	"github.com/gorilla/mux"
 	"github.com/tsuru/tsuru-autoscale/tsuru"
 )
 
@@ -36,6 +37,32 @@ func serviceBindUnit(w http.ResponseWriter, r *http.Request) {
 }
 
 func serviceBindApp(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	i, err := tsuru.GetInstanceByName(vars["name"])
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusNotFound)
+		return
+	}
+	defer r.Body.Close()
+	body, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		fmt.Println("1")
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	var data map[string]string
+	err = json.Unmarshal(body, &data)
+	if err != nil {
+		fmt.Println("2")
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	err = i.AddApp(data["app-host"])
+	if err != nil {
+		fmt.Println("3", err.Error())
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 	w.WriteHeader(http.StatusCreated)
 	fmt.Fprint(w, "{}")
 }

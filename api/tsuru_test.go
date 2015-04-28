@@ -10,6 +10,7 @@ import (
 	"net/http/httptest"
 	"strings"
 
+	"github.com/tsuru/tsuru-autoscale/tsuru"
 	"gopkg.in/check.v1"
 )
 
@@ -33,8 +34,14 @@ func (s *S) TestServiceBindUnit(c *check.C) {
 }
 
 func (s *S) TestServiceBindApp(c *check.C) {
+	service := &tsuru.Instance{
+		Name: "name",
+	}
+	err := tsuru.NewInstance(service)
+	c.Assert(err, check.IsNil)
 	recorder := httptest.NewRecorder()
-	request, err := http.NewRequest("POST", "/resources/name/bind-app", nil)
+	body := `{"app-host":"app.host.com"}`
+	request, err := http.NewRequest("POST", "/resources/name/bind-app", strings.NewReader(body))
 	c.Assert(err, check.IsNil)
 	r := Router()
 	r.ServeHTTP(recorder, request)
