@@ -6,6 +6,7 @@ package tsuru
 
 import (
 	"errors"
+	"strings"
 
 	"github.com/tsuru/tsuru-autoscale/db"
 	"gopkg.in/mgo.v2/bson"
@@ -38,8 +39,13 @@ func contains(list []string, item string) bool {
 	return false
 }
 
+func appFromHost(host string) string {
+	return strings.Split(host, ".")[0]
+}
+
 // AddApp add new app to an instance.
-func (i *Instance) AddApp(app string) error {
+func (i *Instance) AddApp(host string) error {
+	app := appFromHost(host)
 	if contains(i.Apps, app) {
 		return errors.New("")
 	}
