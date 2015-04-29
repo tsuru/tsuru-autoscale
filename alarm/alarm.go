@@ -34,6 +34,7 @@ type Alarm struct {
 	Enabled    bool                  `json:"enabled"`
 	Wait       time.Duration         `json:"wait"`
 	DataSource datasource.DataSource `json:"datasource"`
+	Instance   string                `json:"instance"`
 }
 
 func NewAlarm(a *Alarm) error {
