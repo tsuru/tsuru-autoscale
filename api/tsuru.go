@@ -19,16 +19,19 @@ func serviceAdd(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 		logger().Print(err.Error())
 		return
 	}
 	err = json.Unmarshal(body, &i)
 	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 		logger().Print(err.Error())
 		return
 	}
 	err = tsuru.NewInstance(&i)
 	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 		logger().Print(err.Error())
 		return
 	}
