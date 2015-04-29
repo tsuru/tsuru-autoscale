@@ -17,15 +17,18 @@ func newDataSource(w http.ResponseWriter, r *http.Request) {
 	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
+		logger().Print(err.Error())
 	}
 	var ds datasource.DataSource
 	err = json.Unmarshal(body, &ds)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
+		logger().Print(err.Error())
 	}
 	err = datasource.New(&ds)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
+		logger().Print(err.Error())
 	}
 	w.WriteHeader(http.StatusCreated)
 }

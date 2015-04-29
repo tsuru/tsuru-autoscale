@@ -17,15 +17,18 @@ func newAlarm(w http.ResponseWriter, r *http.Request) {
 	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
+		logger().Print(err.Error())
 	}
 	var a alarm.Alarm
 	err = json.Unmarshal(body, &a)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
+		logger().Print(err.Error())
 	}
 	err = alarm.NewAlarm(&a)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
+		logger().Print(err.Error())
 	}
 	w.WriteHeader(http.StatusCreated)
 }

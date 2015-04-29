@@ -19,14 +19,17 @@ func serviceAdd(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {
+		logger().Print(err.Error())
 		return
 	}
 	err = json.Unmarshal(body, &i)
 	if err != nil {
+		logger().Print(err.Error())
 		return
 	}
 	err = tsuru.NewInstance(&i)
 	if err != nil {
+		logger().Print(err.Error())
 		return
 	}
 	w.WriteHeader(http.StatusCreated)
@@ -41,26 +44,27 @@ func serviceBindApp(w http.ResponseWriter, r *http.Request) {
 	i, err := tsuru.GetInstanceByName(vars["name"])
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusNotFound)
+		logger().Print(err.Error())
 		return
 	}
 	defer r.Body.Close()
 	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {
-		fmt.Println("1")
 		http.Error(w, err.Error(), http.StatusInternalServerError)
+		logger().Print(err.Error())
 		return
 	}
 	var data map[string]string
 	err = json.Unmarshal(body, &data)
 	if err != nil {
-		fmt.Println("2")
 		http.Error(w, err.Error(), http.StatusInternalServerError)
+		logger().Print(err.Error())
 		return
 	}
 	err = i.AddApp(data["app-host"])
 	if err != nil {
-		fmt.Println("3", err.Error())
 		http.Error(w, err.Error(), http.StatusInternalServerError)
+		logger().Print(err.Error())
 		return
 	}
 	w.WriteHeader(http.StatusCreated)

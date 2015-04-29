@@ -5,11 +5,17 @@
 package api
 
 import (
+	stdlog "log"
 	"net/http"
 
 	"github.com/codegangsta/negroni"
 	"github.com/gorilla/mux"
+	"github.com/tsuru/tsuru-autoscale/log"
 )
+
+func logger() *stdlog.Logger {
+	return log.Logger()
+}
 
 func Router() http.Handler {
 	m := mux.NewRouter()
