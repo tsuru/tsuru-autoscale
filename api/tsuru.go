@@ -23,6 +23,7 @@ func serviceAdd(w http.ResponseWriter, r *http.Request) {
 		logger().Print(err.Error())
 		return
 	}
+	logger().Print(string(body))
 	err = json.Unmarshal(body, &i)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -52,6 +53,7 @@ func serviceBindApp(w http.ResponseWriter, r *http.Request) {
 	}
 	defer r.Body.Close()
 	body, err := ioutil.ReadAll(r.Body)
+	logger().Print(string(body))
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		logger().Print(err.Error())
