@@ -5,9 +5,7 @@
 package api
 
 import (
-	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"net/http"
 
 	"github.com/gorilla/mux"
@@ -41,22 +39,7 @@ func serviceBindApp(w http.ResponseWriter, r *http.Request) {
 		logger().Print(err.Error())
 		return
 	}
-	defer r.Body.Close()
-	body, err := ioutil.ReadAll(r.Body)
-	logger().Print(string(body))
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		logger().Print(err.Error())
-		return
-	}
-	var data map[string]string
-	err = json.Unmarshal(body, &data)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		logger().Print(err.Error())
-		return
-	}
-	err = i.AddApp(data["app-host"])
+	err = i.AddApp(r.FormValue("app-host"))
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		logger().Print(err.Error())

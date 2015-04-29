@@ -40,7 +40,7 @@ func (s *S) TestServiceBindApp(c *check.C) {
 	err := tsuru.NewInstance(service)
 	c.Assert(err, check.IsNil)
 	recorder := httptest.NewRecorder()
-	body := `{"app-host":"app.host.com"}`
+	body := `app-host=tsuru-dashboard.192.168.50.4.nip.io`
 	request, err := http.NewRequest("POST", "/resources/name/bind-app", strings.NewReader(body))
 	c.Assert(err, check.IsNil)
 	r := Router()
