@@ -13,7 +13,7 @@ var lg *log.Logger
 
 func Logger() *log.Logger {
 	if lg == nil {
-		lg = log.New(os.Stdout, "[alarm] ", 0)
+		lg = log.New(os.Stdout, "[autoscale] ", 0)
 	}
 	return lg
 }
