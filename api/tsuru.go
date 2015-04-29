@@ -15,22 +15,12 @@ import (
 )
 
 func serviceAdd(w http.ResponseWriter, r *http.Request) {
-	var i tsuru.Instance
-	defer r.Body.Close()
-	body, err := ioutil.ReadAll(r.Body)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		logger().Print(err.Error())
-		return
+	i := tsuru.Instance{
+		Name: r.FormValue("name"),
+		Team: r.FormValue("team"),
+		User: r.FormValue("user"),
 	}
-	logger().Print(string(body))
-	err = json.Unmarshal(body, &i)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		logger().Print(err.Error())
-		return
-	}
-	err = tsuru.NewInstance(&i)
+	err := tsuru.NewInstance(&i)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		logger().Print(err.Error())

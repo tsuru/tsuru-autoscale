@@ -16,7 +16,7 @@ import (
 
 func (s *S) TestServiceAdd(c *check.C) {
 	recorder := httptest.NewRecorder()
-	body := `{}`
+	body := `name=myscale2&team=admin&user=admin%40example.com`
 	request, err := http.NewRequest("POST", "/resources", strings.NewReader(body))
 	c.Assert(err, check.IsNil)
 	r := Router()
