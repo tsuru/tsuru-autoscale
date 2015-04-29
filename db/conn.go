@@ -12,7 +12,8 @@
 package db
 
 import (
-	"github.com/tsuru/config"
+	"os"
+
 	"github.com/tsuru/tsuru/db/storage"
 )
 
@@ -27,11 +28,11 @@ type Storage struct {
 
 // conn reads the tsuru-autoscale config and calls storage.Open to get a database connection.
 func conn() (*storage.Storage, error) {
-	url, _ := config.GetString("database:url")
+	url := os.Getenv("MONGODB_URL")
 	if url == "" {
 		url = DefaultDatabaseURL
 	}
-	dbname, _ := config.GetString("database:name")
+	dbname := os.Getenv("MONGODB_DATABASE_NAME")
 	if dbname == "" {
 		dbname = DefaultDatabaseName
 	}
