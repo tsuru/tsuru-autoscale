@@ -9,6 +9,7 @@ import (
 	"errors"
 	"net/http"
 	"net/http/httptest"
+	"os"
 	"testing"
 
 	"github.com/tsuru/tsuru-autoscale/db"
@@ -22,8 +23,18 @@ type S struct {
 }
 
 func (s *S) SetUpSuite(c *check.C) {
-	var err error
+	err := os.Setenv("MONGODB_DATABASE_NAME", "tsuru_autoscale_datasource")
+	c.Assert(err, check.IsNil)
 	s.conn, err = db.Conn()
+	c.Assert(err, check.IsNil)
+}
+
+func (s *S) TearDownTest(c *check.C) {
+	s.conn.DataSources().RemoveAll(nil)
+}
+
+func (s *S) TearDownSuite(c *check.C) {
+	err := os.Unsetenv("MONGODB_DATABASE_NAME")
 	c.Assert(err, check.IsNil)
 }
 
@@ -76,5 +87,20 @@ func (s *S) TestGet(c *check.C) {
 	instance, err := Get(ds.Name)
 	c.Assert(err, check.IsNil)
 	c.Assert(instance.Name, check.Equals, ds.Name)
+}
 
+func (s *S) TestAll(c *check.C) {
+	ds := DataSource{
+		Name:    "xpto",
+		Headers: nil,
+	}
+	s.conn.DataSources().Insert(&ds)
+	ds = DataSource{
+		Name:    "xpto2",
+		Headers: nil,
+	}
+	s.conn.DataSources().Insert(&ds)
+	all, err := All()
+	c.Assert(err, check.IsNil)
+	c.Assert(all, check.HasLen, 2)
 }

@@ -39,6 +39,21 @@ func New(ds *DataSource) error {
 	return conn.DataSources().Insert(&ds)
 }
 
+// All returns all data sources.
+func All() ([]DataSource, error) {
+	conn, err := db.Conn()
+	if err != nil {
+		return nil, err
+	}
+	defer conn.Close()
+	var ds []DataSource
+	err = conn.DataSources().Find(nil).All(&ds)
+	if err != nil {
+		return nil, err
+	}
+	return ds, nil
+}
+
 // Get finds a data source by name.
 func Get(name string) (*DataSource, error) {
 	conn, err := db.Conn()
