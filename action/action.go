@@ -22,6 +22,7 @@ type Action struct {
 	Headers map[string]string
 }
 
+// New creates a new action.
 func New(a *Action) error {
 	if a.URL == "" {
 		return errors.New("action: url required")
