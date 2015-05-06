@@ -35,7 +35,7 @@ func New(a *Action) error {
 		return err
 	}
 	defer conn.Close()
-	return conn.DataSources().Insert(&a)
+	return conn.Actions().Insert(&a)
 }
 
 func All() ([]Action, error) {

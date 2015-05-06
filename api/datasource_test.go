@@ -33,6 +33,7 @@ func (s *S) SetUpSuite(c *check.C) {
 func (s *S) TearDownTest(c *check.C) {
 	s.conn.DataSources().RemoveAll(nil)
 	s.conn.Instances().RemoveAll(nil)
+	s.conn.Actions().RemoveAll(nil)
 }
 
 func (s *S) TestNewDataSource(c *check.C) {

@@ -32,3 +32,17 @@ func newAction(w http.ResponseWriter, r *http.Request) {
 	}
 	w.WriteHeader(http.StatusCreated)
 }
+
+func allActions(w http.ResponseWriter, r *http.Request) {
+	actions, err := action.All()
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		logger().Print(err.Error())
+	}
+	w.Header().Set("Content-Type", "application/json")
+	err = json.NewEncoder(w).Encode(actions)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		logger().Print(err.Error())
+	}
+}
