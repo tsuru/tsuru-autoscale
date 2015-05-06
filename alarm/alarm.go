@@ -165,3 +165,18 @@ func (a *Alarm) Check() (bool, error) {
 	}
 	return check, nil
 }
+
+// ListAlarms lists all alarms.
+func ListAlarms() ([]Alarm, error) {
+	conn, err := db.Conn()
+	if err != nil {
+		return nil, err
+	}
+	defer conn.Close()
+	var alarms []Alarm
+	err = conn.Alarms().Find(nil).All(&alarms)
+	if err != nil {
+		return nil, err
+	}
+	return alarms, nil
+}

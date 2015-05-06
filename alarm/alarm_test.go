@@ -29,6 +29,7 @@ func (s *S) SetUpSuite(c *check.C) {
 }
 
 func (s *S) TearDownTest(c *check.C) {
+	s.conn.Alarms().RemoveAll(nil)
 	s.conn.Events().RemoveAll(nil)
 }
 
@@ -193,4 +194,18 @@ func (s *S) TestAlarmCheck(c *check.C) {
 	ok, err = alarm.Check()
 	c.Assert(err, check.IsNil)
 	c.Assert(ok, check.Equals, false)
+}
+
+func (s *S) TestListAlarms(c *check.C) {
+	a := Alarm{
+		Name: "xpto",
+	}
+	s.conn.Alarms().Insert(&a)
+	a = Alarm{
+		Name: "xpto2",
+	}
+	s.conn.Alarms().Insert(&a)
+	all, err := ListAlarms()
+	c.Assert(err, check.IsNil)
+	c.Assert(all, check.HasLen, 2)
 }
