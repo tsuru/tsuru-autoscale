@@ -21,6 +21,7 @@ func Router() http.Handler {
 	m := mux.NewRouter()
 	m.HandleFunc("/healthcheck", healthcheck).Methods("GET")
 	m.HandleFunc("/datasource", newDataSource).Methods("POST")
+	m.HandleFunc("/datasource", allDataSources).Methods("GET")
 	m.HandleFunc("/action", newAction).Methods("POST")
 	m.HandleFunc("/alarm", newAlarm).Methods("POST")
 	m.HandleFunc("/resources", serviceAdd)
