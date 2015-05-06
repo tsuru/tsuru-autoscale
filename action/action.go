@@ -38,6 +38,20 @@ func New(a *Action) error {
 	return conn.DataSources().Insert(&a)
 }
 
+func All() ([]Action, error) {
+	conn, err := db.Conn()
+	if err != nil {
+		return nil, err
+	}
+	defer conn.Close()
+	var actions []Action
+	err = conn.Actions().Find(nil).All(&actions)
+	if err != nil {
+		return nil, err
+	}
+	return actions, nil
+}
+
 func (a *Action) Do() error {
 	req, err := http.NewRequest(a.Method, a.URL, strings.NewReader(a.Body))
 	if err != nil {

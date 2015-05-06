@@ -8,14 +8,34 @@ import (
 	"errors"
 	"net/http"
 	"net/http/httptest"
+	"os"
 	"testing"
 
+	"github.com/tsuru/tsuru-autoscale/db"
 	"gopkg.in/check.v1"
 )
 
 func Test(t *testing.T) { check.TestingT(t) }
 
-type S struct{}
+type S struct {
+	conn *db.Storage
+}
+
+func (s *S) SetUpSuite(c *check.C) {
+	err := os.Setenv("MONGODB_DATABASE_NAME", "tsuru_autoscale_action")
+	c.Assert(err, check.IsNil)
+	s.conn, err = db.Conn()
+	c.Assert(err, check.IsNil)
+}
+
+func (s *S) TearDownTest(c *check.C) {
+	s.conn.Actions().RemoveAll(nil)
+}
+
+func (s *S) TearDownSuite(c *check.C) {
+	err := os.Unsetenv("MONGODB_DATABASE_NAME")
+	c.Assert(err, check.IsNil)
+}
 
 var _ = check.Suite(&S{})
 
@@ -46,4 +66,20 @@ func (s *S) TestDo(c *check.C) {
 	err = a.Do()
 	c.Assert(err, check.IsNil)
 	c.Assert(called, check.Equals, true)
+}
+
+func (s *S) TestAll(c *check.C) {
+	a := Action{
+		Name:    "xpto",
+		Headers: nil,
+	}
+	s.conn.Actions().Insert(&a)
+	a = Action{
+		Name:    "xpto2",
+		Headers: nil,
+	}
+	s.conn.Actions().Insert(&a)
+	all, err := All()
+	c.Assert(err, check.IsNil)
+	c.Assert(all, check.HasLen, 2)
 }
