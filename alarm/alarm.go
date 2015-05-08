@@ -16,6 +16,7 @@ import (
 	"github.com/tsuru/tsuru-autoscale/db"
 	"github.com/tsuru/tsuru-autoscale/log"
 	"gopkg.in/mgo.v2"
+	"gopkg.in/mgo.v2/bson"
 )
 
 func StartAutoScale() {
@@ -179,4 +180,19 @@ func ListAlarms() ([]Alarm, error) {
 		return nil, err
 	}
 	return alarms, nil
+}
+
+// FindAlarmByName find alarm by name.
+func FindAlarmByName(name string) (*Alarm, error) {
+	conn, err := db.Conn()
+	if err != nil {
+		return nil, err
+	}
+	defer conn.Close()
+	var alarm Alarm
+	err = conn.Alarms().Find(bson.M{"name": name}).One(&alarm)
+	if err != nil {
+		return nil, err
+	}
+	return &alarm, nil
 }

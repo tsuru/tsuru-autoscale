@@ -209,3 +209,13 @@ func (s *S) TestListAlarms(c *check.C) {
 	c.Assert(err, check.IsNil)
 	c.Assert(all, check.HasLen, 2)
 }
+
+func (s *S) TestFindAlarmByName(c *check.C) {
+	a := Alarm{
+		Name: "xpto",
+	}
+	s.conn.Alarms().Insert(&a)
+	na, err := FindAlarmByName(a.Name)
+	c.Assert(err, check.IsNil)
+	c.Assert(na.Name, check.Equals, a.Name)
+}
