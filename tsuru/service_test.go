@@ -7,6 +7,7 @@ package tsuru
 import (
 	"testing"
 
+	"github.com/tsuru/tsuru/db/dbtest"
 	"github.com/tsuru/tsuru-autoscale/db"
 	"gopkg.in/check.v1"
 )
@@ -25,7 +26,7 @@ func (s *S) SetUpSuite(c *check.C) {
 	c.Assert(err, check.IsNil)
 }
 func (s *S) TearDownTest(c *check.C) {
-	s.conn.Instances().RemoveAll(nil)
+        dbtest.ClearAllCollections(s.conn.Instances().Database)
 }
 
 func (s *S) TestNewInstance(c *check.C) {

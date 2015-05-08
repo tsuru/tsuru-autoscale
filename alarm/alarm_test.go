@@ -10,6 +10,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/tsuru/tsuru/db/dbtest"
 	"github.com/tsuru/tsuru-autoscale/action"
 	"github.com/tsuru/tsuru-autoscale/datasource"
 	"github.com/tsuru/tsuru-autoscale/db"
@@ -29,8 +30,7 @@ func (s *S) SetUpSuite(c *check.C) {
 }
 
 func (s *S) TearDownTest(c *check.C) {
-	s.conn.Alarms().RemoveAll(nil)
-	s.conn.Events().RemoveAll(nil)
+        dbtest.ClearAllCollections(s.conn.Alarms().Database)
 }
 
 var _ = check.Suite(&S{})
