@@ -11,9 +11,9 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/tsuru/tsuru/db/dbtest"
 	"github.com/tsuru/tsuru-autoscale/datasource"
 	"github.com/tsuru/tsuru-autoscale/db"
+	"github.com/tsuru/tsuru/db/dbtest"
 	"gopkg.in/check.v1"
 )
 
@@ -32,7 +32,7 @@ func (s *S) SetUpSuite(c *check.C) {
 }
 
 func (s *S) TearDownTest(c *check.C) {
-        dbtest.ClearAllCollections(s.conn.Actions().Database)
+	dbtest.ClearAllCollections(s.conn.Actions().Database)
 }
 
 func (s *S) TestNewDataSource(c *check.C) {
