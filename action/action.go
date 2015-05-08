@@ -53,6 +53,16 @@ func FindByName(name string) (*Action, error) {
 	return &action, nil
 }
 
+// Remove removes an action.
+func Remove(a *Action) error {
+	conn, err := db.Conn()
+	if err != nil {
+		return err
+	}
+	defer conn.Close()
+	return conn.Actions().Remove(a)
+}
+
 func All() ([]Action, error) {
 	conn, err := db.Conn()
 	if err != nil {

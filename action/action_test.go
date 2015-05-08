@@ -95,3 +95,15 @@ func (s *S) TestFindByName(c *check.C) {
 	c.Assert(err, check.IsNil)
 	c.Assert(na, check.DeepEquals, &a)
 }
+
+func (s *S) TestRemove(c *check.C) {
+	a := Action{
+		Name:    "xpto123",
+		Headers: map[string]string{},
+	}
+	s.conn.Actions().Insert(&a)
+	err := Remove(&a)
+	c.Assert(err, check.IsNil)
+	_, err = FindByName(a.Name)
+	c.Assert(err, check.NotNil)
+}
