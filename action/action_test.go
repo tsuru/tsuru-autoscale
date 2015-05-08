@@ -11,6 +11,7 @@ import (
 	"os"
 	"testing"
 
+	"github.com/tsuru/tsuru/db/dbtest"
 	"github.com/tsuru/tsuru-autoscale/db"
 	"gopkg.in/check.v1"
 )
@@ -29,7 +30,7 @@ func (s *S) SetUpSuite(c *check.C) {
 }
 
 func (s *S) TearDownTest(c *check.C) {
-	s.conn.Actions().RemoveAll(nil)
+        dbtest.ClearAllCollections(s.conn.Actions().Database)
 }
 
 func (s *S) TearDownSuite(c *check.C) {
@@ -82,4 +83,15 @@ func (s *S) TestAll(c *check.C) {
 	all, err := All()
 	c.Assert(err, check.IsNil)
 	c.Assert(all, check.HasLen, 2)
+}
+
+func (s *S) TestFindByName(c *check.C) {
+	a := Action{
+		Name:    "xpto123",
+		Headers: map[string]string{},
+	}
+	s.conn.Actions().Insert(&a)
+	na, err := FindByName(a.Name)
+	c.Assert(err, check.IsNil)
+	c.Assert(na, check.DeepEquals, &a)
 }

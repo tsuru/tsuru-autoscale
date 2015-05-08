@@ -38,6 +38,21 @@ func New(a *Action) error {
 	return conn.Actions().Insert(&a)
 }
 
+// FindByName finds action by name.
+func FindByName(name string) (*Action, error) {
+	conn, err := db.Conn()
+	if err != nil {
+		return nil, err
+	}
+	defer conn.Close()
+	var action Action
+	err = conn.Actions().Find(nil).One(&action)
+	if err != nil {
+		return nil, err
+	}
+	return &action, nil
+}
+
 func All() ([]Action, error) {
 	conn, err := db.Conn()
 	if err != nil {
