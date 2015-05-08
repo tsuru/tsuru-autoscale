@@ -69,6 +69,16 @@ func Get(name string) (*DataSource, error) {
 	return &ds, nil
 }
 
+// Remove removes a data source.
+func Remove(ds *DataSource) error {
+	conn, err := db.Conn()
+	if err != nil {
+		return err
+	}
+	defer conn.Close()
+	return conn.DataSources().Remove(ds)
+}
+
 // Get tries to get the data from the data source.
 func (ds *DataSource) Get() (string, error) {
 	req, err := http.NewRequest(ds.Method, ds.URL, strings.NewReader(ds.Body))

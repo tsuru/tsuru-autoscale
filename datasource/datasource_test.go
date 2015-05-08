@@ -105,3 +105,15 @@ func (s *S) TestAll(c *check.C) {
 	c.Assert(err, check.IsNil)
 	c.Assert(all, check.HasLen, 2)
 }
+
+func (s *S) TestRemove(c *check.C) {
+	ds := DataSource{
+		Name:    "xpto",
+		Headers: map[string]string{},
+	}
+	s.conn.DataSources().Insert(&ds)
+	err := Remove(&ds)
+	c.Assert(err, check.IsNil)
+	_, err = Get(ds.Name)
+	c.Assert(err, check.NotNil)
+}
