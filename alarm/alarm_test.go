@@ -219,3 +219,14 @@ func (s *S) TestFindAlarmByName(c *check.C) {
 	c.Assert(err, check.IsNil)
 	c.Assert(na.Name, check.Equals, a.Name)
 }
+
+func (s *S) TestRemoveAlarm(c *check.C) {
+	a := Alarm{
+		Name: "xpto",
+	}
+	s.conn.Alarms().Insert(&a)
+	err := RemoveAlarm(&a)
+	c.Assert(err, check.IsNil)
+	_, err = FindAlarmByName(a.Name)
+	c.Assert(err, check.NotNil)
+}
