@@ -198,7 +198,7 @@ func FindAlarmByName(name string) (*Alarm, error) {
 }
 
 // RemoveAlarm removes an alarm.
-func RemoveAlarm (a *Alarm) error {
+func RemoveAlarm(a *Alarm) error {
 	conn, err := db.Conn()
 	if err != nil {
 		return err
