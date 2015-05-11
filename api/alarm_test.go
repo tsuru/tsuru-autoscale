@@ -6,6 +6,7 @@ package api
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -39,4 +40,27 @@ func (s *S) TestListAlarms(c *check.C) {
 	err = json.Unmarshal(body, &a)
 	c.Assert(err, check.IsNil)
 	c.Assert(a, check.HasLen, 1)
+}
+
+func (s *S) TestRemoveAlarmNotFound(c *check.C) {
+	recorder := httptest.NewRecorder()
+	request, err := http.NewRequest("DELETE", "/alarm/notfound", nil)
+	c.Assert(err, check.IsNil)
+	r := Router()
+	r.ServeHTTP(recorder, request)
+	c.Assert(recorder.Code, check.Equals, http.StatusNotFound)
+}
+
+func (s *S) TestRemoveAlarm(c *check.C) {
+	a := &alarm.Alarm{Name: "myalarm"}
+	err := alarm.NewAlarm(a)
+	c.Assert(err, check.IsNil)
+	recorder := httptest.NewRecorder()
+	request, err := http.NewRequest("DELETE", fmt.Sprintf("/alarm/%s", a.Name), nil)
+	c.Assert(err, check.IsNil)
+	r := Router()
+	r.ServeHTTP(recorder, request)
+	c.Assert(recorder.Code, check.Equals, http.StatusOK)
+	_, err = alarm.FindAlarmByName(a.Name)
+	c.Assert(err, check.NotNil)
 }
