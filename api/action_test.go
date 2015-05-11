@@ -6,6 +6,7 @@ package api
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -39,4 +40,27 @@ func (s *S) TestAllActions(c *check.C) {
 	err = json.Unmarshal(body, &a)
 	c.Assert(err, check.IsNil)
 	c.Assert(a, check.HasLen, 1)
+}
+
+func (s *S) TestRemoveActionNotFound(c *check.C) {
+	recorder := httptest.NewRecorder()
+	request, err := http.NewRequest("DELETE", "/action", nil)
+	c.Assert(err, check.IsNil)
+	r := Router()
+	r.ServeHTTP(recorder, request)
+	c.Assert(recorder.Code, check.Equals, http.StatusNotFound)
+}
+
+func (s *S) TestRemoveAction(c *check.C) {
+	a := &action.Action{Name: "namezito", URL: "http://tsuru.io", Method: "GET"}
+	err := action.New(a)
+	c.Assert(err, check.IsNil)
+	recorder := httptest.NewRecorder()
+	request, err := http.NewRequest("DELETE", fmt.Sprintf("/action/%s", a.Name), nil)
+	c.Assert(err, check.IsNil)
+	r := Router()
+	r.ServeHTTP(recorder, request)
+	c.Assert(recorder.Code, check.Equals, http.StatusOK)
+	_, err = action.FindByName(a.Name)
+	c.Assert(err, check.NotNil)
 }

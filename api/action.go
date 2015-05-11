@@ -9,6 +9,7 @@ import (
 	"io/ioutil"
 	"net/http"
 
+	"github.com/gorilla/mux"
 	"github.com/tsuru/tsuru-autoscale/action"
 )
 
@@ -41,6 +42,20 @@ func allActions(w http.ResponseWriter, r *http.Request) {
 	}
 	w.Header().Set("Content-Type", "application/json")
 	err = json.NewEncoder(w).Encode(actions)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		logger().Print(err.Error())
+	}
+}
+
+func removeAction(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	a, err := action.FindByName(vars["name"])
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusNotFound)
+		logger().Print(err.Error())
+	}
+	err = action.Remove(a)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		logger().Print(err.Error())
