@@ -6,6 +6,7 @@ package api
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -60,4 +61,27 @@ func (s *S) TestAllDataSources(c *check.C) {
 	err = json.Unmarshal(body, &ds)
 	c.Assert(err, check.IsNil)
 	c.Assert(ds, check.HasLen, 1)
+}
+
+func (s *S) TestRemoveDataSourceNotFound(c *check.C) {
+	recorder := httptest.NewRecorder()
+	request, err := http.NewRequest("DELETE", "/datasource/notfound", nil)
+	c.Assert(err, check.IsNil)
+	r := Router()
+	r.ServeHTTP(recorder, request)
+	c.Assert(recorder.Code, check.Equals, http.StatusNotFound)
+}
+
+func (s *S) TestRemoveDataSource(c *check.C) {
+	ds := &datasource.DataSource{URL: "http://tsuru.io", Method: "GET", Name: "ds"}
+	err := datasource.New(ds)
+	c.Assert(err, check.IsNil)
+	recorder := httptest.NewRecorder()
+	request, err := http.NewRequest("DELETE", fmt.Sprintf("/datasource/%s", ds.Name), nil)
+	c.Assert(err, check.IsNil)
+	r := Router()
+	r.ServeHTTP(recorder, request)
+	c.Assert(recorder.Code, check.Equals, http.StatusOK)
+	_, err = datasource.Get(ds.Name)
+	c.Assert(err, check.NotNil)
 }

@@ -9,6 +9,7 @@ import (
 	"io/ioutil"
 	"net/http"
 
+	"github.com/gorilla/mux"
 	"github.com/tsuru/tsuru-autoscale/datasource"
 )
 
@@ -41,6 +42,20 @@ func allDataSources(w http.ResponseWriter, r *http.Request) {
 	}
 	w.Header().Set("Content-Type", "application/json")
 	err = json.NewEncoder(w).Encode(ds)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		logger().Print(err.Error())
+	}
+}
+
+func removeDataSource(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	ds, err := datasource.Get(vars["name"])
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusNotFound)
+		logger().Print(err.Error())
+	}
+	err = datasource.Remove(ds)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		logger().Print(err.Error())
