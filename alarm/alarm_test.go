@@ -45,12 +45,14 @@ func (s *S) TestAlarm(c *check.C) {
 		URL:    ts.URL,
 		Method: "GET",
 	}
+	err := datasource.New(&instance)
+	c.Assert(err, check.IsNil)
 	alarm := Alarm{
 		Name:       "name",
 		Expression: `data.id == "ble"`,
-		DataSource: instance,
+		DataSource: instance.Name,
 	}
-	err := NewAlarm(&alarm)
+	err = NewAlarm(&alarm)
 	c.Assert(err, check.IsNil)
 	err = scaleIfNeeded(&alarm)
 	c.Assert(err, check.IsNil)
@@ -70,12 +72,14 @@ func (s *S) TestRunAutoScaleOnce(c *check.C) {
 		URL:    ts.URL,
 		Method: "GET",
 	}
+	err := datasource.New(&instance)
+	c.Assert(err, check.IsNil)
 	alarm := Alarm{
 		Name:       "name",
 		Expression: `data.id == "ble"`,
-		DataSource: instance,
+		DataSource: instance.Name,
 	}
-	err := NewAlarm(&alarm)
+	err = NewAlarm(&alarm)
 	c.Assert(err, check.IsNil)
 	runAutoScaleOnce()
 	var events []Event
@@ -112,16 +116,20 @@ func (s *S) TestAlarmWaitEventStillRunning(c *check.C) {
 		URL:    ts.URL,
 		Method: "GET",
 	}
+	err := datasource.New(&instance)
+	c.Assert(err, check.IsNil)
 	a := action.Action{
 		Name:   "name",
 		Method: "GET",
 		URL:    "http:/tsuru.io",
 	}
+	err = action.New(&a)
+	c.Assert(err, check.IsNil)
 	alarm := &Alarm{
 		Name:       "rush",
-		Actions:    []action.Action{a},
+		Actions:    []string{a.Name},
 		Enabled:    true,
-		DataSource: instance,
+		DataSource: instance.Name,
 	}
 	event, err := NewEvent(alarm)
 	c.Assert(err, check.IsNil)
@@ -143,16 +151,20 @@ func (s *S) TestAlarmWaitTime(c *check.C) {
 		URL:    ts.URL,
 		Method: "GET",
 	}
+	err := datasource.New(&instance)
+	c.Assert(err, check.IsNil)
 	a := action.Action{
 		Name:   "name",
 		URL:    "http://tsuru.io",
 		Method: "GET",
 	}
+	err = action.New(&a)
+	c.Assert(err, check.IsNil)
 	alarm := &Alarm{
 		Name:       "rush",
-		Actions:    []action.Action{a},
+		Actions:    []string{a.Name},
 		Enabled:    true,
-		DataSource: instance,
+		DataSource: instance.Name,
 	}
 	event, err := NewEvent(alarm)
 	c.Assert(err, check.IsNil)
@@ -176,11 +188,13 @@ func (s *S) TestAlarmCheck(c *check.C) {
 		URL:    ts.URL,
 		Method: "GET",
 	}
+	err := datasource.New(&instance)
+	c.Assert(err, check.IsNil)
 	alarm := &Alarm{
 		Name:       "rush",
 		Enabled:    true,
 		Expression: `data.id == "ble"`,
-		DataSource: instance,
+		DataSource: instance.Name,
 	}
 	ok, err := alarm.Check()
 	c.Assert(err, check.IsNil)
@@ -189,7 +203,7 @@ func (s *S) TestAlarmCheck(c *check.C) {
 		Name:       "rush",
 		Enabled:    true,
 		Expression: `data.id != "ble"`,
-		DataSource: instance,
+		DataSource: instance.Name,
 	}
 	ok, err = alarm.Check()
 	c.Assert(err, check.IsNil)

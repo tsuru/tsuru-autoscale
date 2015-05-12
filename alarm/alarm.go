@@ -29,13 +29,13 @@ func logger() *stdlog.Logger {
 
 // Alarm represents the configuration for the auto scale.
 type Alarm struct {
-	Name       string                `json:"name"`
-	Actions    []action.Action       `json:"actions"`
-	Expression string                `json:"expression"`
-	Enabled    bool                  `json:"enabled"`
-	Wait       time.Duration         `json:"wait"`
-	DataSource datasource.DataSource `json:"datasource"`
-	Instance   string                `json:"instance"`
+	Name       string        `json:"name"`
+	Actions    []string      `json:"actions"`
+	Expression string        `json:"expression"`
+	Enabled    bool          `json:"enabled"`
+	Wait       time.Duration `json:"wait"`
+	DataSource string        `json:"datasource"`
+	Instance   string        `json:"instance"`
 }
 
 func NewAlarm(a *Alarm) error {
@@ -96,13 +96,18 @@ func scaleIfNeeded(alarm *Alarm) error {
 		} else if wait {
 			return nil
 		}
-		for _, a := range alarm.Actions {
-			logger().Printf("executing alarm %s action %s", alarm.Name, a.Name)
-			err := a.Do()
+		for _, alarmName := range alarm.Actions {
+			a, err := action.FindByName(alarmName)
 			if err != nil {
-				logger().Printf("Error executing action %s in the alarm %s - error: ", a.Name, alarm.Name, err.Error())
+				logger().Printf("alarm %s not found - error: %s", alarmName, err.Error())
 			} else {
-				logger().Printf("alarm %s action %s executed", alarm.Name, a.Name)
+				logger().Printf("executing alarm %s action %s", alarm.Name, a.Name)
+				err := a.Do()
+				if err != nil {
+					logger().Printf("Error executing action %s in the alarm %s - error: %s", a.Name, alarm.Name, err.Error())
+				} else {
+					logger().Printf("alarm %s action %s executed", alarm.Name, a.Name)
+				}
 			}
 		}
 		evt, err := NewEvent(alarm)
@@ -146,9 +151,14 @@ func AutoScaleDisable(alarm *Alarm) error {
 
 func (a *Alarm) Check() (bool, error) {
 	logger().Printf("getting data for alarm %s", a.Name)
-	data, err := a.DataSource.Get()
+	ds, err := datasource.Get(a.DataSource)
 	if err != nil {
-		logger().Printf("error getting data for alarm %s - error:", a.Name, err.Error())
+		logger().Printf("error getting data for alarm %s - error: %s", a.Name, err.Error())
+		return false, err
+	}
+	data, err := ds.Get()
+	if err != nil {
+		logger().Printf("error getting data for alarm %s - error: %s", a.Name, err.Error())
 		return false, err
 	}
 	logger().Printf("data for alarm %s", data)
@@ -157,7 +167,7 @@ func (a *Alarm) Check() (bool, error) {
 	vm.Run(fmt.Sprintf("var expression=%s", a.Expression))
 	expression, err := vm.Get("expression")
 	if err != nil {
-		logger().Printf("error executing expresion for alarm %s - error:", a.Name, err.Error())
+		logger().Printf("error executing expresion for alarm %s - error: %s", a.Name, err.Error())
 		return false, err
 	}
 	check, err := expression.ToBoolean()
