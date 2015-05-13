@@ -12,7 +12,7 @@ import (
 	"gopkg.in/check.v1"
 )
 
-func (s *S) TestAuthMiddleware(c *check.C) {
+func (s *S) TestAuthMiddlewareWithoutToken(c *check.C) {
 	recorder := httptest.NewRecorder()
 	a := newAuthMiddleware()
 	n := negroni.New()
@@ -22,6 +22,19 @@ func (s *S) TestAuthMiddleware(c *check.C) {
 	c.Assert(err, check.IsNil)
 	n.ServeHTTP(recorder, req)
 	c.Assert(recorder.Code, check.Equals, http.StatusUnauthorized)
+}
+
+func (s *S) TestAuthMiddleware(c *check.C) {
+	recorder := httptest.NewRecorder()
+	a := newAuthMiddleware()
+	n := negroni.New()
+	n.Use(a)
+	n.UseHandler(http.HandlerFunc(func(rw http.ResponseWriter, r *http.Request) {}))
+	req, err := http.NewRequest("GET", "http://localhost:3000/foobar", nil)
+	req.Header.Add("Authorization", "1234")
+	c.Assert(err, check.IsNil)
+	n.ServeHTTP(recorder, req)
+	c.Assert(recorder.Code, check.Equals, http.StatusOK)
 }
 
 func (s *S) TestAuthMiddlewareIgnoreHealthcheck(c *check.C) {
