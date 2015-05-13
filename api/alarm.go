@@ -61,3 +61,18 @@ func removeAlarm(w http.ResponseWriter, r *http.Request) {
 		logger().Print(err.Error())
 	}
 }
+
+func getAlarm(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	a, err := alarm.FindAlarmByName(vars["name"])
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusNotFound)
+		logger().Print(err.Error())
+	}
+	w.Header().Set("Content-Type", "application/json")
+	err = json.NewEncoder(w).Encode(a)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		logger().Print(err.Error())
+	}
+}
