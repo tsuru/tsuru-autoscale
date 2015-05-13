@@ -23,6 +23,7 @@ func Router() http.Handler {
 	m.HandleFunc("/datasource", newDataSource).Methods("POST")
 	m.HandleFunc("/datasource", allDataSources).Methods("GET")
 	m.HandleFunc("/datasource/{name}", removeDataSource).Methods("DELETE")
+	m.HandleFunc("/datasource/{name}", getDataSource).Methods("GET")
 	m.HandleFunc("/action", allActions).Methods("GET")
 	m.HandleFunc("/action", newAction).Methods("POST")
 	m.HandleFunc("/action/{name}", removeAction).Methods("DELETE")

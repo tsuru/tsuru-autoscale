@@ -89,3 +89,22 @@ func (s *S) TestRemoveDataSource(c *check.C) {
 	_, err = datasource.Get(ds.Name)
 	c.Assert(err, check.NotNil)
 }
+
+func (s *S) TestGetDataSource(c *check.C) {
+	ds := &datasource.DataSource{URL: "http://tsuru.io", Method: "GET", Name: "ds"}
+	err := datasource.New(ds)
+	c.Assert(err, check.IsNil)
+	recorder := httptest.NewRecorder()
+	request, err := http.NewRequest("GET", fmt.Sprintf("/datasource/%s", ds.Name), nil)
+	request.Header.Add("Authorization", "token")
+	c.Assert(err, check.IsNil)
+	r := Router()
+	r.ServeHTTP(recorder, request)
+	c.Assert(recorder.Code, check.Equals, http.StatusOK)
+	c.Assert(recorder.HeaderMap["Content-Type"], check.DeepEquals, []string{"application/json"})
+	body := recorder.Body.Bytes()
+	var got datasource.DataSource
+	err = json.Unmarshal(body, &got)
+	c.Assert(err, check.IsNil)
+	c.Assert(ds.Name, check.Equals, got.Name)
+}
