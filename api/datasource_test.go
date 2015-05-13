@@ -40,6 +40,7 @@ func (s *S) TestNewDataSource(c *check.C) {
 	body := `{"name":"new","url":"http://tsuru.io","method":"GET"}`
 	recorder := httptest.NewRecorder()
 	request, err := http.NewRequest("POST", "/datasource", strings.NewReader(body))
+	request.Header.Add("Authorization", "token")
 	c.Assert(err, check.IsNil)
 	r := Router()
 	r.ServeHTTP(recorder, request)
@@ -51,6 +52,7 @@ func (s *S) TestAllDataSources(c *check.C) {
 	c.Assert(err, check.IsNil)
 	recorder := httptest.NewRecorder()
 	request, err := http.NewRequest("GET", "/datasource", nil)
+	request.Header.Add("Authorization", "token")
 	c.Assert(err, check.IsNil)
 	r := Router()
 	r.ServeHTTP(recorder, request)
@@ -66,6 +68,7 @@ func (s *S) TestAllDataSources(c *check.C) {
 func (s *S) TestRemoveDataSourceNotFound(c *check.C) {
 	recorder := httptest.NewRecorder()
 	request, err := http.NewRequest("DELETE", "/datasource/notfound", nil)
+	request.Header.Add("Authorization", "token")
 	c.Assert(err, check.IsNil)
 	r := Router()
 	r.ServeHTTP(recorder, request)
@@ -78,6 +81,7 @@ func (s *S) TestRemoveDataSource(c *check.C) {
 	c.Assert(err, check.IsNil)
 	recorder := httptest.NewRecorder()
 	request, err := http.NewRequest("DELETE", fmt.Sprintf("/datasource/%s", ds.Name), nil)
+	request.Header.Add("Authorization", "token")
 	c.Assert(err, check.IsNil)
 	r := Router()
 	r.ServeHTTP(recorder, request)

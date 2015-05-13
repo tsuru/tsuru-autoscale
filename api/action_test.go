@@ -19,6 +19,7 @@ func (s *S) TestNewAction(c *check.C) {
 	body := `{"name":"new","url":"http://tsuru.io","method":"GET"}`
 	recorder := httptest.NewRecorder()
 	request, err := http.NewRequest("POST", "/action", strings.NewReader(body))
+	request.Header.Add("Authorization", "token")
 	c.Assert(err, check.IsNil)
 	r := Router()
 	r.ServeHTTP(recorder, request)
@@ -30,6 +31,7 @@ func (s *S) TestAllActions(c *check.C) {
 	c.Assert(err, check.IsNil)
 	recorder := httptest.NewRecorder()
 	request, err := http.NewRequest("GET", "/action", nil)
+	request.Header.Add("Authorization", "token")
 	c.Assert(err, check.IsNil)
 	r := Router()
 	r.ServeHTTP(recorder, request)
@@ -45,6 +47,7 @@ func (s *S) TestAllActions(c *check.C) {
 func (s *S) TestRemoveActionNotFound(c *check.C) {
 	recorder := httptest.NewRecorder()
 	request, err := http.NewRequest("DELETE", "/action", nil)
+	request.Header.Add("Authorization", "token")
 	c.Assert(err, check.IsNil)
 	r := Router()
 	r.ServeHTTP(recorder, request)
@@ -57,6 +60,7 @@ func (s *S) TestRemoveAction(c *check.C) {
 	c.Assert(err, check.IsNil)
 	recorder := httptest.NewRecorder()
 	request, err := http.NewRequest("DELETE", fmt.Sprintf("/action/%s", a.Name), nil)
+	request.Header.Add("Authorization", "token")
 	c.Assert(err, check.IsNil)
 	r := Router()
 	r.ServeHTTP(recorder, request)

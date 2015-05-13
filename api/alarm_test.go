@@ -19,6 +19,7 @@ func (s *S) TestNewAlarm(c *check.C) {
 	body := `{"name":"new","url":"http://tsuru.io","method":"GET"}`
 	recorder := httptest.NewRecorder()
 	request, err := http.NewRequest("POST", "/alarm", strings.NewReader(body))
+	request.Header.Add("Authorization", "token")
 	c.Assert(err, check.IsNil)
 	r := Router()
 	r.ServeHTTP(recorder, request)
@@ -30,6 +31,7 @@ func (s *S) TestListAlarms(c *check.C) {
 	c.Assert(err, check.IsNil)
 	recorder := httptest.NewRecorder()
 	request, err := http.NewRequest("GET", "/alarm", nil)
+	request.Header.Add("Authorization", "token")
 	c.Assert(err, check.IsNil)
 	r := Router()
 	r.ServeHTTP(recorder, request)
@@ -45,6 +47,7 @@ func (s *S) TestListAlarms(c *check.C) {
 func (s *S) TestRemoveAlarmNotFound(c *check.C) {
 	recorder := httptest.NewRecorder()
 	request, err := http.NewRequest("DELETE", "/alarm/notfound", nil)
+	request.Header.Add("Authorization", "token")
 	c.Assert(err, check.IsNil)
 	r := Router()
 	r.ServeHTTP(recorder, request)
@@ -57,6 +60,7 @@ func (s *S) TestRemoveAlarm(c *check.C) {
 	c.Assert(err, check.IsNil)
 	recorder := httptest.NewRecorder()
 	request, err := http.NewRequest("DELETE", fmt.Sprintf("/alarm/%s", a.Name), nil)
+	request.Header.Add("Authorization", "token")
 	c.Assert(err, check.IsNil)
 	r := Router()
 	r.ServeHTTP(recorder, request)

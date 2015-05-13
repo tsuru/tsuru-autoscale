@@ -18,6 +18,7 @@ func (s *S) TestServiceAdd(c *check.C) {
 	recorder := httptest.NewRecorder()
 	body := `name=myscale2&team=admin&user=admin%40example.com`
 	request, err := http.NewRequest("POST", "/resources", strings.NewReader(body))
+	request.Header.Add("Authorization", "token")
 	c.Assert(err, check.IsNil)
 	r := Router()
 	r.ServeHTTP(recorder, request)
@@ -27,6 +28,7 @@ func (s *S) TestServiceAdd(c *check.C) {
 func (s *S) TestServiceBindUnit(c *check.C) {
 	recorder := httptest.NewRecorder()
 	request, err := http.NewRequest("POST", "/resources/name/bind", nil)
+	request.Header.Add("Authorization", "token")
 	c.Assert(err, check.IsNil)
 	r := Router()
 	r.ServeHTTP(recorder, request)
@@ -42,6 +44,7 @@ func (s *S) TestServiceBindApp(c *check.C) {
 	recorder := httptest.NewRecorder()
 	body := `app-host=tsuru-dashboard.192.168.50.4.nip.io`
 	request, err := http.NewRequest("POST", "/resources/name/bind-app", strings.NewReader(body))
+	request.Header.Add("Authorization", "token")
 	c.Assert(err, check.IsNil)
 	r := Router()
 	r.ServeHTTP(recorder, request)
@@ -54,6 +57,7 @@ func (s *S) TestServiceBindApp(c *check.C) {
 func (s *S) TestServiceUnbindUnit(c *check.C) {
 	recorder := httptest.NewRecorder()
 	request, err := http.NewRequest("DELETE", "/resources/name/bind", nil)
+	request.Header.Add("Authorization", "token")
 	c.Assert(err, check.IsNil)
 	r := Router()
 	r.ServeHTTP(recorder, request)
@@ -63,6 +67,7 @@ func (s *S) TestServiceUnbindUnit(c *check.C) {
 func (s *S) TestServiceUnbindApp(c *check.C) {
 	recorder := httptest.NewRecorder()
 	request, err := http.NewRequest("DELETE", "/resources/name/bind-app", nil)
+	request.Header.Add("Authorization", "token")
 	c.Assert(err, check.IsNil)
 	r := Router()
 	r.ServeHTTP(recorder, request)
@@ -72,6 +77,7 @@ func (s *S) TestServiceUnbindApp(c *check.C) {
 func (s *S) TestServiceRemove(c *check.C) {
 	recorder := httptest.NewRecorder()
 	request, err := http.NewRequest("DELETE", "/resources/name", nil)
+	request.Header.Add("Authorization", "token")
 	c.Assert(err, check.IsNil)
 	r := Router()
 	r.ServeHTTP(recorder, request)
