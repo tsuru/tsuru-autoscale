@@ -7,7 +7,7 @@ package api
 import "net/http"
 
 // authMiddleware is a middleware handler that checks if the Authorization header exists.
-type authMiddleware struct {}
+type authMiddleware struct{}
 
 // newAuthMiddleware returns a new AuthMiddleware instance.
 func newAuthMiddleware() *authMiddleware {

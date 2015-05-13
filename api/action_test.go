@@ -68,3 +68,22 @@ func (s *S) TestRemoveAction(c *check.C) {
 	_, err = action.FindByName(a.Name)
 	c.Assert(err, check.NotNil)
 }
+
+func (s *S) TestActionInfo(c *check.C) {
+	a := &action.Action{URL: "http://tsuru.io", Method: "GET", Name: "some"}
+	err := action.New(a)
+	c.Assert(err, check.IsNil)
+	recorder := httptest.NewRecorder()
+	request, err := http.NewRequest("GET", fmt.Sprintf("/action/%s", a.Name), nil)
+	request.Header.Add("Authorization", "token")
+	c.Assert(err, check.IsNil)
+	r := Router()
+	r.ServeHTTP(recorder, request)
+	c.Assert(recorder.Code, check.Equals, http.StatusOK)
+	c.Assert(recorder.HeaderMap["Content-Type"], check.DeepEquals, []string{"application/json"})
+	body := recorder.Body.Bytes()
+	var got action.Action
+	err = json.Unmarshal(body, &got)
+	c.Assert(err, check.IsNil)
+	c.Assert(a.Name, check.Equals, got.Name)
+}

@@ -26,6 +26,7 @@ func Router() http.Handler {
 	m.HandleFunc("/action", allActions).Methods("GET")
 	m.HandleFunc("/action", newAction).Methods("POST")
 	m.HandleFunc("/action/{name}", removeAction).Methods("DELETE")
+	m.HandleFunc("/action/{name}", actionInfo).Methods("GET")
 	m.HandleFunc("/alarm", newAlarm).Methods("POST")
 	m.HandleFunc("/alarm", listAlarms).Methods("GET")
 	m.HandleFunc("/alarm/{name}", removeAlarm).Methods("DELETE")
