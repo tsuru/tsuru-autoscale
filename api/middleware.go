@@ -7,7 +7,7 @@ package api
 import "net/http"
 
 // authMiddleware is a middleware handler that checks if the Authorization header exists.
-type authMiddleware struct{}
+type authMiddleware struct {}
 
 // newAuthMiddleware returns a new AuthMiddleware instance.
 func newAuthMiddleware() *authMiddleware {
@@ -15,11 +15,13 @@ func newAuthMiddleware() *authMiddleware {
 }
 
 func (a *authMiddleware) ServeHTTP(rw http.ResponseWriter, r *http.Request, next http.HandlerFunc) {
-	token := r.Header.Get("Authorization")
-	if token == "" {
-		err := "Authorization header is required."
-		http.Error(rw, err, http.StatusUnauthorized)
-		logger().Print(err)
+	if r.URL.Path != "/healthcheck" {
+		token := r.Header.Get("Authorization")
+		if token == "" {
+			err := "Authorization header is required."
+			http.Error(rw, err, http.StatusUnauthorized)
+			logger().Print(err)
+		}
 	}
 	next(rw, r)
 }

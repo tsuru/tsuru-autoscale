@@ -23,3 +23,15 @@ func (s *S) TestAuthMiddleware(c *check.C) {
 	n.ServeHTTP(recorder, req)
 	c.Assert(recorder.Code, check.Equals, http.StatusUnauthorized)
 }
+
+func (s *S) TestAuthMiddlewareIgnoreHealthcheck(c *check.C) {
+	recorder := httptest.NewRecorder()
+	a := newAuthMiddleware()
+	n := negroni.New()
+	n.Use(a)
+	n.UseHandler(http.HandlerFunc(func(rw http.ResponseWriter, r *http.Request) {}))
+	req, err := http.NewRequest("GET", "http://localhost:3000/healthcheck", nil)
+	c.Assert(err, check.IsNil)
+	n.ServeHTTP(recorder, req)
+	c.Assert(recorder.Code, check.Equals, http.StatusOK)
+}
