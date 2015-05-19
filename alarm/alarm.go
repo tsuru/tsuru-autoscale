@@ -182,6 +182,7 @@ func (a *Alarm) Check() (bool, error) {
 func ListAlarmsByToken(token string) ([]Alarm, error) {
 	i, err := tsuru.FindServiceInstance(token)
 	if err != nil {
+		logger().Printf("error find service instance by token %s - error: %s", token, err.Error())
 		return nil, err
 	}
 	instances := []string{}
@@ -196,6 +197,7 @@ func ListAlarmsByToken(token string) ([]Alarm, error) {
 	var alarms []Alarm
 	err = conn.Alarms().Find(bson.M{"instance": bson.M{"$in": instances}}).All(&alarms)
 	if err != nil {
+		logger().Printf("error find alarms by instance #%v", instances)
 		return nil, err
 	}
 	return alarms, nil
