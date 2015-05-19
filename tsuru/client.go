@@ -15,7 +15,7 @@ import (
 
 func FindServiceInstance(token string) ([]Instance, error) {
 	tsuruHost := os.Getenv("TSURU_HOST")
-	url := fmt.Sprintf("%s/service/autoscale", tsuruHost)
+	url := fmt.Sprintf("%s/services/autoscale", tsuruHost)
 	resp, err := http.Get(url)
 	if err != nil {
 		logger().Printf("Got error on get service instances. err: %s", err)
