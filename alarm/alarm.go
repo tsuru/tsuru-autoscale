@@ -15,6 +15,7 @@ import (
 	"github.com/tsuru/tsuru-autoscale/datasource"
 	"github.com/tsuru/tsuru-autoscale/db"
 	"github.com/tsuru/tsuru-autoscale/log"
+	"github.com/tsuru/tsuru-autoscale/tsuru"
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 )
@@ -177,15 +178,23 @@ func (a *Alarm) Check() (bool, error) {
 	return check, nil
 }
 
-// ListAlarms lists all alarms.
-func ListAlarms() ([]Alarm, error) {
+// ListAlarmsByToken lists alarms by token.
+func ListAlarmsByToken(token string) ([]Alarm, error) {
+	i, err := tsuru.FindServiceInstance(token)
+	if err != nil {
+		return nil, err
+	}
+	instances := []string{}
+	for _, instance := range i {
+		instances = append(instances, instance.Name)
+	}
 	conn, err := db.Conn()
 	if err != nil {
 		return nil, err
 	}
 	defer conn.Close()
 	var alarms []Alarm
-	err = conn.Alarms().Find(nil).All(&alarms)
+	err = conn.Alarms().Find(bson.M{"instance": bson.M{"$in": instances}}).All(&alarms)
 	if err != nil {
 		return nil, err
 	}

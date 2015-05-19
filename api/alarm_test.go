@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/http/httptest"
+	"os"
 	"strings"
 
 	"github.com/tsuru/tsuru-autoscale/alarm"
@@ -27,7 +28,13 @@ func (s *S) TestNewAlarm(c *check.C) {
 }
 
 func (s *S) TestListAlarms(c *check.C) {
-	err := alarm.NewAlarm(&alarm.Alarm{Name: "myalarm"})
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Write([]byte(`[{"Name":"instance"}]`))
+	}))
+	defer ts.Close()
+	err := os.Setenv("TSURU_HOST", ts.URL)
+	c.Assert(err, check.IsNil)
+	err = alarm.NewAlarm(&alarm.Alarm{Name: "myalarm", Instance: "instance"})
 	c.Assert(err, check.IsNil)
 	recorder := httptest.NewRecorder()
 	request, err := http.NewRequest("GET", "/alarm", nil)

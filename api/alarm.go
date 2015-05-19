@@ -35,7 +35,8 @@ func newAlarm(w http.ResponseWriter, r *http.Request) {
 }
 
 func listAlarms(w http.ResponseWriter, r *http.Request) {
-	alarms, err := alarm.ListAlarms()
+	token := r.Header.Get("Authorization")
+	alarms, err := alarm.ListAlarmsByToken(token)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		logger().Print(err.Error())

@@ -7,6 +7,7 @@ package alarm
 import (
 	"net/http"
 	"net/http/httptest"
+	"os"
 	"testing"
 	"time"
 
@@ -210,18 +211,25 @@ func (s *S) TestAlarmCheck(c *check.C) {
 	c.Assert(ok, check.Equals, false)
 }
 
-func (s *S) TestListAlarms(c *check.C) {
+func (s *S) TestListAlarmsByToken(c *check.C) {
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Write([]byte(`[{"Name":"instance"}]`))
+	}))
+	defer ts.Close()
+	err := os.Setenv("TSURU_HOST", ts.URL)
+	c.Assert(err, check.IsNil)
 	a := Alarm{
-		Name: "xpto",
+		Name:     "xpto",
+		Instance: "instance",
 	}
 	s.conn.Alarms().Insert(&a)
 	a = Alarm{
 		Name: "xpto2",
 	}
 	s.conn.Alarms().Insert(&a)
-	all, err := ListAlarms()
+	all, err := ListAlarmsByToken("token")
 	c.Assert(err, check.IsNil)
-	c.Assert(all, check.HasLen, 2)
+	c.Assert(all, check.HasLen, 1)
 }
 
 func (s *S) TestFindAlarmByName(c *check.C) {
