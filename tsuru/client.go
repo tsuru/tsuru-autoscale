@@ -17,7 +17,7 @@ func FindServiceInstance(token string) ([]Instance, error) {
 	url := fmt.Sprintf("%s/service/autoscale", tsuruHost)
 	resp, err := http.Get(url)
 	if err != nil {
-		logger().Print(err.Error())
+		logger().Printf("Got error on get service instances. err: %s", err)
 		return nil, err
 	}
 	defer resp.Body.Close()
@@ -29,7 +29,7 @@ func FindServiceInstance(token string) ([]Instance, error) {
 	var instances []Instance
 	err = json.Unmarshal(body, &instances)
 	if err != nil {
-		logger().Print(err.Error())
+		logger().Printf("Got error on unmarshal json %s. err: %s", string(body), err)
 		return nil, err
 	}
 	return instances, nil
