@@ -6,6 +6,7 @@ package tsuru
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"net/http"
@@ -17,11 +18,15 @@ func FindServiceInstance(token string) ([]Instance, error) {
 	url := fmt.Sprintf("%s/service/autoscale", tsuruHost)
 	resp, err := http.Get(url)
 	if err != nil {
-		logger().Printf("Got error on get service instances, url: %s. err: %s", url, err)
+		logger().Printf("Got error on get service instances. err: %s", err)
 		return nil, err
 	}
 	defer resp.Body.Close()
 	body, err := ioutil.ReadAll(resp.Body)
+	if resp.StatusCode > 399 {
+		logger().Printf("Got error find service instance status code > 399: %s", string(body))
+		return nil, errors.New(string(body))
+	}
 	if err != nil {
 		logger().Printf("Got error while parsing service json: %s", err)
 		return nil, err
