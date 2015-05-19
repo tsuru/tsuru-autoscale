@@ -20,11 +20,11 @@ func logger() *stdlog.Logger {
 
 // Instance represents a tsuru service instance.
 type Instance struct {
-	ID   bson.ObjectId `bson:"_id"`
+	ID   bson.ObjectId `bson:"_id" json:"-"`
 	Name string
 	User string
 	Team string
-	Apps []string
+	Apps []string `json:",omitempty"`
 }
 
 func (i *Instance) update() error {

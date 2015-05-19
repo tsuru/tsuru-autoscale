@@ -8,6 +8,7 @@ import (
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
+	"os"
 	"strings"
 
 	"github.com/tsuru/tsuru-autoscale/tsuru"
@@ -82,4 +83,27 @@ func (s *S) TestServiceRemove(c *check.C) {
 	r := Router()
 	r.ServeHTTP(recorder, request)
 	c.Assert(recorder.Code, check.Equals, http.StatusOK)
+}
+
+func (s *S) TestServiceInstances(c *check.C) {
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Write([]byte(`[{"Name":"instance"}]`))
+	}))
+	defer ts.Close()
+	err := os.Setenv("TSURU_HOST", ts.URL)
+	c.Assert(err, check.IsNil)
+	recorder := httptest.NewRecorder()
+	request, err := http.NewRequest("GET", "/service/instance", nil)
+	request.Header.Add("Authorization", "token")
+	c.Assert(err, check.IsNil)
+	r := Router()
+	r.ServeHTTP(recorder, request)
+	c.Assert(recorder.Code, check.Equals, http.StatusOK)
+	c.Assert(recorder.HeaderMap["Content-Type"], check.DeepEquals, []string{"application/json"})
+	body := recorder.Body.Bytes()
+	var instances []tsuru.Instance
+	err = json.Unmarshal(body, &instances)
+	c.Assert(err, check.IsNil)
+	c.Assert(instances, check.HasLen, 1)
+	c.Assert(instances[0].Name, check.Equals, "instance")
 }

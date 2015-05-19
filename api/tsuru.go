@@ -5,6 +5,7 @@
 package api
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/http"
 
@@ -56,4 +57,19 @@ func serviceUnbindApp(w http.ResponseWriter, r *http.Request) {
 }
 
 func serviceRemove(w http.ResponseWriter, r *http.Request) {
+}
+
+func serviceInstances(w http.ResponseWriter, r *http.Request) {
+	token := r.Header.Get("Authorization")
+	instances, err := tsuru.FindServiceInstance(token)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		logger().Print(err.Error())
+	}
+	w.Header().Set("Content-Type", "application/json")
+	err = json.NewEncoder(w).Encode(&instances)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		logger().Print(err.Error())
+	}
 }
