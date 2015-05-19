@@ -14,6 +14,7 @@ import (
 
 func (s *S) TestFindServiceInstance(c *check.C) {
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		c.Assert(r.Header.Get("Authorization"), check.Equals, "bearer token")
 		w.Write([]byte(`[{"Name":"instance"}]`))
 	}))
 	defer ts.Close()

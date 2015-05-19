@@ -16,7 +16,12 @@ import (
 func FindServiceInstance(token string) ([]Instance, error) {
 	tsuruHost := os.Getenv("TSURU_HOST")
 	url := fmt.Sprintf("%s/services/autoscale", tsuruHost)
-	resp, err := http.Get(url)
+	req, err := http.NewRequest("GET", url, nil)
+	if err != nil {
+		logger().Print(err)
+	}
+	req.Header.Add("Authorization", fmt.Sprintf("bearer %s", token))
+	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
 		logger().Printf("Got error on get service instances. err: %s", err)
 		return nil, err
