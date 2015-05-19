@@ -17,7 +17,7 @@ func FindServiceInstance(token string) ([]Instance, error) {
 	url := fmt.Sprintf("%s/service/autoscale", tsuruHost)
 	resp, err := http.Get(url)
 	if err != nil {
-		logger().Printf("Got error on get service instances. err: %s", err)
+		logger().Printf("Got error on get service instances, url: %s. err: %s", url, err)
 		return nil, err
 	}
 	defer resp.Body.Close()
