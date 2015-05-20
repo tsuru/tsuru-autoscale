@@ -75,10 +75,18 @@ func (s *S) TestRunAutoScaleOnce(c *check.C) {
 	}
 	err := datasource.New(&instance)
 	c.Assert(err, check.IsNil)
+	myAction := action.Action{
+		Name:   "myaction",
+		URL:    ts.URL,
+		Method: "GET",
+	}
+	err = action.New(&myAction)
+	c.Assert(err, check.IsNil)
 	alarm := Alarm{
 		Name:       "name",
 		Expression: `data.id == "ble"`,
 		DataSource: instance.Name,
+		Actions:    []string{myAction.Name},
 	}
 	err = NewAlarm(&alarm)
 	c.Assert(err, check.IsNil)
@@ -91,6 +99,7 @@ func (s *S) TestRunAutoScaleOnce(c *check.C) {
 	c.Assert(events[0].EndTime, check.Not(check.DeepEquals), time.Time{})
 	c.Assert(events[0].Error, check.Equals, "")
 	c.Assert(events[0].Successful, check.Equals, true)
+	c.Assert(events[0].Action.Name, check.Equals, myAction.Name)
 }
 
 func (s *S) TestAutoScaleEnable(c *check.C) {
@@ -132,7 +141,7 @@ func (s *S) TestAlarmWaitEventStillRunning(c *check.C) {
 		Enabled:    true,
 		DataSource: instance.Name,
 	}
-	event, err := NewEvent(alarm)
+	event, err := NewEvent(alarm, nil)
 	c.Assert(err, check.IsNil)
 	err = scaleIfNeeded(alarm)
 	c.Assert(err, check.IsNil)
@@ -167,7 +176,7 @@ func (s *S) TestAlarmWaitTime(c *check.C) {
 		Enabled:    true,
 		DataSource: instance.Name,
 	}
-	event, err := NewEvent(alarm)
+	event, err := NewEvent(alarm, nil)
 	c.Assert(err, check.IsNil)
 	err = event.update(nil)
 	c.Assert(err, check.IsNil)

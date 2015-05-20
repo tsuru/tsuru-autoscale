@@ -13,12 +13,12 @@ import (
 
 func (s *S) TestLastScaleEvent(c *check.C) {
 	alarm := &Alarm{Name: "newconfig"}
-	event1, err := NewEvent(alarm)
+	event1, err := NewEvent(alarm, nil)
 	c.Assert(err, check.IsNil)
 	event1.StartTime = event1.StartTime.Add(-1 * time.Hour)
 	err = event1.update(nil)
 	c.Assert(err, check.IsNil)
-	event2, err := NewEvent(alarm)
+	event2, err := NewEvent(alarm, nil)
 	c.Assert(err, check.IsNil)
 	event, err := lastScaleEvent(alarm)
 	c.Assert(err, check.IsNil)
@@ -33,7 +33,7 @@ func (s *S) TestLastScaleEventNotFound(c *check.C) {
 
 func (s *S) TestEventsByAlarmNameWithoutName(c *check.C) {
 	alarm := Alarm{Name: "config"}
-	_, err := NewEvent(&alarm)
+	_, err := NewEvent(&alarm, nil)
 	c.Assert(err, check.IsNil)
 	events, err := eventsByAlarmName(nil)
 	c.Assert(err, check.IsNil)
@@ -43,10 +43,10 @@ func (s *S) TestEventsByAlarmNameWithoutName(c *check.C) {
 
 func (s *S) TestEventsByAlarmName(c *check.C) {
 	alarm := Alarm{Name: "config"}
-	_, err := NewEvent(&alarm)
+	_, err := NewEvent(&alarm, nil)
 	c.Assert(err, check.IsNil)
 	alarm = Alarm{Name: "another"}
-	_, err = NewEvent(&alarm)
+	_, err = NewEvent(&alarm, nil)
 	c.Assert(err, check.IsNil)
 	events, err := eventsByAlarmName(&alarm)
 	c.Assert(err, check.IsNil)

@@ -7,6 +7,7 @@ package alarm
 import (
 	"time"
 
+	"github.com/tsuru/tsuru-autoscale/action"
 	"github.com/tsuru/tsuru-autoscale/db"
 	"gopkg.in/mgo.v2/bson"
 )
@@ -20,13 +21,15 @@ type Event struct {
 	Alarm      *Alarm
 	Successful bool
 	Error      string `bson:",omitempty"`
+	Action     *action.Action
 }
 
-func NewEvent(alarm *Alarm) (*Event, error) {
+func NewEvent(alarm *Alarm, action *action.Action) (*Event, error) {
 	evt := Event{
 		ID:        bson.NewObjectId(),
 		StartTime: time.Now().UTC(),
 		Alarm:     alarm,
+		Action:    action,
 	}
 	conn, err := db.Conn()
 	if err != nil {

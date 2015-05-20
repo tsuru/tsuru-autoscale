@@ -101,24 +101,24 @@ func scaleIfNeeded(alarm *Alarm) error {
 		for _, alarmName := range alarm.Actions {
 			a, err := action.FindByName(alarmName)
 			if err != nil {
-				logger().Printf("alarm %s not found - error: %s", alarmName, err.Error())
+				logger().Printf("alarm %s not found - error: %s", alarmName, err)
 			} else {
 				logger().Printf("executing alarm %s action %s", alarm.Name, a.Name)
-				err := a.Do()
+				evt, err := NewEvent(alarm, a)
 				if err != nil {
-					logger().Printf("Error executing action %s in the alarm %s - error: %s", a.Name, alarm.Name, err.Error())
+					logger().Printf("Error trying to insert auto scale event, auto scale aborted: %s", err)
+				}
+				aErr := a.Do()
+				if aErr != nil {
+					logger().Printf("Error executing action %s in the alarm %s - error: %s", a.Name, alarm.Name, aErr)
 				} else {
 					logger().Printf("alarm %s action %s executed", alarm.Name, a.Name)
 				}
+				err = evt.update(aErr)
+				if err != nil {
+					logger().Printf("Error trying to update auto scale event: %s", err)
+				}
 			}
-		}
-		evt, err := NewEvent(alarm)
-		if err != nil {
-			return fmt.Errorf("Error trying to insert auto scale event, auto scale aborted: %s", err.Error())
-		}
-		err = evt.update(nil)
-		if err != nil {
-			return fmt.Errorf("Error trying to update auto scale event: %s", err.Error())
 		}
 		return nil
 	}
