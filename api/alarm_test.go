@@ -94,3 +94,24 @@ func (s *S) TestGetAlarm(c *check.C) {
 	c.Assert(err, check.IsNil)
 	c.Assert(a.Name, check.Equals, got.Name)
 }
+
+func (s *S) TestListEvents(c *check.C) {
+	a := &alarm.Alarm{Name: "myalarm"}
+	err := alarm.NewAlarm(a)
+	c.Assert(err, check.IsNil)
+	_, err = alarm.NewEvent(a, nil)
+	c.Assert(err, check.IsNil)
+	recorder := httptest.NewRecorder()
+	request, err := http.NewRequest("GET", "/alarm/myalarm/event", nil)
+	request.Header.Add("Authorization", "token")
+	c.Assert(err, check.IsNil)
+	r := Router()
+	r.ServeHTTP(recorder, request)
+	c.Assert(recorder.Code, check.Equals, http.StatusOK)
+	c.Assert(recorder.HeaderMap["Content-Type"], check.DeepEquals, []string{"application/json"})
+	body := recorder.Body.Bytes()
+	var events []alarm.Event
+	err = json.Unmarshal(body, &events)
+	c.Assert(err, check.IsNil)
+	c.Assert(events, check.HasLen, 1)
+}

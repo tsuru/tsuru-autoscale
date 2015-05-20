@@ -64,6 +64,10 @@ func lastScaleEvent(alarm *Alarm) (Event, error) {
 	return event, err
 }
 
+func EventsByAlarmName(alarm string) ([]Event, error) {
+	return eventsByAlarmName(&Alarm{Name: alarm})
+}
+
 func eventsByAlarmName(alarm *Alarm) ([]Event, error) {
 	conn, err := db.Conn()
 	if err != nil {

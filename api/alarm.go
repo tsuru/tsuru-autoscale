@@ -77,3 +77,23 @@ func getAlarm(w http.ResponseWriter, r *http.Request) {
 		logger().Print(err.Error())
 	}
 }
+
+func listEvents(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	a, err := alarm.FindAlarmByName(vars["name"])
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusNotFound)
+		logger().Print(err.Error())
+	}
+	events, err := alarm.EventsByAlarmName(a.Name)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		logger().Print(err.Error())
+	}
+	w.Header().Set("Content-Type", "application/json")
+	err = json.NewEncoder(w).Encode(events)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		logger().Print(err.Error())
+	}
+}

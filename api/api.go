@@ -32,6 +32,7 @@ func Router() http.Handler {
 	m.HandleFunc("/alarm", listAlarms).Methods("GET")
 	m.HandleFunc("/alarm/{name}", removeAlarm).Methods("DELETE")
 	m.HandleFunc("/alarm/{name}", getAlarm).Methods("GET")
+	m.HandleFunc("/alarm/{name}/event", listEvents).Methods("GET")
 	m.HandleFunc("/resources", serviceAdd)
 	m.HandleFunc("/resources/{name}/bind", serviceBindUnit).Methods("POST")
 	m.HandleFunc("/resources/{name}/bind-app", serviceBindApp).Methods("POST")
