@@ -48,10 +48,17 @@ func (s *S) TestAlarm(c *check.C) {
 	}
 	err := datasource.New(&instance)
 	c.Assert(err, check.IsNil)
+	myAction := action.Action{
+		Name:   "myaction",
+		URL:    ts.URL,
+		Method: "GET",
+	}
+	err = action.New(&myAction)
 	alarm := Alarm{
 		Name:       "name",
 		Expression: `data.id == "ble"`,
 		DataSource: instance.Name,
+		Actions:    []string{myAction.Name},
 	}
 	err = NewAlarm(&alarm)
 	c.Assert(err, check.IsNil)
