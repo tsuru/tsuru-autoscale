@@ -30,13 +30,14 @@ func logger() *stdlog.Logger {
 
 // Alarm represents the configuration for the auto scale.
 type Alarm struct {
-	Name       string        `json:"name"`
-	Actions    []string      `json:"actions"`
-	Expression string        `json:"expression"`
-	Enabled    bool          `json:"enabled"`
-	Wait       time.Duration `json:"wait"`
-	DataSource string        `json:"datasource"`
-	Instance   string        `json:"instance"`
+	Name       string            `json:"name"`
+	Actions    []string          `json:"actions"`
+	Expression string            `json:"expression"`
+	Enabled    bool              `json:"enabled"`
+	Wait       time.Duration     `json:"wait"`
+	DataSource string            `json:"datasource"`
+	Instance   string            `json:"instance"`
+	Envs       map[string]string `json:"envs"`
 }
 
 func NewAlarm(a *Alarm) error {
