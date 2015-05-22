@@ -268,3 +268,19 @@ func (s *S) TestRemoveAlarm(c *check.C) {
 	_, err = FindAlarmByName(a.Name)
 	c.Assert(err, check.NotNil)
 }
+
+func (s *S) TestListAlarmsByInstance(c *check.C) {
+	a := Alarm{
+		Name:     "xpto",
+		Instance: "instance",
+	}
+	s.conn.Alarms().Insert(&a)
+	a = Alarm{
+		Name:     "xpto2",
+		Instance: "instance",
+	}
+	s.conn.Alarms().Insert(&a)
+	all, err := ListAlarmsByInstance("instance")
+	c.Assert(err, check.IsNil)
+	c.Assert(all, check.HasLen, 2)
+}

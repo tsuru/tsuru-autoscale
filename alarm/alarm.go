@@ -204,6 +204,22 @@ func ListAlarmsByToken(token string) ([]Alarm, error) {
 	return alarms, nil
 }
 
+// ListAlarmsByInstance lists alarms by instance.
+func ListAlarmsByInstance(instanceName string) ([]Alarm, error) {
+	conn, err := db.Conn()
+	if err != nil {
+		return nil, err
+	}
+	defer conn.Close()
+	var alarms []Alarm
+	err = conn.Alarms().Find(bson.M{"instance": instanceName}).All(&alarms)
+	if err != nil {
+		logger().Printf("error find alarms by instance %q", instanceName)
+		return nil, err
+	}
+	return alarms, nil
+}
+
 // FindAlarmByName find alarm by name.
 func FindAlarmByName(name string) (*Alarm, error) {
 	conn, err := db.Conn()
