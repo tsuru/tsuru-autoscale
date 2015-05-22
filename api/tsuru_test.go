@@ -107,3 +107,23 @@ func (s *S) TestServiceInstances(c *check.C) {
 	c.Assert(instances, check.HasLen, 1)
 	c.Assert(instances[0].Name, check.Equals, "instance")
 }
+
+func (s *S) TestServiceInstanceByName(c *check.C) {
+	i := &tsuru.Instance{
+		Name: "instance",
+	}
+	err := tsuru.NewInstance(i)
+	recorder := httptest.NewRecorder()
+	request, err := http.NewRequest("GET", "/service/instance/instance", nil)
+	request.Header.Add("Authorization", "token")
+	c.Assert(err, check.IsNil)
+	r := Router()
+	r.ServeHTTP(recorder, request)
+	c.Assert(recorder.Code, check.Equals, http.StatusOK)
+	c.Assert(recorder.HeaderMap["Content-Type"], check.DeepEquals, []string{"application/json"})
+	body := recorder.Body.Bytes()
+	var instance tsuru.Instance
+	err = json.Unmarshal(body, &instance)
+	c.Assert(err, check.IsNil)
+	c.Assert(instance.Name, check.Equals, "instance")
+}

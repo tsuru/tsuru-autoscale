@@ -39,6 +39,7 @@ func Router() http.Handler {
 	m.HandleFunc("/resources/{name}/bind-app", serviceUnbindApp).Methods("DELETE")
 	m.HandleFunc("/resources/{name}/bind", serviceUnbindUnit).Methods("DELETE")
 	m.HandleFunc("/resources/{name}", serviceRemove).Methods("DELETE")
+	m.HandleFunc("/service/instance/{name}", serviceInstanceByName).Methods("GET")
 	m.HandleFunc("/service/instance", serviceInstances).Methods("GET")
 	n := negroni.New()
 	n.Use(negroni.NewRecovery())

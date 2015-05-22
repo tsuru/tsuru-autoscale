@@ -73,3 +73,18 @@ func serviceInstances(w http.ResponseWriter, r *http.Request) {
 		logger().Print(err.Error())
 	}
 }
+
+func serviceInstanceByName(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	instance, err := tsuru.GetInstanceByName(vars["name"])
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusNotFound)
+		logger().Print(err.Error())
+	}
+	w.Header().Set("Content-Type", "application/json")
+	err = json.NewEncoder(w).Encode(&instance)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		logger().Print(err.Error())
+	}
+}
