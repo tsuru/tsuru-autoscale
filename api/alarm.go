@@ -49,6 +49,21 @@ func listAlarms(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func listAlarmsByInstance(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	alarms, err := alarm.ListAlarmsByInstance(vars["instance"])
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		logger().Print(err.Error())
+	}
+	w.Header().Set("Content-Type", "application/json")
+	err = json.NewEncoder(w).Encode(alarms)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		logger().Print(err.Error())
+	}
+}
+
 func removeAlarm(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	a, err := alarm.FindAlarmByName(vars["name"])
