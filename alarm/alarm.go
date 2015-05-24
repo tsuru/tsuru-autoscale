@@ -158,7 +158,7 @@ func (a *Alarm) Check() (bool, error) {
 		logger().Printf("error getting data for alarm %s - error: %s", a.Name, err.Error())
 		return false, err
 	}
-	data, err := ds.Get()
+	data, err := ds.Get(a.Instance)
 	if err != nil {
 		logger().Printf("error getting data for alarm %s - error: %s", a.Name, err.Error())
 		return false, err

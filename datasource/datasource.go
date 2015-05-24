@@ -80,8 +80,9 @@ func Remove(ds *DataSource) error {
 }
 
 // Get tries to get the data from the data source.
-func (ds *DataSource) Get() (string, error) {
-	req, err := http.NewRequest(ds.Method, ds.URL, strings.NewReader(ds.Body))
+func (ds *DataSource) Get(appName string) (string, error) {
+	body := strings.Replace(ds.Body, "{app}", appName, -1)
+	req, err := http.NewRequest(ds.Method, ds.URL, strings.NewReader(body))
 	if err != nil {
 		return "", err
 	}

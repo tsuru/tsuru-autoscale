@@ -7,6 +7,7 @@ package datasource
 import (
 	"encoding/json"
 	"errors"
+	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
 	"os"
@@ -44,20 +45,21 @@ var _ = check.Suite(&S{})
 type testHandler struct{}
 
 func (h *testHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	content := `{"name":"Paul"}`
-	w.Write([]byte(content))
+	body, _ := ioutil.ReadAll(r.Body)
+	defer r.Body.Close()
+	w.Write(body)
 }
 
 func (s *S) TestHttpDataSourceGet(c *check.C) {
 	h := testHandler{}
 	ts := httptest.NewServer(&h)
 	defer ts.Close()
-	ds := DataSource{Method: "POST", URL: ts.URL}
+	ds := DataSource{Method: "POST", URL: ts.URL, Body: `{"Name": "{app}"}`}
 	type dataType struct {
 		Name string
 	}
 	data := dataType{}
-	result, err := ds.Get()
+	result, err := ds.Get("Paul")
 	c.Assert(err, check.IsNil)
 	err = json.Unmarshal([]byte(result), &data)
 	c.Assert(err, check.IsNil)
