@@ -6,6 +6,7 @@ package action
 
 import (
 	"errors"
+	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
 	"os"
@@ -59,12 +60,16 @@ func (s *S) TestDo(c *check.C) {
 	var called bool
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		called = true
+		body, _ := ioutil.ReadAll(r.Body)
+		defer r.Body.Close()
+		c.Assert(string(body), check.Equals, `{"units": "1"}`)
 	}))
 	defer ts.Close()
-	a := Action{URL: ts.URL, Method: "GET"}
+	a := Action{URL: ts.URL, Method: "GET", Body: `{"units": "{step}"}`}
 	err := New(&a)
 	c.Assert(err, check.IsNil)
-	err = a.Do()
+	envs := map[string]string{"step": "1"}
+	err = a.Do(envs)
 	c.Assert(err, check.IsNil)
 	c.Assert(called, check.Equals, true)
 }

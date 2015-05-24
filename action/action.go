@@ -6,6 +6,7 @@ package action
 
 import (
 	"errors"
+	"fmt"
 	"net/http"
 	"strings"
 
@@ -77,8 +78,12 @@ func All() ([]Action, error) {
 	return actions, nil
 }
 
-func (a *Action) Do() error {
-	req, err := http.NewRequest(a.Method, a.URL, strings.NewReader(a.Body))
+func (a *Action) Do(envs map[string]string) error {
+	body := a.Body
+	for key, value := range envs {
+		body = strings.Replace(body, fmt.Sprintf("{%s}", key), value, -1)
+	}
+	req, err := http.NewRequest(a.Method, a.URL, strings.NewReader(body))
 	if err != nil {
 		return err
 	}

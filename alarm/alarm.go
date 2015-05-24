@@ -108,7 +108,7 @@ func scaleIfNeeded(alarm *Alarm) error {
 				if err != nil {
 					logger().Printf("Error trying to insert auto scale event, auto scale aborted: %s", err)
 				}
-				aErr := a.Do()
+				aErr := a.Do(alarm.Envs)
 				if aErr != nil {
 					logger().Printf("Error executing action %s in the alarm %s - error: %s", a.Name, alarm.Name, aErr)
 				} else {
