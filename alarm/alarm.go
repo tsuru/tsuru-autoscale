@@ -90,7 +90,7 @@ func scaleIfNeeded(alarm *Alarm) error {
 		logger().Printf("alarm %s check error: %s", alarm.Name, err.Error())
 		return err
 	}
-	logger().Printf("alarm %s check: %t", alarm.Name, check)
+	logger().Printf("alarm %s - %s - check: %t", alarm.Name, alarm.Expression, check)
 	if check {
 		if wait, err := shouldWait(alarm); err != nil {
 			logger().Printf("waiting for alarm %s", alarm.Name)
