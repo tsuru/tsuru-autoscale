@@ -11,6 +11,7 @@ import (
 	"strings"
 
 	"github.com/tsuru/tsuru-autoscale/db"
+	"gopkg.in/mgo.v2/bson"
 )
 
 // Action represents an AutoScale action to increase or decrease the
@@ -47,7 +48,7 @@ func FindByName(name string) (*Action, error) {
 	}
 	defer conn.Close()
 	var action Action
-	err = conn.Actions().Find(nil).One(&action)
+	err = conn.Actions().Find(bson.M{"name": name}).One(&action)
 	if err != nil {
 		return nil, err
 	}

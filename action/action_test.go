@@ -96,6 +96,11 @@ func (s *S) TestFindByName(c *check.C) {
 		Headers: map[string]string{},
 	}
 	s.conn.Actions().Insert(&a)
+	a = Action{
+		Name:    "xpto1234",
+		Headers: map[string]string{},
+	}
+	s.conn.Actions().Insert(&a)
 	na, err := FindByName(a.Name)
 	c.Assert(err, check.IsNil)
 	c.Assert(na, check.DeepEquals, &a)
