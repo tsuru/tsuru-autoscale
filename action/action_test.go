@@ -69,7 +69,7 @@ func (s *S) TestDo(c *check.C) {
 	err := New(&a)
 	c.Assert(err, check.IsNil)
 	envs := map[string]string{"step": "1"}
-	err = a.Do(envs)
+	err = a.Do("app", envs)
 	c.Assert(err, check.IsNil)
 	c.Assert(called, check.Equals, true)
 }

@@ -104,11 +104,23 @@ func scaleIfNeeded(alarm *Alarm) error {
 				logger().Printf("alarm %s not found - error: %s", alarmName, err)
 			} else {
 				logger().Printf("executing alarm %s action %s", alarm.Name, a.Name)
+				instance, err := tsuru.GetInstanceByName(alarm.Instance)
+				if err != nil {
+					logger().Printf("Error trying to get instance by name, auto scale aborted: %s", err)
+					return err
+				}
+				if len(instance.Apps) < 1 {
+					msg := "Error trying to get app instance, auto scale aborted."
+					logger().Printf(msg)
+					err = errors.New(msg)
+					return err
+				}
+				appName := instance.Apps[0]
 				evt, err := NewEvent(alarm, a)
 				if err != nil {
 					logger().Printf("Error trying to insert auto scale event, auto scale aborted: %s", err)
 				}
-				aErr := a.Do(alarm.Envs)
+				aErr := a.Do(appName, alarm.Envs)
 				if aErr != nil {
 					logger().Printf("Error executing action %s in the alarm %s - error: %s", a.Name, alarm.Name, aErr)
 				} else {
@@ -158,7 +170,19 @@ func (a *Alarm) Check() (bool, error) {
 		logger().Printf("error getting data for alarm %s - error: %s", a.Name, err.Error())
 		return false, err
 	}
-	data, err := ds.Get(a.Instance)
+	instance, err := tsuru.GetInstanceByName(a.Instance)
+	if err != nil {
+		logger().Printf("Error trying to get instance by name, auto scale aborted: %s", err)
+		return false, err
+	}
+	if len(instance.Apps) < 0 {
+		msg := "Error trying to get app instance."
+		logger().Printf(msg)
+		err = errors.New(msg)
+		return false, err
+	}
+	appName := instance.Apps[0]
+	data, err := ds.Get(appName)
 	if err != nil {
 		logger().Printf("error getting data for alarm %s - error: %s", a.Name, err.Error())
 		return false, err

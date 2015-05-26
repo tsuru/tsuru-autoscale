@@ -14,6 +14,7 @@ import (
 	"github.com/tsuru/tsuru-autoscale/action"
 	"github.com/tsuru/tsuru-autoscale/datasource"
 	"github.com/tsuru/tsuru-autoscale/db"
+	"github.com/tsuru/tsuru-autoscale/tsuru"
 	"github.com/tsuru/tsuru/db/dbtest"
 	"gopkg.in/check.v1"
 )
@@ -41,12 +42,12 @@ func (s *S) TestAlarm(c *check.C) {
 		w.Write([]byte(`{"id":"ble"}`))
 	}))
 	defer ts.Close()
-	instance := datasource.DataSource{
+	ds := datasource.DataSource{
 		Name:   "ds",
 		URL:    ts.URL,
 		Method: "GET",
 	}
-	err := datasource.New(&instance)
+	err := datasource.New(&ds)
 	c.Assert(err, check.IsNil)
 	myAction := action.Action{
 		Name:   "myaction",
@@ -54,11 +55,19 @@ func (s *S) TestAlarm(c *check.C) {
 		Method: "GET",
 	}
 	err = action.New(&myAction)
+	c.Assert(err, check.IsNil)
+	instance := tsuru.Instance{
+		Name: "instance",
+		Apps: []string{"app"},
+	}
+	err = tsuru.NewInstance(&instance)
+	c.Assert(err, check.IsNil)
 	alarm := Alarm{
 		Name:       "name",
 		Expression: `data.id == "ble"`,
-		DataSource: instance.Name,
+		DataSource: ds.Name,
 		Actions:    []string{myAction.Name},
+		Instance:   instance.Name,
 	}
 	err = NewAlarm(&alarm)
 	c.Assert(err, check.IsNil)
@@ -75,12 +84,12 @@ func (s *S) TestRunAutoScaleOnce(c *check.C) {
 		w.Write([]byte(`{"id":"ble"}`))
 	}))
 	defer ts.Close()
-	instance := datasource.DataSource{
+	ds := datasource.DataSource{
 		Name:   "ds",
 		URL:    ts.URL,
 		Method: "GET",
 	}
-	err := datasource.New(&instance)
+	err := datasource.New(&ds)
 	c.Assert(err, check.IsNil)
 	myAction := action.Action{
 		Name:   "myaction",
@@ -89,11 +98,18 @@ func (s *S) TestRunAutoScaleOnce(c *check.C) {
 	}
 	err = action.New(&myAction)
 	c.Assert(err, check.IsNil)
+	instance := tsuru.Instance{
+		Name: "instance",
+		Apps: []string{"app"},
+	}
+	err = tsuru.NewInstance(&instance)
+	c.Assert(err, check.IsNil)
 	alarm := Alarm{
 		Name:       "name",
 		Expression: `data.id == "ble"`,
-		DataSource: instance.Name,
+		DataSource: ds.Name,
 		Actions:    []string{myAction.Name},
+		Instance:   instance.Name,
 	}
 	err = NewAlarm(&alarm)
 	c.Assert(err, check.IsNil)
@@ -128,12 +144,12 @@ func (s *S) TestAlarmWaitEventStillRunning(c *check.C) {
 		w.Write([]byte(`{"id":"ble"}`))
 	}))
 	defer ts.Close()
-	instance := datasource.DataSource{
+	ds := datasource.DataSource{
 		Name:   "ds",
 		URL:    ts.URL,
 		Method: "GET",
 	}
-	err := datasource.New(&instance)
+	err := datasource.New(&ds)
 	c.Assert(err, check.IsNil)
 	a := action.Action{
 		Name:   "name",
@@ -142,11 +158,18 @@ func (s *S) TestAlarmWaitEventStillRunning(c *check.C) {
 	}
 	err = action.New(&a)
 	c.Assert(err, check.IsNil)
+	instance := tsuru.Instance{
+		Name: "instance",
+		Apps: []string{"app"},
+	}
+	err = tsuru.NewInstance(&instance)
+	c.Assert(err, check.IsNil)
 	alarm := &Alarm{
 		Name:       "rush",
 		Actions:    []string{a.Name},
 		Enabled:    true,
-		DataSource: instance.Name,
+		DataSource: ds.Name,
+		Instance:   instance.Name,
 	}
 	event, err := NewEvent(alarm, nil)
 	c.Assert(err, check.IsNil)
@@ -163,12 +186,12 @@ func (s *S) TestAlarmWaitTime(c *check.C) {
 		w.Write([]byte(`{"id":"ble"}`))
 	}))
 	defer ts.Close()
-	instance := datasource.DataSource{
+	ds := datasource.DataSource{
 		Name:   "ds",
 		URL:    ts.URL,
 		Method: "GET",
 	}
-	err := datasource.New(&instance)
+	err := datasource.New(&ds)
 	c.Assert(err, check.IsNil)
 	a := action.Action{
 		Name:   "name",
@@ -177,11 +200,18 @@ func (s *S) TestAlarmWaitTime(c *check.C) {
 	}
 	err = action.New(&a)
 	c.Assert(err, check.IsNil)
+	instance := tsuru.Instance{
+		Name: "instance",
+		Apps: []string{"app"},
+	}
+	err = tsuru.NewInstance(&instance)
+	c.Assert(err, check.IsNil)
 	alarm := &Alarm{
 		Name:       "rush",
 		Actions:    []string{a.Name},
 		Enabled:    true,
-		DataSource: instance.Name,
+		DataSource: ds.Name,
+		Instance:   instance.Name,
 	}
 	event, err := NewEvent(alarm, nil)
 	c.Assert(err, check.IsNil)
@@ -200,18 +230,25 @@ func (s *S) TestAlarmCheck(c *check.C) {
 		w.Write([]byte(`{"id":"ble"}`))
 	}))
 	defer ts.Close()
-	instance := datasource.DataSource{
+	ds := datasource.DataSource{
 		Name:   "ds",
 		URL:    ts.URL,
 		Method: "GET",
 	}
-	err := datasource.New(&instance)
+	err := datasource.New(&ds)
+	c.Assert(err, check.IsNil)
+	instance := tsuru.Instance{
+		Name: "instance",
+		Apps: []string{"app"},
+	}
+	err = tsuru.NewInstance(&instance)
 	c.Assert(err, check.IsNil)
 	alarm := &Alarm{
 		Name:       "rush",
 		Enabled:    true,
 		Expression: `data.id == "ble"`,
-		DataSource: instance.Name,
+		DataSource: ds.Name,
+		Instance:   instance.Name,
 	}
 	ok, err := alarm.Check()
 	c.Assert(err, check.IsNil)
@@ -220,7 +257,8 @@ func (s *S) TestAlarmCheck(c *check.C) {
 		Name:       "rush",
 		Enabled:    true,
 		Expression: `data.id != "ble"`,
-		DataSource: instance.Name,
+		DataSource: ds.Name,
+		Instance:   instance.Name,
 	}
 	ok, err = alarm.Check()
 	c.Assert(err, check.IsNil)

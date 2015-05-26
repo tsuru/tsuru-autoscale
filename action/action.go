@@ -79,12 +79,13 @@ func All() ([]Action, error) {
 	return actions, nil
 }
 
-func (a *Action) Do(envs map[string]string) error {
+func (a *Action) Do(appName string, envs map[string]string) error {
 	body := a.Body
 	for key, value := range envs {
 		body = strings.Replace(body, fmt.Sprintf("{%s}", key), value, -1)
 	}
-	req, err := http.NewRequest(a.Method, a.URL, strings.NewReader(body))
+	url := strings.Replace(a.URL, "{app}", appName, -1)
+	req, err := http.NewRequest(a.Method, url, strings.NewReader(body))
 	if err != nil {
 		return err
 	}
