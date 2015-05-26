@@ -7,12 +7,18 @@ package datasource
 import (
 	"errors"
 	"io/ioutil"
+	stdlog "log"
 	"net/http"
 	"strings"
 
 	"github.com/tsuru/tsuru-autoscale/db"
+	"github.com/tsuru/tsuru-autoscale/log"
 	"gopkg.in/mgo.v2/bson"
 )
+
+func logger() *stdlog.Logger {
+	return log.Logger()
+}
 
 // DataSource represents a data source.
 type DataSource struct {
@@ -82,6 +88,7 @@ func Remove(ds *DataSource) error {
 // Get tries to get the data from the data source.
 func (ds *DataSource) Get(appName string) (string, error) {
 	body := strings.Replace(ds.Body, "{app}", appName, -1)
+    logger().Printf("data source %s - body: %s", ds.Name, body)
 	req, err := http.NewRequest(ds.Method, ds.URL, strings.NewReader(body))
 	if err != nil {
 		return "", err
