@@ -127,16 +127,24 @@ func (s *S) TestRunAutoScaleOnce(c *check.C) {
 
 func (s *S) TestAutoScaleEnable(c *check.C) {
 	alarm := Alarm{Name: "alarm"}
-	err := AutoScaleEnable(&alarm)
+	err := NewAlarm(&alarm)
 	c.Assert(err, check.IsNil)
-	c.Assert(alarm.Enabled, check.Equals, true)
+	err = Enable(&alarm)
+	c.Assert(err, check.IsNil)
+	a, err := FindAlarmByName("alarm")
+	c.Assert(err, check.IsNil)
+	c.Assert(a.Enabled, check.Equals, true)
 }
 
 func (s *S) TestAutoScaleDisable(c *check.C) {
 	alarm := Alarm{Name: "alarm", Enabled: true}
-	err := AutoScaleDisable(&alarm)
+	err := NewAlarm(&alarm)
 	c.Assert(err, check.IsNil)
-	c.Assert(alarm.Enabled, check.Equals, false)
+	err = Disable(&alarm)
+	c.Assert(err, check.IsNil)
+	a, err := FindAlarmByName("alarm")
+	c.Assert(err, check.IsNil)
+	c.Assert(a.Enabled, check.Equals, false)
 }
 
 func (s *S) TestAlarmWaitEventStillRunning(c *check.C) {

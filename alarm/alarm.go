@@ -153,14 +153,22 @@ func shouldWait(alarm *Alarm) (bool, error) {
 	return true, nil
 }
 
-func AutoScaleEnable(alarm *Alarm) error {
-	alarm.Enabled = true
-	return nil
+func Enable(alarm *Alarm) error {
+	conn, err := db.Conn()
+	if err != nil {
+		return nil
+	}
+	defer conn.Close()
+	return conn.Alarms().Update(bson.M{"name": alarm.Name}, bson.M{"$set": bson.M{"enabled": true}})
 }
 
-func AutoScaleDisable(alarm *Alarm) error {
-	alarm.Enabled = false
-	return nil
+func Disable(alarm *Alarm) error {
+	conn, err := db.Conn()
+	if err != nil {
+		return nil
+	}
+	defer conn.Close()
+	return conn.Alarms().Update(bson.M{"name": alarm.Name}, bson.M{"$set": bson.M{"enabled": false}})
 }
 
 func (a *Alarm) Check() (bool, error) {
