@@ -78,6 +78,34 @@ func removeAlarm(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func enableAlarm(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	a, err := alarm.FindAlarmByName(vars["name"])
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusNotFound)
+		logger().Print(err.Error())
+	}
+	err = alarm.Enable(a)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		logger().Print(err.Error())
+	}
+}
+
+func disableAlarm(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	a, err := alarm.FindAlarmByName(vars["name"])
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusNotFound)
+		logger().Print(err.Error())
+	}
+	err = alarm.Disable(a)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		logger().Print(err.Error())
+	}
+}
+
 func getAlarm(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	a, err := alarm.FindAlarmByName(vars["name"])

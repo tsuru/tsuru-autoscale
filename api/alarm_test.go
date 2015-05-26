@@ -76,6 +76,38 @@ func (s *S) TestRemoveAlarm(c *check.C) {
 	c.Assert(err, check.NotNil)
 }
 
+func (s *S) TestEnableAlarm(c *check.C) {
+	a := &alarm.Alarm{Name: "myalarm", Enabled: false}
+	err := alarm.NewAlarm(a)
+	c.Assert(err, check.IsNil)
+	recorder := httptest.NewRecorder()
+	request, err := http.NewRequest("PUT", fmt.Sprintf("/alarm/%s/enable", a.Name), nil)
+	request.Header.Add("Authorization", "token")
+	c.Assert(err, check.IsNil)
+	r := Router()
+	r.ServeHTTP(recorder, request)
+	c.Assert(recorder.Code, check.Equals, http.StatusOK)
+	a, err = alarm.FindAlarmByName(a.Name)
+	c.Assert(err, check.IsNil)
+	c.Assert(a.Enabled, check.Equals, true)
+}
+
+func (s *S) TestDisableAlarm(c *check.C) {
+	a := &alarm.Alarm{Name: "myalarm", Enabled: true}
+	err := alarm.NewAlarm(a)
+	c.Assert(err, check.IsNil)
+	recorder := httptest.NewRecorder()
+	request, err := http.NewRequest("PUT", fmt.Sprintf("/alarm/%s/disable", a.Name), nil)
+	request.Header.Add("Authorization", "token")
+	c.Assert(err, check.IsNil)
+	r := Router()
+	r.ServeHTTP(recorder, request)
+	c.Assert(recorder.Code, check.Equals, http.StatusOK)
+	a, err = alarm.FindAlarmByName(a.Name)
+	c.Assert(err, check.IsNil)
+	c.Assert(a.Enabled, check.Equals, false)
+}
+
 func (s *S) TestGetAlarm(c *check.C) {
 	a := &alarm.Alarm{Name: "myalarm"}
 	err := alarm.NewAlarm(a)

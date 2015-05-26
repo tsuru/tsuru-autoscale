@@ -31,6 +31,8 @@ func Router() http.Handler {
 	m.HandleFunc("/alarm", newAlarm).Methods("POST")
 	m.HandleFunc("/alarm/instance/{instance}", listAlarmsByInstance).Methods("GET")
 	m.HandleFunc("/alarm", listAlarms).Methods("GET")
+	m.HandleFunc("/alarm/{name}/enable", enableAlarm).Methods("PUT")
+	m.HandleFunc("/alarm/{name}/disable", disableAlarm).Methods("PUT")
 	m.HandleFunc("/alarm/{name}", removeAlarm).Methods("DELETE")
 	m.HandleFunc("/alarm/{name}", getAlarm).Methods("GET")
 	m.HandleFunc("/alarm/{name}/event", listEvents).Methods("GET")
