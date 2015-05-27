@@ -110,6 +110,7 @@ func (s *S) TestRunAutoScaleOnce(c *check.C) {
 		DataSource: ds.Name,
 		Actions:    []string{myAction.Name},
 		Instance:   instance.Name,
+		Enabled:    true,
 	}
 	err = NewAlarm(&alarm)
 	c.Assert(err, check.IsNil)

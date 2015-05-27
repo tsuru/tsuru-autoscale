@@ -61,7 +61,7 @@ func runAutoScaleOnce() {
 		return
 	}
 	defer conn.Close()
-	err = conn.Alarms().Find(nil).All(&alarms)
+	err = conn.Alarms().Find(bson.M{"enabled": true}).All(&alarms)
 	if err != nil {
 		return
 	}
@@ -141,7 +141,7 @@ func shouldWait(alarm *Alarm) (bool, error) {
 	now := time.Now().UTC()
 	lastEvent, err := lastScaleEvent(alarm)
 	if err != nil && err != mgo.ErrNotFound {
-        logger().Printf("error on get last event for alarm %s - not waiting - err: %s", alarm.Name, err)
+		logger().Printf("error on get last event for alarm %s - not waiting - err: %s", alarm.Name, err)
 		return false, err
 	}
 	if err != mgo.ErrNotFound && lastEvent.EndTime.IsZero() {
