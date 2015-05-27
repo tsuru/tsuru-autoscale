@@ -87,11 +87,12 @@ func All() ([]Action, error) {
 
 func (a *Action) Do(appName string, envs map[string]string) error {
 	body := a.Body
+	url := strings.Replace(a.URL, "{app}", appName, -1)
 	for key, value := range envs {
 		body = strings.Replace(body, fmt.Sprintf("{%s}", key), value, -1)
+		url = strings.Replace(url, fmt.Sprintf("{%s}", key), value, -1)
 	}
-	url := strings.Replace(a.URL, "{app}", appName, -1)
-    logger().Printf("action %s - url: %s", a.Name, url)
+	logger().Printf("action %s - url: %s", a.Name, url)
 	req, err := http.NewRequest(a.Method, url, strings.NewReader(body))
 	if err != nil {
 		return err
