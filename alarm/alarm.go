@@ -141,15 +141,19 @@ func shouldWait(alarm *Alarm) (bool, error) {
 	now := time.Now().UTC()
 	lastEvent, err := lastScaleEvent(alarm)
 	if err != nil && err != mgo.ErrNotFound {
+        logger().Printf("error on get last event for alarm %s - not waiting - err: %s", alarm.Name, err)
 		return false, err
 	}
 	if err != mgo.ErrNotFound && lastEvent.EndTime.IsZero() {
+		logger().Printf("last event not finished yet for alarm %s - waiting", alarm.Name)
 		return true, nil
 	}
 	diff := now.Sub(lastEvent.EndTime)
 	if diff > alarm.Wait {
+		logger().Printf("diff %d > %d form alarm %s - not waiting", diff, alarm.Wait, alarm.Name)
 		return false, nil
 	}
+	logger().Printf("diff %d < %d form alarm %s - waiting", diff, alarm.Wait, alarm.Name)
 	return true, nil
 }
 
