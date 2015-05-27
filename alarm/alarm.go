@@ -8,6 +8,7 @@ import (
 	"errors"
 	"fmt"
 	stdlog "log"
+	"sync"
 	"time"
 
 	"github.com/robertkrimen/otto"
@@ -65,13 +66,19 @@ func runAutoScaleOnce() {
 	if err != nil {
 		return
 	}
+	var wg sync.WaitGroup
 	for _, alarm := range alarms {
-		logger().Printf("checking %s alarm", alarm.Name)
-		err := scaleIfNeeded(&alarm)
-		if err != nil {
-			logger().Print(err.Error())
-		}
+		wg.Add(1)
+		go func(alarm Alarm) {
+			defer wg.Done()
+			logger().Printf("checking %s alarm", alarm.Name)
+			err := scaleIfNeeded(&alarm)
+			if err != nil {
+				logger().Print(err.Error())
+			}
+		}(alarm)
 	}
+	wg.Wait()
 }
 
 func runAutoScale() {
