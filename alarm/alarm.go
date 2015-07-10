@@ -206,7 +206,7 @@ func (a *Alarm) Check() (bool, error) {
 		logger().Printf("error getting data for alarm %s - error: %s", a.Name, err.Error())
 		return false, err
 	}
-	logger().Printf("data for alarm %s", data)
+	logger().Printf("data for alarm %s - %s", a.Name, data)
 	vm := otto.New()
 	vm.Run(fmt.Sprintf("var data=%s;", data))
 	vm.Run(fmt.Sprintf("var expression=%s", a.Expression))
