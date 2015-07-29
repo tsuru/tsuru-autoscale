@@ -29,7 +29,7 @@ func FindServiceInstance(token string) ([]Instance, error) {
 	defer resp.Body.Close()
 	body, err := ioutil.ReadAll(resp.Body)
 	if resp.StatusCode > 399 {
-		logger().Printf("Got error find service instance status code > 399: %s. url: %s", string(body), url)
+        logger().Printf("Got error find service instance status code > 399: body: %s. url: %s. status code: %d. request: %#v", string(body), url, resp.StatusCode, req)
 		return nil, errors.New(string(body))
 	}
 	if err != nil {
