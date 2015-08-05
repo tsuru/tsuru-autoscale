@@ -23,7 +23,7 @@ type scaleAction struct {
 	operator string
 	value    string
 	step     string
-	waitTime time.Duration
+	wait     time.Duration
 }
 
 func newScaleAction(action scaleAction, kind, instanceName string) error {
@@ -31,7 +31,7 @@ func newScaleAction(action scaleAction, kind, instanceName string) error {
 		Name:       fmt.Sprintf("%s_%s", kind, instanceName),
 		Expression: fmt.Sprintf("%s %s %s", action.metric, action.operator, action.value),
 		Enabled:    true,
-		Wait:       action.waitTime,
+		Wait:       action.wait,
 		Actions:    []string{kind},
 		Instance:   instanceName,
 		Envs:       map[string]string{"step": action.step},

@@ -5,7 +5,7 @@
 package wizard
 
 import (
-    "fmt"
+	"fmt"
 	"os"
 	"testing"
 
@@ -45,11 +45,11 @@ func (s *S) TestNewScale(c *check.C) {
 		operator: ">",
 		step:     "1",
 		value:    "10",
-		waitTime: 50,
+		wait:     50,
 	}
 	action := "scale_up"
 	instanceName := "instanceName"
-    scaleName := fmt.Sprintf("%s_%s", action, instanceName)
+	scaleName := fmt.Sprintf("%s_%s", action, instanceName)
 	err := newScaleAction(a, action, instanceName)
 	c.Assert(err, check.IsNil)
 	al, err := alarm.FindAlarmByName(scaleName)
