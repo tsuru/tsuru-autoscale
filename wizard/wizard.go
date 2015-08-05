@@ -4,6 +4,13 @@
 
 package wizard
 
+import (
+	"fmt"
+	"time"
+
+	"github.com/tsuru/tsuru-autoscale/alarm"
+)
+
 type autoscale struct {
 	name      string
 	scaleUp   scaleAction
@@ -15,6 +22,19 @@ type scaleAction struct {
 	metric   string
 	operator string
 	value    string
-	step     int
-	waitTime int
+	step     string
+	waitTime time.Duration
+}
+
+func newScaleAction(action scaleAction, kind, instanceName string) error {
+	a := alarm.Alarm{
+		Name:       fmt.Sprintf("%s_%s", kind, instanceName),
+		Expression: fmt.Sprintf("%s %s %s", action.metric, action.operator, action.value),
+		Enabled:    true,
+		Wait:       action.waitTime,
+		Actions:    []string{kind},
+		Instance:   instanceName,
+		Envs:       map[string]string{"step": action.step},
+	}
+	return alarm.NewAlarm(&a)
 }
