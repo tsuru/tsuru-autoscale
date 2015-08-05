@@ -60,3 +60,43 @@ func (s *S) TestNewScale(c *check.C) {
 	c.Assert(al.Enabled, check.Equals, true)
 	c.Assert(al.Actions, check.DeepEquals, []string{action})
 }
+
+func (s *S) TestNew(c *check.C) {
+	scaleUp := scaleAction{
+		metric:   "cpu",
+		operator: ">",
+		step:     "1",
+		value:    "10",
+		wait:     50,
+	}
+	scaleDown := scaleAction{
+		metric:   "cpu",
+		operator: "<",
+		step:     "1",
+		value:    "2",
+		wait:     50,
+	}
+	a := autoscale{
+		name:      "test",
+		scaleUp:   scaleUp,
+		scaleDown: scaleDown,
+	}
+	err := New(a)
+	c.Assert(err, check.IsNil)
+	scaleName := "scale_up_test"
+	al, err := alarm.FindAlarmByName(scaleName)
+	c.Assert(err, check.IsNil)
+	c.Assert(al.Name, check.Equals, scaleName)
+	c.Assert(al.Expression, check.Equals, fmt.Sprintf("%s %s %s", scaleUp.metric, scaleUp.operator, scaleUp.value))
+	c.Assert(al.Envs, check.DeepEquals, map[string]string{"step": scaleUp.step})
+	c.Assert(al.Enabled, check.Equals, true)
+	c.Assert(al.Actions, check.DeepEquals, []string{"scale_up"})
+	scaleName = "scale_down_test"
+	al, err = alarm.FindAlarmByName(scaleName)
+	c.Assert(err, check.IsNil)
+	c.Assert(al.Name, check.Equals, scaleName)
+	c.Assert(al.Expression, check.Equals, fmt.Sprintf("%s %s %s", scaleDown.metric, scaleDown.operator, scaleDown.value))
+	c.Assert(al.Envs, check.DeepEquals, map[string]string{"step": scaleDown.step})
+	c.Assert(al.Enabled, check.Equals, true)
+	c.Assert(al.Actions, check.DeepEquals, []string{"scale_down"})
+}

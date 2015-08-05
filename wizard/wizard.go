@@ -26,6 +26,18 @@ type scaleAction struct {
 	wait     time.Duration
 }
 
+func New(a autoscale) error {
+	err := newScaleAction(a.scaleUp, "scale_up", a.name)
+	if err != nil {
+		return err
+	}
+	err = newScaleAction(a.scaleDown, "scale_down", a.name)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 func newScaleAction(action scaleAction, kind, instanceName string) error {
 	a := alarm.Alarm{
 		Name:       fmt.Sprintf("%s_%s", kind, instanceName),
