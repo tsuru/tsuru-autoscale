@@ -5,6 +5,7 @@
 package wizard
 
 type autoscale struct {
+	name      string
 	scaleUp   scaleAction
 	scaleDown scaleAction
 	minUnits  int
