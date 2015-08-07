@@ -38,6 +38,19 @@ func New(a autoscale) error {
 	return nil
 }
 
+func enableScaleDown(instanceName string, minUnits int) error {
+	a := alarm.Alarm{
+		Name:       fmt.Sprintf("enable_scale_down_%s", instanceName),
+		Expression: fmt.Sprintf("units > %d", minUnits),
+		Enabled:    true,
+		Wait:       15 * 1000 * 1000 * 1000,
+		Actions:    []string{"enable_alarm"},
+		Instance:   instanceName,
+		Envs:       map[string]string{"alarm": fmt.Sprintf("scale_down_%s", instanceName)},
+	}
+	return alarm.NewAlarm(&a)
+}
+
 func newScaleAction(action scaleAction, kind, instanceName string) error {
 	a := alarm.Alarm{
 		Name:       fmt.Sprintf("%s_%s", kind, instanceName),

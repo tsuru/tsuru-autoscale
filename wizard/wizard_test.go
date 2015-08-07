@@ -100,3 +100,10 @@ func (s *S) TestNew(c *check.C) {
 	c.Assert(al.Enabled, check.Equals, true)
 	c.Assert(al.Actions, check.DeepEquals, []string{"scale_down"})
 }
+
+func (s *S) TestEnableScaleDown(c *check.C) {
+	minUnits := 2
+	instanceName := "instanceName"
+	err := enableScaleDown(instanceName, minUnits)
+	c.Assert(err, check.IsNil)
+}
