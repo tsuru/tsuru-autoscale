@@ -106,4 +106,12 @@ func (s *S) TestEnableScaleDown(c *check.C) {
 	instanceName := "instanceName"
 	err := enableScaleDown(instanceName, minUnits)
 	c.Assert(err, check.IsNil)
+	alarmName := fmt.Sprintf("enable_scale_down_%s", instanceName)
+	al, err := alarm.FindAlarmByName(alarmName)
+	c.Assert(err, check.IsNil)
+	c.Assert(al.Name, check.Equals, alarmName)
+	c.Assert(al.Expression, check.Equals, fmt.Sprintf("units > %d", minUnits))
+	c.Assert(al.Envs, check.DeepEquals, map[string]string{"alarm": fmt.Sprintf("scale_down_%s", instanceName)})
+	c.Assert(al.Enabled, check.Equals, true)
+	c.Assert(al.Actions, check.DeepEquals, []string{"enable_alarm"})
 }
