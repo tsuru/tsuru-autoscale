@@ -99,6 +99,22 @@ func (s *S) TestNew(c *check.C) {
 	c.Assert(al.Envs, check.DeepEquals, map[string]string{"step": scaleDown.step})
 	c.Assert(al.Enabled, check.Equals, true)
 	c.Assert(al.Actions, check.DeepEquals, []string{"scale_down"})
+	alarmName := fmt.Sprintf("enable_scale_down_%s", a.name)
+	al, err = alarm.FindAlarmByName(alarmName)
+	c.Assert(err, check.IsNil)
+	c.Assert(al.Name, check.Equals, alarmName)
+	c.Assert(al.Expression, check.Equals, fmt.Sprintf("units > %d", a.minUnits))
+	c.Assert(al.Envs, check.DeepEquals, map[string]string{"alarm": fmt.Sprintf("scale_down_%s", a.name)})
+	c.Assert(al.Enabled, check.Equals, true)
+	c.Assert(al.Actions, check.DeepEquals, []string{"enable_alarm"})
+	alarmName = fmt.Sprintf("disable_scale_down_%s", a.name)
+	al, err = alarm.FindAlarmByName(alarmName)
+	c.Assert(err, check.IsNil)
+	c.Assert(al.Name, check.Equals, alarmName)
+	c.Assert(al.Expression, check.Equals, fmt.Sprintf("units <= %d", a.minUnits))
+	c.Assert(al.Envs, check.DeepEquals, map[string]string{"alarm": fmt.Sprintf("scale_down_%s", a.name)})
+	c.Assert(al.Enabled, check.Equals, true)
+	c.Assert(al.Actions, check.DeepEquals, []string{"disable_alarm"})
 }
 
 func (s *S) TestEnableScaleDown(c *check.C) {

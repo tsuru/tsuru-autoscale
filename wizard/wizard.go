@@ -35,6 +35,14 @@ func New(a autoscale) error {
 	if err != nil {
 		return err
 	}
+	err = enableScaleDown(a.name, a.minUnits)
+	if err != nil {
+		return err
+	}
+	err = disableScaleDown(a.name, a.minUnits)
+	if err != nil {
+		return err
+	}
 	return nil
 }
 
