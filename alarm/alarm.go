@@ -47,11 +47,7 @@ func NewAlarm(a *Alarm) error {
 		return nil
 	}
 	defer conn.Close()
-	err = conn.Alarms().Insert(&a)
-	if err != nil {
-		return nil
-	}
-	return nil
+	return conn.Alarms().Insert(&a)
 }
 
 func runAutoScaleOnce() {
