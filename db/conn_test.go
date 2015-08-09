@@ -63,3 +63,11 @@ func (s *S) TestActions(c *check.C) {
 	actionc := strg.Collection("actions")
 	c.Assert(action, check.DeepEquals, actionc)
 }
+
+func (s *S) TestWizard(c *check.C) {
+	strg, err := Conn()
+	c.Assert(err, check.IsNil)
+	action := strg.Wizard()
+	actionc := strg.Collection("wizard")
+	c.Assert(action, check.DeepEquals, actionc)
+}

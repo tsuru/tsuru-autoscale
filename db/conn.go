@@ -83,3 +83,9 @@ func (s *Storage) Actions() *storage.Collection {
 	c := s.Collection("actions")
 	return c
 }
+
+// Wizard returns the wizard collection from MongoDB.
+func (s *Storage) Wizard() *storage.Collection {
+	c := s.Collection("wizard")
+	return c
+}
