@@ -9,41 +9,47 @@ import (
 	"time"
 
 	"github.com/tsuru/tsuru-autoscale/alarm"
+	"github.com/tsuru/tsuru-autoscale/db"
 )
 
 type autoscale struct {
-	name      string
-	scaleUp   scaleAction
-	scaleDown scaleAction
-	minUnits  int
+	Name      string
+	ScaleUp   scaleAction
+	ScaleDown scaleAction
+	MinUnits  int
 }
 
 type scaleAction struct {
-	metric   string
-	operator string
-	value    string
-	step     string
-	wait     time.Duration
+	Metric   string
+	Operator string
+	Value    string
+	Step     string
+	Wait     time.Duration
 }
 
 func New(a autoscale) error {
-	err := newScaleAction(a.scaleUp, "scale_up", a.name)
+	err := newScaleAction(a.ScaleUp, "scale_up", a.Name)
 	if err != nil {
 		return err
 	}
-	err = newScaleAction(a.scaleDown, "scale_down", a.name)
+	err = newScaleAction(a.ScaleDown, "scale_down", a.Name)
 	if err != nil {
 		return err
 	}
-	err = enableScaleDown(a.name, a.minUnits)
+	err = enableScaleDown(a.Name, a.MinUnits)
 	if err != nil {
 		return err
 	}
-	err = disableScaleDown(a.name, a.minUnits)
+	err = disableScaleDown(a.Name, a.MinUnits)
 	if err != nil {
 		return err
 	}
-	return nil
+	conn, err := db.Conn()
+	if err != nil {
+		return nil
+	}
+	defer conn.Close()
+	return conn.Wizard().Insert(&a)
 }
 
 func enableScaleDown(instanceName string, minUnits int) error {
@@ -75,12 +81,12 @@ func disableScaleDown(instanceName string, minUnits int) error {
 func newScaleAction(action scaleAction, kind, instanceName string) error {
 	a := alarm.Alarm{
 		Name:       fmt.Sprintf("%s_%s", kind, instanceName),
-		Expression: fmt.Sprintf("%s %s %s", action.metric, action.operator, action.value),
+		Expression: fmt.Sprintf("%s %s %s", action.Metric, action.Operator, action.Value),
 		Enabled:    true,
-		Wait:       action.wait,
+		Wait:       action.Wait,
 		Actions:    []string{kind},
 		Instance:   instanceName,
-		Envs:       map[string]string{"step": action.step},
+		Envs:       map[string]string{"step": action.Step},
 	}
 	return alarm.NewAlarm(&a)
 }
