@@ -12,7 +12,7 @@ import (
 	"github.com/tsuru/tsuru-autoscale/db"
 )
 
-type autoscale struct {
+type AutoScale struct {
 	Name      string
 	ScaleUp   scaleAction
 	ScaleDown scaleAction
@@ -27,7 +27,7 @@ type scaleAction struct {
 	Wait     time.Duration
 }
 
-func New(a autoscale) error {
+func New(a *AutoScale) error {
 	err := newScaleAction(a.ScaleUp, "scale_up", a.Name)
 	if err != nil {
 		return err

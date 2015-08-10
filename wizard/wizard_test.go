@@ -76,12 +76,12 @@ func (s *S) TestNew(c *check.C) {
 		Value:    "2",
 		Wait:     50,
 	}
-	a := autoscale{
+	a := AutoScale{
 		Name:      "test",
 		ScaleUp:   scaleUp,
 		ScaleDown: scaleDown,
 	}
-	err := New(a)
+	err := New(&a)
 	c.Assert(err, check.IsNil)
 	scaleName := "scale_up_test"
 	al, err := alarm.FindAlarmByName(scaleName)
@@ -115,7 +115,7 @@ func (s *S) TestNew(c *check.C) {
 	c.Assert(al.Envs, check.DeepEquals, map[string]string{"alarm": fmt.Sprintf("scale_down_%s", a.Name)})
 	c.Assert(al.Enabled, check.Equals, true)
 	c.Assert(al.Actions, check.DeepEquals, []string{"disable_alarm"})
-	var as autoscale
+	var as AutoScale
 	err = s.conn.Wizard().Find(&a).One(&as)
 	c.Assert(err, check.IsNil)
 	c.Assert(as.Name, check.Equals, a.Name)
