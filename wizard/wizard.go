@@ -13,18 +13,18 @@ import (
 )
 
 type AutoScale struct {
-	Name      string
-	ScaleUp   scaleAction
-	ScaleDown scaleAction
-	MinUnits  int
+	Name      string      `json:"name"`
+	ScaleUp   scaleAction `json:"scaleUp"`
+	ScaleDown scaleAction `json:"scaleDown"`
+	MinUnits  int         `json:"minUnits"`
 }
 
 type scaleAction struct {
-	Metric   string
-	Operator string
-	Value    string
-	Step     string
-	Wait     time.Duration
+	Metric   string        `json:"metric"`
+	Operator string        `json:"operator"`
+	Value    string        `json:"value"`
+	Step     string        `json:"step"`
+	Wait     time.Duration `json:"wait"`
 }
 
 func New(a *AutoScale) error {

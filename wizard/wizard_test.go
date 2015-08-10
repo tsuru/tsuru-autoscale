@@ -5,6 +5,7 @@
 package wizard
 
 import (
+	"encoding/json"
 	"fmt"
 	"os"
 	"testing"
@@ -149,4 +150,18 @@ func (s *S) TestDisableScaleDown(c *check.C) {
 	c.Assert(al.Envs, check.DeepEquals, map[string]string{"alarm": fmt.Sprintf("scale_down_%s", instanceName)})
 	c.Assert(al.Enabled, check.Equals, true)
 	c.Assert(al.Actions, check.DeepEquals, []string{"disable_alarm"})
+}
+
+func (s *S) TestAutoScaleUnmarshal(c *check.C) {
+	data := []byte(`{"name":"test","minUnits":2,"scaleUp":{},"scaleDown":{}}`)
+	a := &AutoScale{}
+	err := json.Unmarshal(data, a)
+	c.Assert(err, check.IsNil)
+}
+
+func (s *S) TestScaleActionUnmarshal(c *check.C) {
+	data := []byte(`{"metric":"cpu","operator":">","value":"10","step":"2","wait":200}`)
+	sa := &scaleAction{}
+	err := json.Unmarshal(data, sa)
+	c.Assert(err, check.IsNil)
 }
