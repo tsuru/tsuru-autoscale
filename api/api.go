@@ -44,6 +44,7 @@ func Router() http.Handler {
 	m.HandleFunc("/resources/{name}", serviceRemove).Methods("DELETE")
 	m.HandleFunc("/service/instance/{name}", serviceInstanceByName).Methods("GET")
 	m.HandleFunc("/service/instance", serviceInstances).Methods("GET")
+	m.HandleFunc("/wizard", newAutoScale).Methods("POST")
 	n := negroni.New()
 	n.Use(negroni.NewRecovery())
 	n.Use(newAuthMiddleware())
