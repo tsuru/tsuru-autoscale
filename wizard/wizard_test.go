@@ -165,3 +165,17 @@ func (s *S) TestScaleActionUnmarshal(c *check.C) {
 	err := json.Unmarshal(data, sa)
 	c.Assert(err, check.IsNil)
 }
+
+func (s *S) TestFindByName(c *check.C) {
+	a := AutoScale{
+		Name: "xpto123",
+	}
+	s.conn.Wizard().Insert(&a)
+	a = AutoScale{
+		Name: "xpto1234",
+	}
+	s.conn.Wizard().Insert(&a)
+	na, err := FindByName(a.Name)
+	c.Assert(err, check.IsNil)
+	c.Assert(na, check.DeepEquals, &a)
+}

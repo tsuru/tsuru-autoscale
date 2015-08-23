@@ -10,6 +10,7 @@ import (
 
 	"github.com/tsuru/tsuru-autoscale/alarm"
 	"github.com/tsuru/tsuru-autoscale/db"
+	"gopkg.in/mgo.v2/bson"
 )
 
 type AutoScale struct {
@@ -89,4 +90,19 @@ func newScaleAction(action scaleAction, kind, instanceName string) error {
 		Envs:       map[string]string{"step": action.Step},
 	}
 	return alarm.NewAlarm(&a)
+}
+
+// FindByName finds auto scale by name
+func FindByName(name string) (*AutoScale, error) {
+	conn, err := db.Conn()
+	if err != nil {
+		return nil, err
+	}
+	defer conn.Close()
+	var autoScale AutoScale
+	err = conn.Wizard().Find(bson.M{"name": name}).One(&autoScale)
+	if err != nil {
+		return nil, err
+	}
+	return &autoScale, nil
 }
