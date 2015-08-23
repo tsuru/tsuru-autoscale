@@ -106,3 +106,13 @@ func FindByName(name string) (*AutoScale, error) {
 	}
 	return &autoScale, nil
 }
+
+// Remove removes an auto scale.
+func Remove(a *AutoScale) error {
+	conn, err := db.Conn()
+	if err != nil {
+		return err
+	}
+	defer conn.Close()
+	return conn.Wizard().Remove(a)
+}
