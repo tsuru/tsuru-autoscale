@@ -50,14 +50,15 @@ func (s *S) TestNewScale(c *check.C) {
 	}
 	action := "scale_up"
 	instanceName := "instanceName"
-	scaleName := fmt.Sprintf("%s_%s", action, instanceName)
-	err := newScaleAction(a, action, instanceName)
+	process := "web"
+	scaleName := fmt.Sprintf("%s_%s_%s", action, instanceName, process)
+	err := newScaleAction(a, action, instanceName, process)
 	c.Assert(err, check.IsNil)
 	al, err := alarm.FindAlarmByName(scaleName)
 	c.Assert(err, check.IsNil)
 	c.Assert(al.Name, check.Equals, scaleName)
 	c.Assert(al.Expression, check.Equals, fmt.Sprintf("%s %s %s", a.Metric, a.Operator, a.Value))
-	c.Assert(al.Envs, check.DeepEquals, map[string]string{"step": a.Step})
+	c.Assert(al.Envs, check.DeepEquals, map[string]string{"step": a.Step, "process": "web"})
 	c.Assert(al.Enabled, check.Equals, true)
 	c.Assert(al.Actions, check.DeepEquals, []string{action})
 }
@@ -81,23 +82,24 @@ func (s *S) TestNew(c *check.C) {
 		Name:      "test",
 		ScaleUp:   scaleUp,
 		ScaleDown: scaleDown,
+		Process:   "web",
 	}
 	err := New(&a)
 	c.Assert(err, check.IsNil)
-	scaleName := "scale_up_test"
+	scaleName := "scale_up_test_web"
 	al, err := alarm.FindAlarmByName(scaleName)
 	c.Assert(err, check.IsNil)
 	c.Assert(al.Name, check.Equals, scaleName)
 	c.Assert(al.Expression, check.Equals, fmt.Sprintf("%s %s %s", scaleUp.Metric, scaleUp.Operator, scaleUp.Value))
-	c.Assert(al.Envs, check.DeepEquals, map[string]string{"step": scaleUp.Step})
+	c.Assert(al.Envs, check.DeepEquals, map[string]string{"step": scaleUp.Step, "process": "web"})
 	c.Assert(al.Enabled, check.Equals, true)
 	c.Assert(al.Actions, check.DeepEquals, []string{"scale_up"})
-	scaleName = "scale_down_test"
+	scaleName = "scale_down_test_web"
 	al, err = alarm.FindAlarmByName(scaleName)
 	c.Assert(err, check.IsNil)
 	c.Assert(al.Name, check.Equals, scaleName)
 	c.Assert(al.Expression, check.Equals, fmt.Sprintf("%s %s %s", scaleDown.Metric, scaleDown.Operator, scaleDown.Value))
-	c.Assert(al.Envs, check.DeepEquals, map[string]string{"step": scaleDown.Step})
+	c.Assert(al.Envs, check.DeepEquals, map[string]string{"step": scaleDown.Step, "process": "web"})
 	c.Assert(al.Enabled, check.Equals, true)
 	c.Assert(al.Actions, check.DeepEquals, []string{"scale_down"})
 	alarmName := fmt.Sprintf("enable_scale_down_%s", a.Name)

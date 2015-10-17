@@ -30,11 +30,11 @@ type scaleAction struct {
 }
 
 func New(a *AutoScale) error {
-	err := newScaleAction(a.ScaleUp, "scale_up", a.Name)
+	err := newScaleAction(a.ScaleUp, "scale_up", a.Name, a.Process)
 	if err != nil {
 		return err
 	}
-	err = newScaleAction(a.ScaleDown, "scale_down", a.Name)
+	err = newScaleAction(a.ScaleDown, "scale_down", a.Name, a.Process)
 	if err != nil {
 		return err
 	}
@@ -80,15 +80,18 @@ func disableScaleDown(instanceName string, minUnits int) error {
 	return alarm.NewAlarm(&a)
 }
 
-func newScaleAction(action scaleAction, kind, instanceName string) error {
+func newScaleAction(action scaleAction, kind, instanceName, process string) error {
 	a := alarm.Alarm{
-		Name:       fmt.Sprintf("%s_%s", kind, instanceName),
+		Name:       fmt.Sprintf("%s_%s_%s", kind, instanceName, process),
 		Expression: fmt.Sprintf("%s %s %s", action.Metric, action.Operator, action.Value),
 		Enabled:    true,
 		Wait:       action.Wait,
 		Actions:    []string{kind},
 		Instance:   instanceName,
-		Envs:       map[string]string{"step": action.Step},
+		Envs: map[string]string{
+			"step":    action.Step,
+			"process": process,
+		},
 	}
 	return alarm.NewAlarm(&a)
 }
