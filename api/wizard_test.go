@@ -31,6 +31,7 @@ func (s *S) TestWizardByName(c *check.C) {
 		Name: "instance",
 	}
 	err := wizard.New(autoScale)
+    c.Assert(err, check.IsNil)
 	recorder := httptest.NewRecorder()
 	request, err := http.NewRequest("GET", "/wizard/instance", nil)
 	request.Header.Add("Authorization", "token")
