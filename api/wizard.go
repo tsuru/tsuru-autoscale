@@ -48,3 +48,17 @@ func wizardByName(w http.ResponseWriter, r *http.Request) {
 		logger().Print(err.Error())
 	}
 }
+
+func removeWizard(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	autoScale, err := wizard.FindByName(vars["name"])
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusNotFound)
+		logger().Print(err.Error())
+	}
+	err = wizard.Remove(autoScale)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		logger().Print(err.Error())
+	}
+}

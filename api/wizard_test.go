@@ -6,6 +6,7 @@ package api
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -43,4 +44,31 @@ func (s *S) TestWizardByName(c *check.C) {
 	err = json.Unmarshal(body, &instance)
 	c.Assert(err, check.IsNil)
 	c.Assert(instance.Name, check.Equals, "instance")
+}
+
+func (s *S) TestRemoveWizardNotFound(c *check.C) {
+	recorder := httptest.NewRecorder()
+	request, err := http.NewRequest("DELETE", "/wizard/notfound", nil)
+	request.Header.Add("Authorization", "token")
+	c.Assert(err, check.IsNil)
+	r := Router()
+	r.ServeHTTP(recorder, request)
+	c.Assert(recorder.Code, check.Equals, http.StatusNotFound)
+}
+
+func (s *S) TestRemoveWizard(c *check.C) {
+	autoScale := &wizard.AutoScale{
+		Name: "instance",
+	}
+	err := wizard.New(autoScale)
+	c.Assert(err, check.IsNil)
+	recorder := httptest.NewRecorder()
+	request, err := http.NewRequest("DELETE", fmt.Sprintf("/wizard/%s", autoScale.Name), nil)
+	request.Header.Add("Authorization", "token")
+	c.Assert(err, check.IsNil)
+	r := Router()
+	r.ServeHTTP(recorder, request)
+	c.Assert(recorder.Code, check.Equals, http.StatusOK)
+	_, err = wizard.FindByName(autoScale.Name)
+	c.Assert(err, check.NotNil)
 }
