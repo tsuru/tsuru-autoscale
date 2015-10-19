@@ -109,7 +109,7 @@ func (s *S) TestNew(c *check.C) {
 	c.Assert(err, check.IsNil)
 	c.Assert(al.Name, check.Equals, alarmName)
 	c.Assert(al.Expression, check.Equals, fmt.Sprintf("data.aggregations.range.buckets[0].date.buckets[0].unit.value > %d", a.MinUnits))
-	c.Assert(al.Envs, check.DeepEquals, map[string]string{"alarm": fmt.Sprintf("scale_down_%s", a.Name)})
+	c.Assert(al.Envs, check.DeepEquals, map[string]string{"alarm": fmt.Sprintf("scale_down_%s_web", a.Name)})
 	c.Assert(al.Enabled, check.Equals, true)
 	c.Assert(al.Actions, check.DeepEquals, []string{"enable_alarm"})
 	alarmName = fmt.Sprintf("disable_scale_down_%s", a.Name)
@@ -117,7 +117,7 @@ func (s *S) TestNew(c *check.C) {
 	c.Assert(err, check.IsNil)
 	c.Assert(al.Name, check.Equals, alarmName)
 	c.Assert(al.Expression, check.Equals, fmt.Sprintf("data.aggregations.range.buckets[0].date.buckets[0].unit.value <= %d", a.MinUnits))
-	c.Assert(al.Envs, check.DeepEquals, map[string]string{"alarm": fmt.Sprintf("scale_down_%s", a.Name)})
+	c.Assert(al.Envs, check.DeepEquals, map[string]string{"alarm": fmt.Sprintf("scale_down_%s_web", a.Name)})
 	c.Assert(al.Enabled, check.Equals, true)
 	c.Assert(al.Actions, check.DeepEquals, []string{"disable_alarm"})
 	var as AutoScale
@@ -129,14 +129,14 @@ func (s *S) TestNew(c *check.C) {
 func (s *S) TestEnableScaleDown(c *check.C) {
 	minUnits := 2
 	instanceName := "instanceName"
-	err := enableScaleDown(instanceName, minUnits)
+	err := enableScaleDown(instanceName, minUnits, "web")
 	c.Assert(err, check.IsNil)
 	alarmName := fmt.Sprintf("enable_scale_down_%s", instanceName)
 	al, err := alarm.FindAlarmByName(alarmName)
 	c.Assert(err, check.IsNil)
 	c.Assert(al.Name, check.Equals, alarmName)
 	c.Assert(al.Expression, check.Equals, fmt.Sprintf("data.aggregations.range.buckets[0].date.buckets[0].unit.value > %d", minUnits))
-	c.Assert(al.Envs, check.DeepEquals, map[string]string{"alarm": fmt.Sprintf("scale_down_%s", instanceName)})
+	c.Assert(al.Envs, check.DeepEquals, map[string]string{"alarm": fmt.Sprintf("scale_down_%s_web", instanceName)})
 	c.Assert(al.Enabled, check.Equals, true)
 	c.Assert(al.Actions, check.DeepEquals, []string{"enable_alarm"})
 }
@@ -144,14 +144,14 @@ func (s *S) TestEnableScaleDown(c *check.C) {
 func (s *S) TestDisableScaleDown(c *check.C) {
 	minUnits := 2
 	instanceName := "instanceName"
-	err := disableScaleDown(instanceName, minUnits)
+	err := disableScaleDown(instanceName, minUnits, "web")
 	c.Assert(err, check.IsNil)
 	alarmName := fmt.Sprintf("disable_scale_down_%s", instanceName)
 	al, err := alarm.FindAlarmByName(alarmName)
 	c.Assert(err, check.IsNil)
 	c.Assert(al.Name, check.Equals, alarmName)
 	c.Assert(al.Expression, check.Equals, fmt.Sprintf("data.aggregations.range.buckets[0].date.buckets[0].unit.value <= %d", minUnits))
-	c.Assert(al.Envs, check.DeepEquals, map[string]string{"alarm": fmt.Sprintf("scale_down_%s", instanceName)})
+	c.Assert(al.Envs, check.DeepEquals, map[string]string{"alarm": fmt.Sprintf("scale_down_%s_web", instanceName)})
 	c.Assert(al.Enabled, check.Equals, true)
 	c.Assert(al.Actions, check.DeepEquals, []string{"disable_alarm"})
 }

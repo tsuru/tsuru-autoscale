@@ -38,11 +38,11 @@ func New(a *AutoScale) error {
 	if err != nil {
 		return err
 	}
-	err = enableScaleDown(a.Name, a.MinUnits)
+	err = enableScaleDown(a.Name, a.MinUnits, a.Process)
 	if err != nil {
 		return err
 	}
-	err = disableScaleDown(a.Name, a.MinUnits)
+	err = disableScaleDown(a.Name, a.MinUnits, a.Process)
 	if err != nil {
 		return err
 	}
@@ -54,7 +54,13 @@ func New(a *AutoScale) error {
 	return conn.Wizard().Insert(&a)
 }
 
-func enableScaleDown(instanceName string, minUnits int) error {
+func enableScaleDown(instanceName string, minUnits int, process string) error {
+	var name string
+	if process == "" {
+		name = fmt.Sprintf("scale_down_%s", instanceName)
+	} else {
+		name = fmt.Sprintf("scale_down_%s_%s", instanceName, process)
+	}
 	a := alarm.Alarm{
 		Name:       fmt.Sprintf("enable_scale_down_%s", instanceName),
 		Expression: fmt.Sprintf("data.aggregations.range.buckets[0].date.buckets[0].unit.value > %d", minUnits),
@@ -63,12 +69,18 @@ func enableScaleDown(instanceName string, minUnits int) error {
 		Actions:    []string{"enable_alarm"},
 		Instance:   instanceName,
 		DataSource: "units",
-		Envs:       map[string]string{"alarm": fmt.Sprintf("scale_down_%s", instanceName)},
+		Envs:       map[string]string{"alarm": name},
 	}
 	return alarm.NewAlarm(&a)
 }
 
-func disableScaleDown(instanceName string, minUnits int) error {
+func disableScaleDown(instanceName string, minUnits int, process string) error {
+	var name string
+	if process == "" {
+		name = fmt.Sprintf("scale_down_%s", instanceName)
+	} else {
+		name = fmt.Sprintf("scale_down_%s_%s", instanceName, process)
+	}
 	a := alarm.Alarm{
 		Name:       fmt.Sprintf("disable_scale_down_%s", instanceName),
 		Expression: fmt.Sprintf("data.aggregations.range.buckets[0].date.buckets[0].unit.value <= %d", minUnits),
@@ -77,7 +89,7 @@ func disableScaleDown(instanceName string, minUnits int) error {
 		Actions:    []string{"disable_alarm"},
 		Instance:   instanceName,
 		DataSource: "units",
-		Envs:       map[string]string{"alarm": fmt.Sprintf("scale_down_%s", instanceName)},
+		Envs:       map[string]string{"alarm": name},
 	}
 	return alarm.NewAlarm(&a)
 }
