@@ -281,5 +281,5 @@ func RemoveAlarm(a *Alarm) error {
 		return err
 	}
 	defer conn.Close()
-	return conn.Alarms().Remove(a)
+	return conn.Alarms().Remove(bson.M{"name": a.Name})
 }

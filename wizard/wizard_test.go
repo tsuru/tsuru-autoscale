@@ -210,3 +210,91 @@ func (s *S) TestRemove(c *check.C) {
 	_, err = FindByName(a.Name)
 	c.Assert(err, check.NotNil)
 }
+
+func (s *S) TestRemoveWithoutProcess(c *check.C) {
+	scaleUp := ScaleAction{
+		Metric:   "cpu",
+		Operator: ">",
+		Step:     "1",
+		Value:    "10",
+		Wait:     50,
+	}
+	scaleDown := ScaleAction{
+		Metric:   "cpu",
+		Operator: "<",
+		Step:     "1",
+		Value:    "2",
+		Wait:     50,
+	}
+	a := AutoScale{
+		Name:      "testremovewp",
+		ScaleUp:   scaleUp,
+		ScaleDown: scaleDown,
+	}
+	err := New(&a)
+	c.Assert(err, check.IsNil)
+	err = Remove(&a)
+	c.Assert(err, check.IsNil)
+	_, err = FindByName(a.Name)
+	c.Assert(err, check.NotNil)
+}
+
+func (s *S) TestNewWithout(c *check.C) {
+	scaleUp := ScaleAction{
+		Metric:   "cpu",
+		Operator: ">",
+		Step:     "1",
+		Value:    "10",
+		Wait:     50,
+	}
+	scaleDown := ScaleAction{
+		Metric:   "cpu",
+		Operator: "<",
+		Step:     "1",
+		Value:    "2",
+		Wait:     50,
+	}
+	a := AutoScale{
+		Name:      "test",
+		ScaleUp:   scaleUp,
+		ScaleDown: scaleDown,
+	}
+	err := New(&a)
+	c.Assert(err, check.IsNil)
+	scaleName := "scale_up_test"
+	al, err := alarm.FindAlarmByName(scaleName)
+	c.Assert(err, check.IsNil)
+	c.Assert(al.Name, check.Equals, scaleName)
+	c.Assert(al.Expression, check.Equals, fmt.Sprintf("%s %s %s", scaleUp.Metric, scaleUp.Operator, scaleUp.Value))
+	c.Assert(al.Envs, check.DeepEquals, map[string]string{"step": scaleUp.Step, "process": ""})
+	c.Assert(al.Enabled, check.Equals, true)
+	c.Assert(al.Actions, check.DeepEquals, []string{"scale_up"})
+	scaleName = "scale_down_test"
+	al, err = alarm.FindAlarmByName(scaleName)
+	c.Assert(err, check.IsNil)
+	c.Assert(al.Name, check.Equals, scaleName)
+	c.Assert(al.Expression, check.Equals, fmt.Sprintf("%s %s %s", scaleDown.Metric, scaleDown.Operator, scaleDown.Value))
+	c.Assert(al.Envs, check.DeepEquals, map[string]string{"step": scaleDown.Step, "process": ""})
+	c.Assert(al.Enabled, check.Equals, true)
+	c.Assert(al.Actions, check.DeepEquals, []string{"scale_down"})
+	alarmName := fmt.Sprintf("enable_scale_down_%s", a.Name)
+	al, err = alarm.FindAlarmByName(alarmName)
+	c.Assert(err, check.IsNil)
+	c.Assert(al.Name, check.Equals, alarmName)
+	c.Assert(al.Expression, check.Equals, fmt.Sprintf("units > %d", a.MinUnits))
+	c.Assert(al.Envs, check.DeepEquals, map[string]string{"alarm": fmt.Sprintf("scale_down_%s", a.Name)})
+	c.Assert(al.Enabled, check.Equals, true)
+	c.Assert(al.Actions, check.DeepEquals, []string{"enable_alarm"})
+	alarmName = fmt.Sprintf("disable_scale_down_%s", a.Name)
+	al, err = alarm.FindAlarmByName(alarmName)
+	c.Assert(err, check.IsNil)
+	c.Assert(al.Name, check.Equals, alarmName)
+	c.Assert(al.Expression, check.Equals, fmt.Sprintf("units <= %d", a.MinUnits))
+	c.Assert(al.Envs, check.DeepEquals, map[string]string{"alarm": fmt.Sprintf("scale_down_%s", a.Name)})
+	c.Assert(al.Enabled, check.Equals, true)
+	c.Assert(al.Actions, check.DeepEquals, []string{"disable_alarm"})
+	var as AutoScale
+	err = s.conn.Wizard().Find(&a).One(&as)
+	c.Assert(err, check.IsNil)
+	c.Assert(as.Name, check.Equals, a.Name)
+}

@@ -81,8 +81,14 @@ func disableScaleDown(instanceName string, minUnits int) error {
 }
 
 func newScaleAction(action ScaleAction, kind, instanceName, process string) error {
+	var name string
+	if process == "" {
+		name = fmt.Sprintf("%s_%s", kind, instanceName)
+	} else {
+		name = fmt.Sprintf("%s_%s_%s", kind, instanceName, process)
+	}
 	a := alarm.Alarm{
-		Name:       fmt.Sprintf("%s_%s_%s", kind, instanceName, process),
+		Name:       name,
 		Expression: fmt.Sprintf("%s %s %s", action.Metric, action.Operator, action.Value),
 		Enabled:    true,
 		Wait:       action.Wait,
@@ -113,10 +119,15 @@ func FindByName(name string) (*AutoScale, error) {
 
 func removeAlarms(autoScale *AutoScale) error {
 	alarms := []string{
-		fmt.Sprintf("scale_up_%s_%s", autoScale.Name, autoScale.Process),
-		fmt.Sprintf("scale_down_%s_%s", autoScale.Name, autoScale.Process),
 		fmt.Sprintf("enable_scale_down_%s", autoScale.Name),
 		fmt.Sprintf("disable_scale_down_%s", autoScale.Name),
+	}
+	if autoScale.Process == "" {
+		alarms = append(alarms, fmt.Sprintf("scale_up_%s", autoScale.Name))
+		alarms = append(alarms, fmt.Sprintf("scale_down_%s", autoScale.Name))
+	} else {
+		alarms = append(alarms, fmt.Sprintf("scale_up_%s_%s", autoScale.Name, autoScale.Process))
+		alarms = append(alarms, fmt.Sprintf("scale_down_%s_%s", autoScale.Name, autoScale.Process))
 	}
 	for _, a := range alarms {
 		al, err := alarm.FindAlarmByName(a)
