@@ -57,11 +57,12 @@ func New(a *AutoScale) error {
 func enableScaleDown(instanceName string, minUnits int) error {
 	a := alarm.Alarm{
 		Name:       fmt.Sprintf("enable_scale_down_%s", instanceName),
-		Expression: fmt.Sprintf("units > %d", minUnits),
+		Expression: fmt.Sprintf("data.aggregations.range.buckets[0].date.buckets[0].unit.value > %d", minUnits),
 		Enabled:    true,
 		Wait:       15 * 1000 * 1000 * 1000,
 		Actions:    []string{"enable_alarm"},
 		Instance:   instanceName,
+		DataSource: "units",
 		Envs:       map[string]string{"alarm": fmt.Sprintf("scale_down_%s", instanceName)},
 	}
 	return alarm.NewAlarm(&a)
@@ -70,11 +71,12 @@ func enableScaleDown(instanceName string, minUnits int) error {
 func disableScaleDown(instanceName string, minUnits int) error {
 	a := alarm.Alarm{
 		Name:       fmt.Sprintf("disable_scale_down_%s", instanceName),
-		Expression: fmt.Sprintf("units <= %d", minUnits),
+		Expression: fmt.Sprintf("data.aggregations.range.buckets[0].date.buckets[0].unit.value <= %d", minUnits),
 		Enabled:    true,
 		Wait:       15 * 1000 * 1000 * 1000,
 		Actions:    []string{"disable_alarm"},
 		Instance:   instanceName,
+		DataSource: "units",
 		Envs:       map[string]string{"alarm": fmt.Sprintf("scale_down_%s", instanceName)},
 	}
 	return alarm.NewAlarm(&a)
@@ -89,7 +91,7 @@ func newScaleAction(action ScaleAction, kind, instanceName, process string) erro
 	}
 	a := alarm.Alarm{
 		Name:       name,
-		Expression: fmt.Sprintf("%s %s %s", action.Metric, action.Operator, action.Value),
+		Expression: fmt.Sprintf("data.aggregations.range.buckets[0].date.buckets[0].max.value %s %s", action.Operator, action.Value),
 		Enabled:    true,
 		Wait:       action.Wait,
 		Actions:    []string{kind},
