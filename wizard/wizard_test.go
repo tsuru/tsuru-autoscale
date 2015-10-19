@@ -41,7 +41,7 @@ func (s *S) TearDownSuite(c *check.C) {
 var _ = check.Suite(&S{})
 
 func (s *S) TestNewScale(c *check.C) {
-	a := scaleAction{
+	a := ScaleAction{
 		Metric:   "cpu",
 		Operator: ">",
 		Step:     "1",
@@ -64,14 +64,14 @@ func (s *S) TestNewScale(c *check.C) {
 }
 
 func (s *S) TestNew(c *check.C) {
-	scaleUp := scaleAction{
+	scaleUp := ScaleAction{
 		Metric:   "cpu",
 		Operator: ">",
 		Step:     "1",
 		Value:    "10",
 		Wait:     50,
 	}
-	scaleDown := scaleAction{
+	scaleDown := ScaleAction{
 		Metric:   "cpu",
 		Operator: "<",
 		Step:     "1",
@@ -163,7 +163,7 @@ func (s *S) TestAutoScaleUnmarshal(c *check.C) {
 
 func (s *S) TestScaleActionUnmarshal(c *check.C) {
 	data := []byte(`{"metric":"cpu","operator":">","value":"10","step":"2","wait":200}`)
-	sa := &scaleAction{}
+	sa := &ScaleAction{}
 	err := json.Unmarshal(data, sa)
 	c.Assert(err, check.IsNil)
 }
@@ -183,14 +183,14 @@ func (s *S) TestFindByName(c *check.C) {
 }
 
 func (s *S) TestRemove(c *check.C) {
-	scaleUp := scaleAction{
+	scaleUp := ScaleAction{
 		Metric:   "cpu",
 		Operator: ">",
 		Step:     "1",
 		Value:    "10",
 		Wait:     50,
 	}
-	scaleDown := scaleAction{
+	scaleDown := ScaleAction{
 		Metric:   "cpu",
 		Operator: "<",
 		Step:     "1",
@@ -198,7 +198,7 @@ func (s *S) TestRemove(c *check.C) {
 		Wait:     50,
 	}
 	a := AutoScale{
-		Name:      "test",
+		Name:      "testremove",
 		ScaleUp:   scaleUp,
 		ScaleDown: scaleDown,
 		Process:   "web",

@@ -15,13 +15,13 @@ import (
 
 type AutoScale struct {
 	Name      string      `json:"name"`
-	ScaleUp   scaleAction `json:"scaleUp"`
-	ScaleDown scaleAction `json:"scaleDown"`
+	ScaleUp   ScaleAction `json:"scaleUp"`
+	ScaleDown ScaleAction `json:"scaleDown"`
 	MinUnits  int         `json:"minUnits"`
 	Process   string      `json:"process"`
 }
 
-type scaleAction struct {
+type ScaleAction struct {
 	Metric   string        `json:"metric"`
 	Operator string        `json:"operator"`
 	Value    string        `json:"value"`
@@ -80,7 +80,7 @@ func disableScaleDown(instanceName string, minUnits int) error {
 	return alarm.NewAlarm(&a)
 }
 
-func newScaleAction(action scaleAction, kind, instanceName, process string) error {
+func newScaleAction(action ScaleAction, kind, instanceName, process string) error {
 	a := alarm.Alarm{
 		Name:       fmt.Sprintf("%s_%s_%s", kind, instanceName, process),
 		Expression: fmt.Sprintf("%s %s %s", action.Metric, action.Operator, action.Value),

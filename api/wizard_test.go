@@ -31,7 +31,7 @@ func (s *S) TestWizardByName(c *check.C) {
 		Name: "instance",
 	}
 	err := wizard.New(autoScale)
-    c.Assert(err, check.IsNil)
+	c.Assert(err, check.IsNil)
 	recorder := httptest.NewRecorder()
 	request, err := http.NewRequest("GET", "/wizard/instance", nil)
 	request.Header.Add("Authorization", "token")
@@ -58,8 +58,25 @@ func (s *S) TestRemoveWizardNotFound(c *check.C) {
 }
 
 func (s *S) TestRemoveWizard(c *check.C) {
+	scaleUp := wizard.ScaleAction{
+		Metric:   "cpu",
+		Operator: ">",
+		Step:     "1",
+		Value:    "10",
+		Wait:     50,
+	}
+	scaleDown := wizard.ScaleAction{
+		Metric:   "cpu",
+		Operator: "<",
+		Step:     "1",
+		Value:    "2",
+		Wait:     50,
+	}
 	autoScale := &wizard.AutoScale{
-		Name: "instance",
+		Name:      "instance",
+		ScaleUp:   scaleUp,
+		ScaleDown: scaleDown,
+		Process:   "web",
 	}
 	err := wizard.New(autoScale)
 	c.Assert(err, check.IsNil)
