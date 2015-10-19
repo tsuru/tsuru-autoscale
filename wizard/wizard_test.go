@@ -183,11 +183,29 @@ func (s *S) TestFindByName(c *check.C) {
 }
 
 func (s *S) TestRemove(c *check.C) {
-	a := AutoScale{
-		Name: "xpto123",
+	scaleUp := scaleAction{
+		Metric:   "cpu",
+		Operator: ">",
+		Step:     "1",
+		Value:    "10",
+		Wait:     50,
 	}
-	s.conn.Wizard().Insert(&a)
-	err := Remove(&a)
+	scaleDown := scaleAction{
+		Metric:   "cpu",
+		Operator: "<",
+		Step:     "1",
+		Value:    "2",
+		Wait:     50,
+	}
+	a := AutoScale{
+		Name:      "test",
+		ScaleUp:   scaleUp,
+		ScaleDown: scaleDown,
+		Process:   "web",
+	}
+	err := New(&a)
+	c.Assert(err, check.IsNil)
+	err = Remove(&a)
 	c.Assert(err, check.IsNil)
 	_, err = FindByName(a.Name)
 	c.Assert(err, check.NotNil)

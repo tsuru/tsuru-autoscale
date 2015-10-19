@@ -111,8 +111,32 @@ func FindByName(name string) (*AutoScale, error) {
 	return &autoScale, nil
 }
 
+func removeAlarms(autoScale *AutoScale) error {
+	alarms := []string{
+		fmt.Sprintf("scale_up_%s_%s", autoScale.Name, autoScale.Process),
+		fmt.Sprintf("scale_down_%s_%s", autoScale.Name, autoScale.Process),
+		fmt.Sprintf("enable_scale_down_%s", autoScale.Name),
+		fmt.Sprintf("disable_scale_down_%s", autoScale.Name),
+	}
+	for _, a := range alarms {
+		al, err := alarm.FindAlarmByName(a)
+		if err != nil {
+			return err
+		}
+		err = alarm.RemoveAlarm(al)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
 // Remove removes an auto scale.
 func Remove(a *AutoScale) error {
+	err := removeAlarms(a)
+	if err != nil {
+		return err
+	}
 	conn, err := db.Conn()
 	if err != nil {
 		return err
