@@ -93,6 +93,7 @@ func (s *S) TestNew(c *check.C) {
 	c.Assert(al.Expression, check.Equals, fmt.Sprintf("%s %s %s", scaleUp.Metric, scaleUp.Operator, scaleUp.Value))
 	c.Assert(al.Envs, check.DeepEquals, map[string]string{"step": scaleUp.Step, "process": "web"})
 	c.Assert(al.Enabled, check.Equals, true)
+	c.Assert(al.DataSource, check.Equals, scaleUp.Metric)
 	c.Assert(al.Actions, check.DeepEquals, []string{"scale_up"})
 	scaleName = "scale_down_test_web"
 	al, err = alarm.FindAlarmByName(scaleName)
@@ -102,6 +103,7 @@ func (s *S) TestNew(c *check.C) {
 	c.Assert(al.Envs, check.DeepEquals, map[string]string{"step": scaleDown.Step, "process": "web"})
 	c.Assert(al.Enabled, check.Equals, true)
 	c.Assert(al.Actions, check.DeepEquals, []string{"scale_down"})
+	c.Assert(al.DataSource, check.Equals, scaleDown.Metric)
 	alarmName := fmt.Sprintf("enable_scale_down_%s", a.Name)
 	al, err = alarm.FindAlarmByName(alarmName)
 	c.Assert(err, check.IsNil)

@@ -94,6 +94,7 @@ func newScaleAction(action ScaleAction, kind, instanceName, process string) erro
 		Wait:       action.Wait,
 		Actions:    []string{kind},
 		Instance:   instanceName,
+		DataSource: action.Metric,
 		Envs: map[string]string{
 			"step":    action.Step,
 			"process": process,
