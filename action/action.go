@@ -92,7 +92,7 @@ func (a *Action) Do(appName string, envs map[string]string) error {
 		body = strings.Replace(body, fmt.Sprintf("{%s}", key), value, -1)
 		url = strings.Replace(url, fmt.Sprintf("{%s}", key), value, -1)
 	}
-	logger().Printf("action %s - url: %s - body: %s", a.Name, url, body)
+	logger().Printf("action %s - url: %s - body: %s - method: %s", a.Name, url, body, a.Method)
 	req, err := http.NewRequest(a.Method, url, strings.NewReader(body))
 	if err != nil {
 		return err
