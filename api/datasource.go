@@ -8,9 +8,11 @@ import (
 	"encoding/json"
 	"io/ioutil"
 	"net/http"
+	"strconv"
 
 	"github.com/gorilla/mux"
 	"github.com/tsuru/tsuru-autoscale/datasource"
+	"gopkg.in/mgo.v2/bson"
 )
 
 func newDataSource(w http.ResponseWriter, r *http.Request) {
@@ -35,7 +37,12 @@ func newDataSource(w http.ResponseWriter, r *http.Request) {
 }
 
 func allDataSources(w http.ResponseWriter, r *http.Request) {
-	ds, err := datasource.All()
+	var q bson.M
+	public, err := strconv.ParseBool(r.URL.Query().Get("public"))
+	if err == nil {
+		q = bson.M{"public": public}
+	}
+	ds, err := datasource.FindBy(q)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		logger().Print(err.Error())

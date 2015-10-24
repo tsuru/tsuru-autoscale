@@ -27,6 +27,7 @@ type DataSource struct {
 	Method  string
 	Body    string
 	Headers map[string]string
+	Public  bool
 }
 
 // New creates a new data source instance.
@@ -45,15 +46,15 @@ func New(ds *DataSource) error {
 	return conn.DataSources().Insert(&ds)
 }
 
-// All returns all data sources.
-func All() ([]DataSource, error) {
+// FindBy returns a list of data sources filtered by "query".
+func FindBy(query bson.M) ([]DataSource, error) {
 	conn, err := db.Conn()
 	if err != nil {
 		return nil, err
 	}
 	defer conn.Close()
 	var ds []DataSource
-	err = conn.DataSources().Find(nil).All(&ds)
+	err = conn.DataSources().Find(query).All(&ds)
 	if err != nil {
 		return nil, err
 	}

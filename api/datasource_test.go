@@ -47,22 +47,35 @@ func (s *S) TestNewDataSource(c *check.C) {
 	c.Assert(recorder.Code, check.Equals, http.StatusCreated)
 }
 
-func (s *S) TestAllDataSources(c *check.C) {
-	err := datasource.New(&datasource.DataSource{URL: "http://tsuru.io", Method: "GET"})
+func (s *S) TestFindByDataSources(c *check.C) {
+	err := datasource.New(&datasource.DataSource{
+		URL:    "http://tsuru.io",
+		Method: "GET",
+		Public: false,
+	})
 	c.Assert(err, check.IsNil)
-	recorder := httptest.NewRecorder()
-	request, err := http.NewRequest("GET", "/datasource", nil)
-	request.Header.Add("Authorization", "token")
-	c.Assert(err, check.IsNil)
-	r := Router()
-	r.ServeHTTP(recorder, request)
-	c.Assert(recorder.Code, check.Equals, http.StatusOK)
-	c.Assert(recorder.HeaderMap["Content-Type"], check.DeepEquals, []string{"application/json"})
-	body := recorder.Body.Bytes()
-	var ds []datasource.DataSource
-	err = json.Unmarshal(body, &ds)
-	c.Assert(err, check.IsNil)
-	c.Assert(ds, check.HasLen, 1)
+	var tests = []struct {
+		url    string
+		length int
+	}{
+		{"/datasource", 1},
+		{"/datasource?public=true", 0},
+	}
+	for _, t := range tests {
+		recorder := httptest.NewRecorder()
+		request, err := http.NewRequest("GET", t.url, nil)
+		c.Check(err, check.IsNil)
+		request.Header.Add("Authorization", "token")
+		r := Router()
+		r.ServeHTTP(recorder, request)
+		c.Check(recorder.Code, check.Equals, http.StatusOK)
+		c.Check(recorder.HeaderMap["Content-Type"], check.DeepEquals, []string{"application/json"})
+		body := recorder.Body.Bytes()
+		var ds []datasource.DataSource
+		err = json.Unmarshal(body, &ds)
+		c.Check(err, check.IsNil)
+		c.Check(ds, check.HasLen, t.length)
+	}
 }
 
 func (s *S) TestRemoveDataSourceNotFound(c *check.C) {

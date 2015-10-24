@@ -92,7 +92,7 @@ func (s *S) TestGet(c *check.C) {
 	c.Assert(instance.Name, check.Equals, ds.Name)
 }
 
-func (s *S) TestAll(c *check.C) {
+func (s *S) TestFindby(c *check.C) {
 	ds := DataSource{
 		Name:    "xpto",
 		Headers: nil,
@@ -103,7 +103,7 @@ func (s *S) TestAll(c *check.C) {
 		Headers: nil,
 	}
 	s.conn.DataSources().Insert(&ds)
-	all, err := All()
+	all, err := FindBy(nil)
 	c.Assert(err, check.IsNil)
 	c.Assert(all, check.HasLen, 2)
 }
