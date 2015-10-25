@@ -132,19 +132,23 @@ func FindByName(name string) (*AutoScale, error) {
 	return &autoScale, nil
 }
 
-func removeAlarms(autoScale *AutoScale) error {
+func (a *AutoScale) alarms() []string {
 	alarms := []string{
-		fmt.Sprintf("enable_scale_down_%s", autoScale.Name),
-		fmt.Sprintf("disable_scale_down_%s", autoScale.Name),
+		fmt.Sprintf("enable_scale_down_%s", a.Name),
+		fmt.Sprintf("disable_scale_down_%s", a.Name),
 	}
-	if autoScale.Process == "" {
-		alarms = append(alarms, fmt.Sprintf("scale_up_%s", autoScale.Name))
-		alarms = append(alarms, fmt.Sprintf("scale_down_%s", autoScale.Name))
+	if a.Process == "" {
+		alarms = append(alarms, fmt.Sprintf("scale_up_%s", a.Name))
+		alarms = append(alarms, fmt.Sprintf("scale_down_%s", a.Name))
 	} else {
-		alarms = append(alarms, fmt.Sprintf("scale_up_%s_%s", autoScale.Name, autoScale.Process))
-		alarms = append(alarms, fmt.Sprintf("scale_down_%s_%s", autoScale.Name, autoScale.Process))
+		alarms = append(alarms, fmt.Sprintf("scale_up_%s_%s", a.Name, a.Process))
+		alarms = append(alarms, fmt.Sprintf("scale_down_%s_%s", a.Name, a.Process))
 	}
-	for _, a := range alarms {
+	return alarms
+}
+
+func removeAlarms(autoScale *AutoScale) error {
+	for _, a := range autoScale.alarms() {
 		al, err := alarm.FindAlarmByName(a)
 		if err != nil {
 			return err
