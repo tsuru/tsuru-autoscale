@@ -44,6 +44,7 @@ func Router() http.Handler {
 	m.HandleFunc("/resources/{name}", serviceRemove).Methods("DELETE")
 	m.HandleFunc("/service/instance/{name}", serviceInstanceByName).Methods("GET")
 	m.HandleFunc("/service/instance", serviceInstances).Methods("GET")
+	m.HandleFunc("/wizard/{name}/events", eventsByWizardName).Methods("GET")
 	m.HandleFunc("/wizard/{name}", wizardByName).Methods("GET")
 	m.HandleFunc("/wizard/{name}", removeWizard).Methods("DELETE")
 	m.HandleFunc("/wizard", newAutoScale).Methods("POST")

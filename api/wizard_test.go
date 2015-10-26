@@ -11,6 +11,7 @@ import (
 	"net/http/httptest"
 	"strings"
 
+	"github.com/tsuru/tsuru-autoscale/alarm"
 	"github.com/tsuru/tsuru-autoscale/wizard"
 	"gopkg.in/check.v1"
 )
@@ -89,4 +90,28 @@ func (s *S) TestRemoveWizard(c *check.C) {
 	c.Assert(recorder.Code, check.Equals, http.StatusOK)
 	_, err = wizard.FindByName(autoScale.Name)
 	c.Assert(err, check.NotNil)
+}
+
+func (s *S) TestEventsByWizardName(c *check.C) {
+	al := alarm.Alarm{Name: "enable_scale_down_xpto1234"}
+	_, err := alarm.NewEvent(&al, nil)
+	c.Assert(err, check.IsNil)
+	a := wizard.AutoScale{
+		Name: "xpto1234",
+	}
+	err = wizard.New(&a)
+	c.Assert(err, check.IsNil)
+	recorder := httptest.NewRecorder()
+	request, err := http.NewRequest("GET", "/wizard/xpto1234/events", nil)
+	request.Header.Add("Authorization", "token")
+	c.Assert(err, check.IsNil)
+	r := Router()
+	r.ServeHTTP(recorder, request)
+	c.Assert(recorder.Code, check.Equals, http.StatusOK)
+	c.Assert(recorder.HeaderMap["Content-Type"], check.DeepEquals, []string{"application/json"})
+	body := recorder.Body.Bytes()
+	var events []alarm.Event
+	err = json.Unmarshal(body, &events)
+	c.Assert(err, check.IsNil)
+	c.Assert(events, check.HasLen, 1)
 }
