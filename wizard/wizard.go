@@ -174,3 +174,17 @@ func Remove(a *AutoScale) error {
 	defer conn.Close()
 	return conn.Wizard().Remove(a)
 }
+
+func (a *AutoScale) Events() ([]alarm.Event, error) {
+	var events []alarm.Event
+	for _, al := range a.alarms() {
+		eventList, err := alarm.EventsByAlarmName(al)
+		if err != nil {
+			return nil, err
+		}
+		for _, e := range eventList {
+			events = append(events, e)
+		}
+	}
+	return events, nil
+}

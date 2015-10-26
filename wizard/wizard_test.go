@@ -300,3 +300,19 @@ func (s *S) TestNewWithout(c *check.C) {
 	c.Assert(err, check.IsNil)
 	c.Assert(as.Name, check.Equals, a.Name)
 }
+
+func (s *S) TestEvents(c *check.C) {
+	al := alarm.Alarm{Name: "enable_scale_down_xpto1234"}
+	_, err := alarm.NewEvent(&al, nil)
+	c.Assert(err, check.IsNil)
+	a := AutoScale{
+		Name: "xpto1234",
+	}
+	err = s.conn.Wizard().Insert(&a)
+	c.Assert(err, check.IsNil)
+	na, err := FindByName(a.Name)
+	c.Assert(err, check.IsNil)
+	events, err := na.Events()
+	c.Assert(err, check.IsNil)
+	c.Assert(events, check.HasLen, 1)
+}
