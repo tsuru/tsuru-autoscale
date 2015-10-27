@@ -15,6 +15,7 @@ import (
 	"os"
 
 	"github.com/tsuru/tsuru/db/storage"
+	"gopkg.in/mgo.v2"
 )
 
 const (
@@ -62,30 +63,40 @@ func (s *Storage) Configs() *storage.Collection {
 
 // Instances returns the instances collection from MongoDB.
 func (s *Storage) Instances() *storage.Collection {
+	nameIndex := mgo.Index{Key: []string{"name"}, Unique: true}
 	c := s.Collection("instances")
+	c.EnsureIndex(nameIndex)
 	return c
 }
 
 // DataSources returns the datasources collection from MongoDB.
 func (s *Storage) DataSources() *storage.Collection {
+	nameIndex := mgo.Index{Key: []string{"name"}, Unique: true}
 	c := s.Collection("datasources")
+	c.EnsureIndex(nameIndex)
 	return c
 }
 
 // Alarms returns the alarms collection from MongoDB.
 func (s *Storage) Alarms() *storage.Collection {
+	nameIndex := mgo.Index{Key: []string{"name"}, Unique: true}
 	c := s.Collection("alarms")
+	c.EnsureIndex(nameIndex)
 	return c
 }
 
 // Actions returns the actions collection from MongoDB.
 func (s *Storage) Actions() *storage.Collection {
+	nameIndex := mgo.Index{Key: []string{"name"}, Unique: true}
 	c := s.Collection("actions")
+	c.EnsureIndex(nameIndex)
 	return c
 }
 
 // Wizard returns the wizard collection from MongoDB.
 func (s *Storage) Wizard() *storage.Collection {
+	nameIndex := mgo.Index{Key: []string{"name"}, Unique: true}
 	c := s.Collection("wizard")
+	c.EnsureIndex(nameIndex)
 	return c
 }
