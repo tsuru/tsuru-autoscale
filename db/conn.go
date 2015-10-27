@@ -51,7 +51,9 @@ func Conn() (*Storage, error) {
 
 // Events returns the events collection from MongoDB.
 func (s *Storage) Events() *storage.Collection {
+	alarmName := mgo.Index{Key: []string{"alarm.name"}}
 	c := s.Collection("events")
+	c.EnsureIndex(alarmName)
 	return c
 }
 
