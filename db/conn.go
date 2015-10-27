@@ -81,9 +81,11 @@ func (s *Storage) DataSources() *storage.Collection {
 
 // Alarms returns the alarms collection from MongoDB.
 func (s *Storage) Alarms() *storage.Collection {
-	nameIndex := mgo.Index{Key: []string{"name"}, Unique: true}
 	c := s.Collection("alarms")
+	nameIndex := mgo.Index{Key: []string{"name"}, Unique: true}
 	c.EnsureIndex(nameIndex)
+	instanceIndex := mgo.Index{Key: []string{"instance"}}
+	c.EnsureIndex(instanceIndex)
 	return c
 }
 

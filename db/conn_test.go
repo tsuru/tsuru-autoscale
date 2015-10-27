@@ -118,6 +118,7 @@ func (s *S) TestAlarms(c *check.C) {
 	alarmc := strg.Collection("alarms")
 	c.Assert(alarm, check.DeepEquals, alarmc)
 	c.Assert(alarm, HasUniqueIndex, []string{"name"})
+	c.Assert(alarm, HasIndex, []string{"instance"})
 }
 
 func (s *S) TestActions(c *check.C) {
