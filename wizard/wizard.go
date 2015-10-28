@@ -63,7 +63,7 @@ func enableScaleDown(instanceName string, minUnits int, process string) error {
 	}
 	a := alarm.Alarm{
 		Name:       fmt.Sprintf("enable_scale_down_%s", instanceName),
-		Expression: fmt.Sprintf("data.aggregations.range.buckets[0].date.buckets[0].unit.value > %d", minUnits),
+		Expression: fmt.Sprintf("!data.lock.Locked && data.units.length > %d", minUnits),
 		Enabled:    true,
 		Wait:       15 * 1000 * 1000 * 1000,
 		Actions:    []string{"enable_alarm"},
@@ -83,7 +83,7 @@ func disableScaleDown(instanceName string, minUnits int, process string) error {
 	}
 	a := alarm.Alarm{
 		Name:       fmt.Sprintf("disable_scale_down_%s", instanceName),
-		Expression: fmt.Sprintf("data.aggregations.range.buckets[0].date.buckets[0].unit.value <= %d", minUnits),
+		Expression: fmt.Sprintf("!data.lock.Locked && data.units.length <= %d", minUnits),
 		Enabled:    true,
 		Wait:       15 * 1000 * 1000 * 1000,
 		Actions:    []string{"disable_alarm"},
