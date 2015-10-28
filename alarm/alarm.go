@@ -22,7 +22,7 @@ import (
 )
 
 func StartAutoScale() {
-	go runAutoScale()
+	runAutoScale()
 }
 
 func logger() *stdlog.Logger {
