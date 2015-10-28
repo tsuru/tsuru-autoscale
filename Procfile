@@ -1,1 +1,2 @@
-web: ./tsuru-autoscale
+web: ./tsuru-autoscale api
+worker: ./tsuru-autoscale agent
