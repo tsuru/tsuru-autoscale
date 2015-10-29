@@ -8,6 +8,8 @@ import (
 	"errors"
 	"fmt"
 	stdlog "log"
+	"os"
+	"strconv"
 	"sync"
 	"time"
 
@@ -77,10 +79,21 @@ func runAutoScaleOnce() {
 	wg.Wait()
 }
 
+func interval() time.Duration {
+	if i := os.Getenv("AUTOSCALE_INTERVAL"); i != "" {
+		v, err := strconv.Atoi(i)
+		if err == nil {
+			return time.Duration(v)
+		}
+		logger().Print(err.Error())
+	}
+	return time.Duration(10)
+}
+
 func runAutoScale() {
 	for {
 		runAutoScaleOnce()
-		time.Sleep(30 * time.Second)
+		time.Sleep(interval() * time.Second)
 	}
 }
 
