@@ -73,6 +73,16 @@ func NewInstance(i *Instance) error {
 	return conn.Instances().Insert(i)
 }
 
+func RemoveInstance(i *Instance) error {
+	conn, err := db.Conn()
+	if err != nil {
+		logger().Print(err.Error())
+		return err
+	}
+	defer conn.Close()
+	return conn.Instances().Remove(bson.M{"name": i.Name})
+}
+
 // GetInstanceByName finds a service instance by name.
 func GetInstanceByName(name string) (*Instance, error) {
 	conn, err := db.Conn()

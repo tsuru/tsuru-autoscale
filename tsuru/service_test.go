@@ -64,3 +64,19 @@ func (s *S) TestAddApp(c *check.C) {
 	c.Assert(err, check.IsNil)
 	c.Assert(i.Apps, check.DeepEquals, []string{"app"})
 }
+
+func (s *S) TestRemoveInstance(c *check.C) {
+	i := &Instance{
+		Name: "name",
+	}
+	err := NewInstance(i)
+	c.Assert(err, check.IsNil)
+	n, err := GetInstanceByName(i.Name)
+	c.Assert(err, check.IsNil)
+	c.Assert(n.Name, check.Equals, i.Name)
+	err = RemoveInstance(n)
+	c.Assert(err, check.IsNil)
+	n, err = GetInstanceByName(i.Name)
+	c.Assert(err, check.NotNil)
+	c.Assert(n, check.IsNil)
+}
