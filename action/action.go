@@ -68,7 +68,7 @@ func Remove(a *Action) error {
 		return err
 	}
 	defer conn.Close()
-	return conn.Actions().Remove(a)
+    return conn.Actions().Remove(bson.M{"name": a.Name})
 }
 
 func All() ([]Action, error) {
