@@ -59,6 +59,22 @@ func (i *Instance) AddApp(host string) error {
 	return i.update()
 }
 
+// RemoveApp removes app from an instance.
+func (i *Instance) RemoveApp(host string) error {
+	app := appFromHost(host)
+	if !contains(i.Apps, app) {
+		return errors.New("")
+	}
+	var apps []string
+	for _, a := range i.Apps {
+		if a != app {
+			apps = append(apps, a)
+		}
+	}
+	i.Apps = apps
+	return i.update()
+}
+
 // NewInstance creates a new service instance.
 func NewInstance(i *Instance) error {
 	if i.ID.Hex() == "" {

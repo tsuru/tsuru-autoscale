@@ -80,3 +80,22 @@ func (s *S) TestRemoveInstance(c *check.C) {
 	c.Assert(err, check.NotNil)
 	c.Assert(n, check.IsNil)
 }
+
+func (s *S) TestRemoveApp(c *check.C) {
+	i := &Instance{
+		Name: "name",
+	}
+	err := NewInstance(i)
+	c.Assert(err, check.IsNil)
+	i, err = GetInstanceByName(i.Name)
+	c.Assert(err, check.IsNil)
+	err = i.AddApp("app.domain.com")
+	c.Assert(err, check.IsNil)
+	err = i.RemoveApp("notfound.domain.com")
+	c.Assert(err, check.NotNil)
+	err = i.RemoveApp("app.domain.com")
+	c.Assert(err, check.IsNil)
+	i, err = GetInstanceByName(i.Name)
+	c.Assert(err, check.IsNil)
+	c.Assert(i.Apps, check.HasLen, 0)
+}
