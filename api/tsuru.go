@@ -54,6 +54,20 @@ func serviceUnbindUnit(w http.ResponseWriter, r *http.Request) {
 }
 
 func serviceUnbindApp(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	i, err := tsuru.GetInstanceByName(vars["name"])
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusNotFound)
+		logger().Print(err.Error())
+		return
+	}
+	r.Method = "POST"
+	err = i.RemoveApp(r.FormValue("app-host"))
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		logger().Print(err.Error())
+		return
+	}
 }
 
 func serviceRemove(w http.ResponseWriter, r *http.Request) {
