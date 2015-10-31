@@ -310,10 +310,15 @@ func (s *S) TestRemoveAlarm(c *check.C) {
 		Name: "xpto",
 	}
 	s.conn.Alarms().Insert(&a)
-	err := RemoveAlarm(&a)
+	_, err := NewEvent(&a, nil)
+	c.Assert(err, check.IsNil)
+	err = RemoveAlarm(&a)
 	c.Assert(err, check.IsNil)
 	_, err = FindAlarmByName(a.Name)
 	c.Assert(err, check.NotNil)
+	events, err := EventsByAlarmName("xpto")
+	c.Assert(err, check.IsNil)
+	c.Assert(events, check.HasLen, 0)
 }
 
 func (s *S) TestListAlarmsByInstance(c *check.C) {
