@@ -90,6 +90,11 @@ func (s *S) TestServiceUnbindApp(c *check.C) {
 }
 
 func (s *S) TestServiceRemove(c *check.C) {
+	service := &tsuru.Instance{
+		Name: "name",
+	}
+	err := tsuru.NewInstance(service)
+	c.Assert(err, check.IsNil)
 	recorder := httptest.NewRecorder()
 	request, err := http.NewRequest("DELETE", "/resources/name", nil)
 	request.Header.Add("Authorization", "token")
@@ -97,6 +102,9 @@ func (s *S) TestServiceRemove(c *check.C) {
 	r := Router()
 	r.ServeHTTP(recorder, request)
 	c.Assert(recorder.Code, check.Equals, http.StatusOK)
+	instance, err := tsuru.GetInstanceByName("name")
+	c.Assert(err, check.NotNil)
+	c.Assert(instance, check.IsNil)
 }
 
 func (s *S) TestServiceInstances(c *check.C) {

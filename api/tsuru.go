@@ -71,6 +71,19 @@ func serviceUnbindApp(w http.ResponseWriter, r *http.Request) {
 }
 
 func serviceRemove(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	i, err := tsuru.GetInstanceByName(vars["name"])
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusNotFound)
+		logger().Print(err.Error())
+		return
+	}
+	err = tsuru.RemoveInstance(i)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusNotFound)
+		logger().Print(err.Error())
+		return
+	}
 }
 
 func serviceInstances(w http.ResponseWriter, r *http.Request) {
