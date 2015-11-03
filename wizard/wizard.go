@@ -105,7 +105,7 @@ func newScaleAction(action ScaleAction, kind, instanceName, process string) erro
 		Name:       name,
 		Expression: fmt.Sprintf("data.aggregations.range.buckets[0].date.buckets[0].max.value %s %s", action.Operator, action.Value),
 		Enabled:    true,
-		Wait:       action.Wait,
+		Wait:       action.Wait * time.Second,
 		Actions:    []string{kind},
 		Instance:   instanceName,
 		DataSource: action.Metric,

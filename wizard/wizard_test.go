@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"os"
 	"testing"
+	"time"
 
 	"github.com/tsuru/tsuru-autoscale/alarm"
 	"github.com/tsuru/tsuru-autoscale/db"
@@ -103,6 +104,7 @@ func (s *S) TestNew(c *check.C) {
 	c.Assert(al.Envs, check.DeepEquals, map[string]string{"step": scaleDown.Step, "process": "web"})
 	c.Assert(al.Enabled, check.Equals, true)
 	c.Assert(al.Actions, check.DeepEquals, []string{"scale_down"})
+	c.Assert(al.Wait, check.Equals, 50*time.Second)
 	c.Assert(al.DataSource, check.Equals, scaleDown.Metric)
 	alarmName := fmt.Sprintf("enable_scale_down_%s", a.Name)
 	al, err = alarm.FindAlarmByName(alarmName)
