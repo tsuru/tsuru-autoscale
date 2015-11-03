@@ -50,6 +50,7 @@ func Router() http.Handler {
 	m.HandleFunc("/wizard", newAutoScale).Methods("POST")
 	n := negroni.New()
 	n.Use(negroni.NewRecovery())
+	n.Use(negroni.NewLogger())
 	n.Use(newAuthMiddleware())
 	n.UseHandler(m)
 	return n
