@@ -41,6 +41,19 @@ func (s *S) TestEventsByAlarmNameWithoutName(c *check.C) {
 	c.Assert(events[0].StartTime, check.Not(check.DeepEquals), time.Time{})
 }
 
+func (s *S) TestEventsByAlarmOrderByStartTime(c *check.C) {
+	alarm := Alarm{Name: "config"}
+	_, err := NewEvent(&alarm, nil)
+	c.Assert(err, check.IsNil)
+	time.Sleep(1 * time.Second)
+	_, err = NewEvent(&alarm, nil)
+	c.Assert(err, check.IsNil)
+	events, err := eventsByAlarmName(nil)
+	c.Assert(err, check.IsNil)
+	c.Assert(events, check.HasLen, 2)
+	c.Assert(events[0].StartTime.After(events[1].StartTime), check.Equals, true)
+}
+
 func (s *S) TestEventsByAlarmName(c *check.C) {
 	alarm := Alarm{Name: "config"}
 	_, err := NewEvent(&alarm, nil)

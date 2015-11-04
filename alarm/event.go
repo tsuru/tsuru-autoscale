@@ -79,7 +79,7 @@ func eventsByAlarmName(alarm *Alarm) ([]Event, error) {
 	if alarm != nil {
 		q["alarm.name"] = alarm.Name
 	}
-	err = conn.Events().Find(q).Sort("-_id").Limit(200).All(&events)
+	err = conn.Events().Find(q).Sort("-starttime").Limit(200).All(&events)
 	if err != nil {
 		return nil, err
 	}
