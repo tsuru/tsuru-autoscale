@@ -298,6 +298,6 @@ func RemoveAlarm(a *Alarm) error {
 	if err != nil {
 		return err
 	}
-	conn.Events().Remove(bson.M{"alarm.name": a.Name})
+	conn.Events().RemoveAll(bson.M{"alarm.name": a.Name})
 	return nil
 }

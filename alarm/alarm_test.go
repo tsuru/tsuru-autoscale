@@ -312,6 +312,8 @@ func (s *S) TestRemoveAlarm(c *check.C) {
 	s.conn.Alarms().Insert(&a)
 	_, err := NewEvent(&a, nil)
 	c.Assert(err, check.IsNil)
+	_, err = NewEvent(&a, nil)
+	c.Assert(err, check.IsNil)
 	err = RemoveAlarm(&a)
 	c.Assert(err, check.IsNil)
 	_, err = FindAlarmByName(a.Name)
