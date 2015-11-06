@@ -32,7 +32,7 @@ func (s *S) TestLastScaleEventNotFound(c *check.C) {
 }
 
 func (s *S) TestEventsByAlarmNameWithoutName(c *check.C) {
-	alarm := Alarm{Name: "config"}
+	alarm := Alarm{Name: "all"}
 	_, err := NewEvent(&alarm, nil)
 	c.Assert(err, check.IsNil)
 	events, err := eventsByAlarmName(nil)
@@ -42,7 +42,7 @@ func (s *S) TestEventsByAlarmNameWithoutName(c *check.C) {
 }
 
 func (s *S) TestEventsByAlarmOrderByStartTime(c *check.C) {
-	alarm := Alarm{Name: "config"}
+	alarm := Alarm{Name: "orderedevents"}
 	_, err := NewEvent(&alarm, nil)
 	c.Assert(err, check.IsNil)
 	time.Sleep(1 * time.Second)

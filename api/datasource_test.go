@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/http/httptest"
+    "os"
 	"strings"
 	"testing"
 
@@ -27,13 +28,19 @@ type S struct {
 var _ = check.Suite(&S{})
 
 func (s *S) SetUpSuite(c *check.C) {
-	var err error
+	err := os.Setenv("MONGODB_DATABASE_NAME", "tsuru_autoscale_api")
+	c.Assert(err, check.IsNil)
 	s.conn, err = db.Conn()
 	c.Assert(err, check.IsNil)
 }
 
 func (s *S) TearDownTest(c *check.C) {
 	dbtest.ClearAllCollections(s.conn.Actions().Database)
+	dbtest.ClearAllCollections(s.conn.Alarms().Database)
+	dbtest.ClearAllCollections(s.conn.DataSources().Database)
+	dbtest.ClearAllCollections(s.conn.Events().Database)
+	dbtest.ClearAllCollections(s.conn.Instances().Database)
+	dbtest.ClearAllCollections(s.conn.Wizard().Database)
 }
 
 func (s *S) TestNewDataSource(c *check.C) {

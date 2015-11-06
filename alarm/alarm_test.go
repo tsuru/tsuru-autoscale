@@ -26,7 +26,8 @@ type S struct {
 }
 
 func (s *S) SetUpSuite(c *check.C) {
-	var err error
+	err := os.Setenv("MONGODB_DATABASE_NAME", "tsuru_autoscale_alarm")
+	c.Assert(err, check.IsNil)
 	s.conn, err = db.Conn()
 	c.Assert(err, check.IsNil)
 }
