@@ -275,6 +275,37 @@ func (s *S) TestAlarmCheck(c *check.C) {
 	c.Assert(ok, check.Equals, false)
 }
 
+func (s *S) TestAlarmCheckWithoutApps(c *check.C) {
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Write([]byte(`{"id":"ble"}`))
+	}))
+	defer ts.Close()
+	ds := datasource.DataSource{
+		Name:   "ds",
+		URL:    ts.URL,
+		Method: "GET",
+	}
+	err := datasource.New(&ds)
+	c.Assert(err, check.IsNil)
+	instance := tsuru.Instance{
+		Name: "instance",
+		Apps: []string{},
+	}
+	err = tsuru.NewInstance(&instance)
+	c.Assert(err, check.IsNil)
+	alarm := &Alarm{
+		Name:       "rush",
+		Enabled:    true,
+		Expression: `data.id == "ble"`,
+		DataSource: ds.Name,
+		Instance:   instance.Name,
+	}
+	ok, err := alarm.Check()
+	c.Assert(err, check.NotNil)
+	c.Assert(err, check.ErrorMatches, "Error trying to get app instance.")
+	c.Assert(ok, check.Equals, false)
+}
+
 func (s *S) TestListAlarmsByToken(c *check.C) {
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte(`[{"Name":"instance"}]`))

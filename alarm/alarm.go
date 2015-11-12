@@ -203,7 +203,7 @@ func (a *Alarm) Check() (bool, error) {
 		logger().Printf("Error trying to get instance by name, auto scale aborted: %s", err)
 		return false, err
 	}
-	if len(instance.Apps) < 0 {
+	if len(instance.Apps) < 1 {
 		msg := "Error trying to get app instance."
 		logger().Printf(msg)
 		err = errors.New(msg)
