@@ -11,6 +11,7 @@ import (
 
 	"github.com/gorilla/mux"
 	"github.com/tsuru/tsuru-autoscale/tsuru"
+	"github.com/tsuru/tsuru-autoscale/wizard"
 )
 
 func serviceAdd(w http.ResponseWriter, r *http.Request) {
@@ -67,6 +68,15 @@ func serviceUnbindApp(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		logger().Print(err.Error())
 		return
+	}
+	autoScale, err := wizard.FindByName(vars["name"])
+	if err == nil {
+		rerr := wizard.Remove(autoScale)
+		if rerr != nil {
+			http.Error(w, rerr.Error(), http.StatusInternalServerError)
+			logger().Print(rerr.Error())
+			return
+		}
 	}
 }
 

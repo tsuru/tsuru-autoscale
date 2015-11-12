@@ -12,6 +12,7 @@ import (
 	"strings"
 
 	"github.com/tsuru/tsuru-autoscale/tsuru"
+	"github.com/tsuru/tsuru-autoscale/wizard"
 	"gopkg.in/check.v1"
 )
 
@@ -87,6 +88,54 @@ func (s *S) TestServiceUnbindApp(c *check.C) {
 	instance, err = tsuru.GetInstanceByName("name")
 	c.Assert(err, check.IsNil)
 	c.Assert(instance.Apps, check.HasLen, 0)
+}
+
+func (s *S) TestServiceUnbindAppWithWizard(c *check.C) {
+	scaleUp := wizard.ScaleAction{
+		Metric:   "cpu",
+		Operator: ">",
+		Step:     "1",
+		Value:    "10",
+		Wait:     50,
+	}
+	scaleDown := wizard.ScaleAction{
+		Metric:   "cpu",
+		Operator: "<",
+		Step:     "1",
+		Value:    "2",
+		Wait:     50,
+	}
+	autoScale := &wizard.AutoScale{
+		Name:      "name",
+		ScaleUp:   scaleUp,
+		ScaleDown: scaleDown,
+		Process:   "web",
+	}
+	err := wizard.New(autoScale)
+	c.Assert(err, check.IsNil)
+	service := &tsuru.Instance{
+		Name: "name",
+	}
+	err = tsuru.NewInstance(service)
+	c.Assert(err, check.IsNil)
+	instance, err := tsuru.GetInstanceByName("name")
+	c.Assert(err, check.IsNil)
+	err = instance.AddApp("tsuru-dashboard.192.168.50.4.nip.io")
+	c.Assert(err, check.IsNil)
+	recorder := httptest.NewRecorder()
+	body := `app-host=tsuru-dashboard.192.168.50.4.nip.io`
+	request, err := http.NewRequest("DELETE", "/resources/name/bind-app", strings.NewReader(body))
+	c.Assert(err, check.IsNil)
+	request.Header.Add("Authorization", "token")
+	request.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+	r := Router()
+	r.ServeHTTP(recorder, request)
+	c.Assert(recorder.Code, check.Equals, http.StatusOK)
+	instance, err = tsuru.GetInstanceByName("name")
+	c.Assert(err, check.IsNil)
+	c.Assert(instance.Apps, check.HasLen, 0)
+	_, err = wizard.FindByName(autoScale.Name)
+	c.Assert(err, check.NotNil)
 }
 
 func (s *S) TestServiceRemove(c *check.C) {
