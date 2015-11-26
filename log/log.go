@@ -24,11 +24,11 @@ func (l *Logger) Printf(format string, v ...interface{}) {
 }
 
 func (l *Logger) Error(v ...interface{}) {
-	l.lg.Error(v)
+	l.lg.Print(v)
 }
 
 func (l *Logger) Errorf(format string, v ...interface{}) {
-	l.lg.Errorf(format, v)
+	l.lg.Printf(format, v)
 }
 
 func New() *Logger {
