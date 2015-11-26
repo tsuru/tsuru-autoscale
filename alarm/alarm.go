@@ -118,12 +118,12 @@ func scaleIfNeeded(alarm *Alarm) error {
 		for _, alarmName := range alarm.Actions {
 			a, err := action.FindByName(alarmName)
 			if err != nil {
-		        logger().Error(err)
+				logger().Error(err)
 			} else {
 				logger().Printf("executing alarm %s action %s", alarm.Name, a.Name)
 				instance, err := tsuru.GetInstanceByName(alarm.Instance)
 				if err != nil {
-		            logger().Error(err)
+					logger().Error(err)
 					return err
 				}
 				if len(instance.Apps) < 1 {
@@ -135,17 +135,17 @@ func scaleIfNeeded(alarm *Alarm) error {
 				appName := instance.Apps[0]
 				evt, err := NewEvent(alarm, a)
 				if err != nil {
-		            logger().Error(err)
+					logger().Error(err)
 				}
 				aErr := a.Do(appName, alarm.Envs)
 				if aErr != nil {
-		            logger().Error(aErr)
+					logger().Error(aErr)
 				} else {
 					logger().Printf("alarm %s action %s executed", alarm.Name, a.Name)
 				}
 				err = evt.update(aErr)
 				if err != nil {
-		            logger().Error(err)
+					logger().Error(err)
 				}
 			}
 		}

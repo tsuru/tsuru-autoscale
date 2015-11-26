@@ -73,7 +73,7 @@ func serviceUnbindApp(w http.ResponseWriter, r *http.Request) {
 	if err == nil {
 		rerr := wizard.Remove(autoScale)
 		if rerr != nil {
-		    logger().Error(err)
+			logger().Error(err)
 			http.Error(w, rerr.Error(), http.StatusInternalServerError)
 			return
 		}

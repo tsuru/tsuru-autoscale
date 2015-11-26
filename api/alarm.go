@@ -82,12 +82,12 @@ func enableAlarm(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	a, err := alarm.FindAlarmByName(vars["name"])
 	if err != nil {
-        logger().Error(err)
+		logger().Error(err)
 		http.Error(w, err.Error(), http.StatusNotFound)
 	}
 	err = alarm.Enable(a)
 	if err != nil {
-        logger().Error(err)
+		logger().Error(err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
 }
