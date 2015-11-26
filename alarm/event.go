@@ -33,6 +33,7 @@ func NewEvent(alarm *Alarm, action *action.Action) (*Event, error) {
 	}
 	conn, err := db.Conn()
 	if err != nil {
+		logger().Error(err)
 		return nil, err
 	}
 	defer conn.Close()
@@ -47,6 +48,7 @@ func (evt *Event) update(err error) error {
 	evt.EndTime = time.Now().UTC()
 	conn, err := db.Conn()
 	if err != nil {
+		logger().Error(err)
 		return err
 	}
 	defer conn.Close()
@@ -57,6 +59,7 @@ func lastScaleEvent(alarm *Alarm) (Event, error) {
 	var event Event
 	conn, err := db.Conn()
 	if err != nil {
+		logger().Error(err)
 		return event, err
 	}
 	defer conn.Close()
@@ -71,6 +74,7 @@ func EventsByAlarmName(alarm string) ([]Event, error) {
 func eventsByAlarmName(alarm *Alarm) ([]Event, error) {
 	conn, err := db.Conn()
 	if err != nil {
+		logger().Error(err)
 		return nil, err
 	}
 	defer conn.Close()
@@ -81,6 +85,7 @@ func eventsByAlarmName(alarm *Alarm) ([]Event, error) {
 	}
 	err = conn.Events().Find(q).Sort("-starttime").Limit(200).All(&events)
 	if err != nil {
+		logger().Error(err)
 		return nil, err
 	}
 	return events, nil

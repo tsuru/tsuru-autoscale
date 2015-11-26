@@ -17,19 +17,19 @@ func newAutoScale(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {
+		logger().Error(err.Error())
 		http.Error(w, err.Error(), http.StatusBadRequest)
-		logger().Print(err.Error())
 	}
 	var a wizard.AutoScale
 	err = json.Unmarshal(body, &a)
 	if err != nil {
+		logger().Error(err.Error())
 		http.Error(w, err.Error(), http.StatusBadRequest)
-		logger().Print(err.Error())
 	}
 	err = wizard.New(&a)
 	if err != nil {
+		logger().Error(err.Error())
 		http.Error(w, err.Error(), http.StatusBadRequest)
-		logger().Print(err.Error())
 	}
 	w.WriteHeader(http.StatusCreated)
 }
@@ -38,14 +38,14 @@ func wizardByName(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	autoScale, err := wizard.FindByName(vars["name"])
 	if err != nil {
+		logger().Error(err.Error())
 		http.Error(w, err.Error(), http.StatusNotFound)
-		logger().Print(err.Error())
 	}
 	w.Header().Set("Content-Type", "application/json")
 	err = json.NewEncoder(w).Encode(&autoScale)
 	if err != nil {
+		logger().Error(err.Error())
 		http.Error(w, err.Error(), http.StatusInternalServerError)
-		logger().Print(err.Error())
 	}
 }
 
@@ -53,13 +53,13 @@ func removeWizard(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	autoScale, err := wizard.FindByName(vars["name"])
 	if err != nil {
+		logger().Error(err.Error())
 		http.Error(w, err.Error(), http.StatusNotFound)
-		logger().Print(err.Error())
 	}
 	err = wizard.Remove(autoScale)
 	if err != nil {
+		logger().Error(err.Error())
 		http.Error(w, err.Error(), http.StatusInternalServerError)
-		logger().Print(err.Error())
 	}
 }
 
@@ -67,18 +67,18 @@ func eventsByWizardName(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	autoScale, err := wizard.FindByName(vars["name"])
 	if err != nil {
+		logger().Error(err.Error())
 		http.Error(w, err.Error(), http.StatusNotFound)
-		logger().Print(err.Error())
 	}
 	w.Header().Set("Content-Type", "application/json")
 	events, err := autoScale.Events()
 	if err != nil {
+		logger().Error(err.Error())
 		http.Error(w, err.Error(), http.StatusNotFound)
-		logger().Print(err.Error())
 	}
 	err = json.NewEncoder(w).Encode(&events)
 	if err != nil {
+		logger().Error(err.Error())
 		http.Error(w, err.Error(), http.StatusInternalServerError)
-		logger().Print(err.Error())
 	}
 }

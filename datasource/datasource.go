@@ -39,6 +39,7 @@ func New(ds *DataSource) error {
 	}
 	conn, err := db.Conn()
 	if err != nil {
+		logger().Error(err)
 		return err
 	}
 	defer conn.Close()
@@ -49,12 +50,14 @@ func New(ds *DataSource) error {
 func FindBy(query bson.M) ([]DataSource, error) {
 	conn, err := db.Conn()
 	if err != nil {
+		logger().Error(err)
 		return nil, err
 	}
 	defer conn.Close()
 	var ds []DataSource
 	err = conn.DataSources().Find(query).All(&ds)
 	if err != nil {
+		logger().Error(err)
 		return nil, err
 	}
 	return ds, nil
@@ -64,12 +67,14 @@ func FindBy(query bson.M) ([]DataSource, error) {
 func Get(name string) (*DataSource, error) {
 	conn, err := db.Conn()
 	if err != nil {
+		logger().Error(err)
 		return nil, err
 	}
 	defer conn.Close()
 	var ds DataSource
 	err = conn.DataSources().Find(bson.M{"name": name}).One(&ds)
 	if err != nil {
+		logger().Error(err)
 		return nil, err
 	}
 	return &ds, nil
@@ -79,6 +84,7 @@ func Get(name string) (*DataSource, error) {
 func Remove(ds *DataSource) error {
 	conn, err := db.Conn()
 	if err != nil {
+		logger().Error(err)
 		return err
 	}
 	defer conn.Close()
@@ -98,11 +104,13 @@ func (ds *DataSource) Get(appName string) (string, error) {
 	}
 	response, err := http.DefaultClient.Do(req)
 	if err != nil {
+		logger().Error(err)
 		return "", err
 	}
 	defer response.Body.Close()
 	data, err := ioutil.ReadAll(response.Body)
 	if err != nil {
+		logger().Error(err)
 		return "", err
 	}
 	return string(data), nil

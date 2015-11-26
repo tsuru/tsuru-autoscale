@@ -19,8 +19,8 @@ func (a *authMiddleware) ServeHTTP(rw http.ResponseWriter, r *http.Request, next
 		token := r.Header.Get("Authorization")
 		if token == "" {
 			err := "Authorization header is required."
-			http.Error(rw, err, http.StatusUnauthorized)
 			logger().Print(err)
+			http.Error(rw, err, http.StatusUnauthorized)
 		}
 	}
 	next(rw, r)

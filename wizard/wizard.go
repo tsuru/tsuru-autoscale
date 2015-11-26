@@ -32,22 +32,27 @@ type ScaleAction struct {
 func New(a *AutoScale) error {
 	err := newScaleAction(a.ScaleUp, "scale_up", a.Name, a.Process)
 	if err != nil {
+		logger().Error(err)
 		return err
 	}
 	err = newScaleAction(a.ScaleDown, "scale_down", a.Name, a.Process)
 	if err != nil {
+		logger().Error(err)
 		return err
 	}
 	err = enableScaleDown(a.Name, a.MinUnits, a.Process)
 	if err != nil {
+		logger().Error(err)
 		return err
 	}
 	err = disableScaleDown(a.Name, a.MinUnits, a.Process)
 	if err != nil {
+		logger().Error(err)
 		return err
 	}
 	conn, err := db.Conn()
 	if err != nil {
+		logger().Error(err)
 		return nil
 	}
 	defer conn.Close()
@@ -121,12 +126,14 @@ func newScaleAction(action ScaleAction, kind, instanceName, process string) erro
 func FindByName(name string) (*AutoScale, error) {
 	conn, err := db.Conn()
 	if err != nil {
+		logger().Error(err)
 		return nil, err
 	}
 	defer conn.Close()
 	var autoScale AutoScale
 	err = conn.Wizard().Find(bson.M{"name": name}).One(&autoScale)
 	if err != nil {
+		logger().Error(err)
 		return nil, err
 	}
 	return &autoScale, nil
@@ -151,10 +158,12 @@ func removeAlarms(autoScale *AutoScale) error {
 	for _, a := range autoScale.alarms() {
 		al, err := alarm.FindAlarmByName(a)
 		if err != nil {
+			logger().Error(err)
 			return err
 		}
 		err = alarm.RemoveAlarm(al)
 		if err != nil {
+			logger().Error(err)
 			return err
 		}
 	}
@@ -165,10 +174,12 @@ func removeAlarms(autoScale *AutoScale) error {
 func Remove(a *AutoScale) error {
 	err := removeAlarms(a)
 	if err != nil {
+		logger().Error(err)
 		return err
 	}
 	conn, err := db.Conn()
 	if err != nil {
+		logger().Error(err)
 		return err
 	}
 	defer conn.Close()
@@ -180,6 +191,7 @@ func (a *AutoScale) Events() ([]alarm.Event, error) {
 	for _, al := range a.alarms() {
 		eventList, err := alarm.EventsByAlarmName(al)
 		if err != nil {
+			logger().Error(err)
 			return nil, err
 		}
 		for _, e := range eventList {

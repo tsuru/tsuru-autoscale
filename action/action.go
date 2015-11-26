@@ -39,6 +39,7 @@ func New(a *Action) error {
 	}
 	conn, err := db.Conn()
 	if err != nil {
+		logger().Error(err)
 		return err
 	}
 	defer conn.Close()
@@ -49,12 +50,14 @@ func New(a *Action) error {
 func FindByName(name string) (*Action, error) {
 	conn, err := db.Conn()
 	if err != nil {
+		logger().Error(err)
 		return nil, err
 	}
 	defer conn.Close()
 	var action Action
 	err = conn.Actions().Find(bson.M{"name": name}).One(&action)
 	if err != nil {
+		logger().Error(err)
 		return nil, err
 	}
 	return &action, nil
@@ -64,6 +67,7 @@ func FindByName(name string) (*Action, error) {
 func Remove(a *Action) error {
 	conn, err := db.Conn()
 	if err != nil {
+		logger().Error(err)
 		return err
 	}
 	defer conn.Close()
@@ -73,12 +77,14 @@ func Remove(a *Action) error {
 func All() ([]Action, error) {
 	conn, err := db.Conn()
 	if err != nil {
+		logger().Error(err)
 		return nil, err
 	}
 	defer conn.Close()
 	var actions []Action
 	err = conn.Actions().Find(nil).All(&actions)
 	if err != nil {
+		logger().Error(err)
 		return nil, err
 	}
 	return actions, nil
@@ -94,6 +100,7 @@ func (a *Action) Do(appName string, envs map[string]string) error {
 	logger().Printf("action %s - url: %s - body: %s - method: %s", a.Name, url, body, a.Method)
 	req, err := http.NewRequest(a.Method, url, strings.NewReader(body))
 	if err != nil {
+		logger().Error(err)
 		return err
 	}
 	for key, value := range a.Headers {
@@ -101,5 +108,9 @@ func (a *Action) Do(appName string, envs map[string]string) error {
 	}
 	client := &http.Client{}
 	_, err = client.Do(req)
-	return err
+	if err != nil {
+		logger().Error(err)
+		return err
+	}
+	return nil
 }

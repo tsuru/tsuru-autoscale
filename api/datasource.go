@@ -19,19 +19,19 @@ func newDataSource(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {
+		logger().Error(err.Error())
 		http.Error(w, err.Error(), http.StatusBadRequest)
-		logger().Print(err.Error())
 	}
 	var ds datasource.DataSource
 	err = json.Unmarshal(body, &ds)
 	if err != nil {
+		logger().Error(err.Error())
 		http.Error(w, err.Error(), http.StatusBadRequest)
-		logger().Print(err.Error())
 	}
 	err = datasource.New(&ds)
 	if err != nil {
+		logger().Error(err.Error())
 		http.Error(w, err.Error(), http.StatusBadRequest)
-		logger().Print(err.Error())
 	}
 	w.WriteHeader(http.StatusCreated)
 }
@@ -44,14 +44,14 @@ func allDataSources(w http.ResponseWriter, r *http.Request) {
 	}
 	ds, err := datasource.FindBy(q)
 	if err != nil {
+		logger().Error(err.Error())
 		http.Error(w, err.Error(), http.StatusInternalServerError)
-		logger().Print(err.Error())
 	}
 	w.Header().Set("Content-Type", "application/json")
 	err = json.NewEncoder(w).Encode(ds)
 	if err != nil {
+		logger().Error(err.Error())
 		http.Error(w, err.Error(), http.StatusInternalServerError)
-		logger().Print(err.Error())
 	}
 }
 
@@ -59,13 +59,13 @@ func removeDataSource(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	ds, err := datasource.Get(vars["name"])
 	if err != nil {
+		logger().Error(err.Error())
 		http.Error(w, err.Error(), http.StatusNotFound)
-		logger().Print(err.Error())
 	}
 	err = datasource.Remove(ds)
 	if err != nil {
+		logger().Error(err.Error())
 		http.Error(w, err.Error(), http.StatusInternalServerError)
-		logger().Print(err.Error())
 	}
 }
 
@@ -73,13 +73,13 @@ func getDataSource(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	ds, err := datasource.Get(vars["name"])
 	if err != nil {
+		logger().Error(err.Error())
 		http.Error(w, err.Error(), http.StatusNotFound)
-		logger().Print(err.Error())
 	}
 	w.Header().Set("Content-Type", "application/json")
 	err = json.NewEncoder(w).Encode(ds)
 	if err != nil {
+		logger().Error(err.Error())
 		http.Error(w, err.Error(), http.StatusInternalServerError)
-		logger().Print(err.Error())
 	}
 }
