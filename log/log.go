@@ -11,6 +11,12 @@ import (
 	"github.com/getsentry/raven-go"
 )
 
+func init() {
+	if sentryDSN := os.Getenv("SENTRY_DSN"); sentryDSN != "" {
+		raven.SetDSN(sentryDSN)
+	}
+}
+
 var lg *Logger
 
 type Logger struct {
