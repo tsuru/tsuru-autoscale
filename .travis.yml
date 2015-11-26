@@ -8,3 +8,6 @@ install: make deps
 script: make test
 services:
   - mongodb
+matrix:
+  allow_failures:
+    - go: tip
