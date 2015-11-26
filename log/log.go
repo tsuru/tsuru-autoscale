@@ -9,11 +9,27 @@ import (
 	"os"
 )
 
-var lg *log.Logger
+var lg *Logger
 
-func Logger() *log.Logger {
+type Logger struct {
+	lg *log.Logger
+}
+
+func (l *Logger) Print(v ...interface{}) {
+	l.lg.Print(v)
+}
+
+func (l *Logger) Printf(format string, v ...interface{}) {
+	l.lg.Printf(format, v)
+}
+
+func New() *Logger {
+	return &Logger{lg: log.New(os.Stdout, "[autoscale] ", 0)}
+}
+
+func Log() *Logger {
 	if lg == nil {
-		lg = log.New(os.Stdout, "[autoscale] ", 0)
+		lg = New()
 	}
 	return lg
 }

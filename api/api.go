@@ -5,7 +5,6 @@
 package api
 
 import (
-	stdlog "log"
 	"net/http"
 
 	"github.com/codegangsta/negroni"
@@ -13,8 +12,8 @@ import (
 	"github.com/tsuru/tsuru-autoscale/log"
 )
 
-func logger() *stdlog.Logger {
-	return log.Logger()
+func logger() *log.Logger {
+	return log.Log()
 }
 
 func Router() http.Handler {

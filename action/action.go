@@ -7,7 +7,6 @@ package action
 import (
 	"errors"
 	"fmt"
-	stdlog "log"
 	"net/http"
 	"strings"
 
@@ -16,8 +15,8 @@ import (
 	"gopkg.in/mgo.v2/bson"
 )
 
-func logger() *stdlog.Logger {
-	return log.Logger()
+func logger() *log.Logger {
+	return log.Log()
 }
 
 // Action represents an AutoScale action to increase or decrease the
@@ -68,7 +67,7 @@ func Remove(a *Action) error {
 		return err
 	}
 	defer conn.Close()
-    return conn.Actions().Remove(bson.M{"name": a.Name})
+	return conn.Actions().Remove(bson.M{"name": a.Name})
 }
 
 func All() ([]Action, error) {

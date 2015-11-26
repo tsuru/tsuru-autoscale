@@ -7,7 +7,6 @@ package datasource
 import (
 	"errors"
 	"io/ioutil"
-	stdlog "log"
 	"net/http"
 	"strings"
 
@@ -16,8 +15,8 @@ import (
 	"gopkg.in/mgo.v2/bson"
 )
 
-func logger() *stdlog.Logger {
-	return log.Logger()
+func logger() *log.Logger {
+	return log.Log()
 }
 
 // DataSource represents a data source.

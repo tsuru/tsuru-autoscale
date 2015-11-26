@@ -6,7 +6,6 @@ package tsuru
 
 import (
 	"errors"
-	stdlog "log"
 	"strings"
 
 	"github.com/tsuru/tsuru-autoscale/db"
@@ -14,8 +13,8 @@ import (
 	"gopkg.in/mgo.v2/bson"
 )
 
-func logger() *stdlog.Logger {
-	return log.Logger()
+func logger() *log.Logger {
+	return log.Log()
 }
 
 // Instance represents a tsuru service instance.

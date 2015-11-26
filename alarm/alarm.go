@@ -7,7 +7,6 @@ package alarm
 import (
 	"errors"
 	"fmt"
-	stdlog "log"
 	"os"
 	"strconv"
 	"sync"
@@ -27,8 +26,8 @@ func StartAutoScale() {
 	runAutoScale()
 }
 
-func logger() *stdlog.Logger {
-	return log.Logger()
+func logger() *log.Logger {
+	return log.Log()
 }
 
 // Alarm represents the configuration for the auto scale.
