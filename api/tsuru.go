@@ -22,7 +22,7 @@ func serviceAdd(w http.ResponseWriter, r *http.Request) {
 	}
 	err := tsuru.NewInstance(&i)
 	if err != nil {
-		logger().Error(err.Error())
+		logger().Error(err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
@@ -37,13 +37,13 @@ func serviceBindApp(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	i, err := tsuru.GetInstanceByName(vars["name"])
 	if err != nil {
-		logger().Error(err.Error())
+		logger().Error(err)
 		http.Error(w, err.Error(), http.StatusNotFound)
 		return
 	}
 	err = i.AddApp(r.FormValue("app-host"))
 	if err != nil {
-		logger().Error(err.Error())
+		logger().Error(err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
@@ -58,14 +58,14 @@ func serviceUnbindApp(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	i, err := tsuru.GetInstanceByName(vars["name"])
 	if err != nil {
-		logger().Error(err.Error())
+		logger().Error(err)
 		http.Error(w, err.Error(), http.StatusNotFound)
 		return
 	}
 	r.Method = "POST"
 	err = i.RemoveApp(r.FormValue("app-host"))
 	if err != nil {
-		logger().Error(err.Error())
+		logger().Error(err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
@@ -73,7 +73,7 @@ func serviceUnbindApp(w http.ResponseWriter, r *http.Request) {
 	if err == nil {
 		rerr := wizard.Remove(autoScale)
 		if rerr != nil {
-			logger().Error(rerr.Error())
+		    logger().Error(err)
 			http.Error(w, rerr.Error(), http.StatusInternalServerError)
 			return
 		}
@@ -84,13 +84,13 @@ func serviceRemove(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	i, err := tsuru.GetInstanceByName(vars["name"])
 	if err != nil {
-		logger().Error(err.Error())
+		logger().Error(err)
 		http.Error(w, err.Error(), http.StatusNotFound)
 		return
 	}
 	err = tsuru.RemoveInstance(i)
 	if err != nil {
-		logger().Error(err.Error())
+		logger().Error(err)
 		http.Error(w, err.Error(), http.StatusNotFound)
 		return
 	}
@@ -100,13 +100,13 @@ func serviceInstances(w http.ResponseWriter, r *http.Request) {
 	token := r.Header.Get("Authorization")
 	instances, err := tsuru.FindServiceInstance(token)
 	if err != nil {
-		logger().Error(err.Error())
+		logger().Error(err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
 	w.Header().Set("Content-Type", "application/json")
 	err = json.NewEncoder(w).Encode(&instances)
 	if err != nil {
-		logger().Error(err.Error())
+		logger().Error(err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
 }
@@ -115,13 +115,13 @@ func serviceInstanceByName(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	instance, err := tsuru.GetInstanceByName(vars["name"])
 	if err != nil {
-		logger().Error(err.Error())
+		logger().Error(err)
 		http.Error(w, err.Error(), http.StatusNotFound)
 	}
 	w.Header().Set("Content-Type", "application/json")
 	err = json.NewEncoder(w).Encode(&instance)
 	if err != nil {
-		logger().Error(err.Error())
+		logger().Error(err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
 }

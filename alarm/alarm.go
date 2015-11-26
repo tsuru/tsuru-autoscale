@@ -104,7 +104,7 @@ func scaleIfNeeded(alarm *Alarm) error {
 	}
 	check, err := alarm.Check()
 	if err != nil {
-		logger().Errorf("alarm %s check error: %s", alarm.Name, err.Error())
+		logger().Error(err)
 		return err
 	}
 	logger().Printf("alarm %s - %s - check: %t", alarm.Name, alarm.Expression, check)
@@ -118,12 +118,12 @@ func scaleIfNeeded(alarm *Alarm) error {
 		for _, alarmName := range alarm.Actions {
 			a, err := action.FindByName(alarmName)
 			if err != nil {
-				logger().Errorf("alarm %s not found - error: %s", alarmName, err)
+		        logger().Error(err)
 			} else {
 				logger().Printf("executing alarm %s action %s", alarm.Name, a.Name)
 				instance, err := tsuru.GetInstanceByName(alarm.Instance)
 				if err != nil {
-					logger().Errorf("Error trying to get instance by name, auto scale aborted: %s", err)
+		            logger().Error(err)
 					return err
 				}
 				if len(instance.Apps) < 1 {
@@ -135,17 +135,17 @@ func scaleIfNeeded(alarm *Alarm) error {
 				appName := instance.Apps[0]
 				evt, err := NewEvent(alarm, a)
 				if err != nil {
-					logger().Errorf("Error trying to insert auto scale event, auto scale aborted: %s", err)
+		            logger().Error(err)
 				}
 				aErr := a.Do(appName, alarm.Envs)
 				if aErr != nil {
-					logger().Errorf("Error executing action %s in the alarm %s - error: %s", a.Name, alarm.Name, aErr)
+		            logger().Error(aErr)
 				} else {
 					logger().Printf("alarm %s action %s executed", alarm.Name, a.Name)
 				}
 				err = evt.update(aErr)
 				if err != nil {
-					logger().Errorf("Error trying to update auto scale event: %s", err)
+		            logger().Error(err)
 				}
 			}
 		}
@@ -158,7 +158,7 @@ func shouldWait(alarm *Alarm) (bool, error) {
 	now := time.Now().UTC()
 	lastEvent, err := lastScaleEvent(alarm)
 	if err != nil && err != mgo.ErrNotFound {
-		logger().Errorf("error on get last event for alarm %s - not waiting - err: %s", alarm.Name, err)
+		logger().Error(err)
 		return false, err
 	}
 	if err != mgo.ErrNotFound && lastEvent.EndTime.IsZero() {
@@ -198,12 +198,12 @@ func (a *Alarm) Check() (bool, error) {
 	logger().Printf("getting data for alarm %s", a.Name)
 	ds, err := datasource.Get(a.DataSource)
 	if err != nil {
-		logger().Errorf("error getting data for alarm %s - error: %s", a.Name, err.Error())
+		logger().Error(err)
 		return false, err
 	}
 	instance, err := tsuru.GetInstanceByName(a.Instance)
 	if err != nil {
-		logger().Errorf("Error trying to get instance by name, auto scale aborted: %s", err)
+		logger().Error(err)
 		return false, err
 	}
 	if len(instance.Apps) < 1 {
@@ -215,7 +215,7 @@ func (a *Alarm) Check() (bool, error) {
 	appName := instance.Apps[0]
 	data, err := ds.Get(appName)
 	if err != nil {
-		logger().Errorf("error getting data for alarm %s - error: %s", a.Name, err.Error())
+		logger().Error(err)
 		return false, err
 	}
 	logger().Printf("data for alarm %s - %s", a.Name, data)
@@ -224,7 +224,7 @@ func (a *Alarm) Check() (bool, error) {
 	vm.Run(fmt.Sprintf("var expression=%s", a.Expression))
 	expression, err := vm.Get("expression")
 	if err != nil {
-		logger().Errorf("error executing expresion for alarm %s - error: %s", a.Name, err.Error())
+		logger().Error(err)
 		return false, err
 	}
 	check, err := expression.ToBoolean()
@@ -239,7 +239,7 @@ func (a *Alarm) Check() (bool, error) {
 func ListAlarmsByToken(token string) ([]Alarm, error) {
 	i, err := tsuru.FindServiceInstance(token)
 	if err != nil {
-		logger().Errorf("error find service instance by token %s - error: %s", token, err.Error())
+		logger().Error(err)
 		return nil, err
 	}
 	instances := []string{}
@@ -255,7 +255,7 @@ func ListAlarmsByToken(token string) ([]Alarm, error) {
 	var alarms []Alarm
 	err = conn.Alarms().Find(bson.M{"instance": bson.M{"$in": instances}}).All(&alarms)
 	if err != nil {
-		logger().Errorf("error find alarms by instance #%v", instances)
+		logger().Error(err)
 		return nil, err
 	}
 	return alarms, nil
@@ -272,7 +272,7 @@ func ListAlarmsByInstance(instanceName string) ([]Alarm, error) {
 	var alarms []Alarm
 	err = conn.Alarms().Find(bson.M{"instance": instanceName}).All(&alarms)
 	if err != nil {
-		logger().Errorf("error find alarms by instance %q", instanceName)
+		logger().Error(err)
 		return nil, err
 	}
 	return alarms, nil

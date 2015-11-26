@@ -23,7 +23,7 @@ func FindServiceInstance(token string) ([]Instance, error) {
 	req.Header.Add("Authorization", fmt.Sprintf("bearer %s", token))
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
-		logger().Errorf("Got error on get service instances. err: %s", err)
+		logger().Error(err)
 		return nil, err
 	}
 	defer resp.Body.Close()
@@ -33,13 +33,13 @@ func FindServiceInstance(token string) ([]Instance, error) {
 		return nil, errors.New(string(body))
 	}
 	if err != nil {
-		logger().Errorf("Got error while parsing service json: %s", err)
+		logger().Error(err)
 		return nil, err
 	}
 	var instances []Instance
 	err = json.Unmarshal(body, &instances)
 	if err != nil {
-		logger().Errorf("Got error on unmarshal json %s. err: %s", string(body), err)
+		logger().Error(err)
 		return nil, err
 	}
 	return instances, nil

@@ -10,8 +10,13 @@ import (
 
 	"github.com/tsuru/tsuru-autoscale/alarm"
 	"github.com/tsuru/tsuru-autoscale/db"
+	"github.com/tsuru/tsuru-autoscale/log"
 	"gopkg.in/mgo.v2/bson"
 )
+
+func logger() *log.Logger {
+	return log.Log()
+}
 
 type AutoScale struct {
 	Name      string      `json:"name"`

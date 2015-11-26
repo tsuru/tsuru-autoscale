@@ -82,7 +82,7 @@ func NewInstance(i *Instance) error {
 	}
 	conn, err := db.Conn()
 	if err != nil {
-		logger().Error(err.Error())
+		logger().Error(err)
 		return err
 	}
 	defer conn.Close()
@@ -92,7 +92,7 @@ func NewInstance(i *Instance) error {
 func RemoveInstance(i *Instance) error {
 	conn, err := db.Conn()
 	if err != nil {
-		logger().Error(err.Error())
+		logger().Error(err)
 		return err
 	}
 	defer conn.Close()
@@ -103,14 +103,14 @@ func RemoveInstance(i *Instance) error {
 func GetInstanceByName(name string) (*Instance, error) {
 	conn, err := db.Conn()
 	if err != nil {
-		logger().Error(err.Error())
+		logger().Error(err)
 		return nil, err
 	}
 	defer conn.Close()
 	var i Instance
 	err = conn.Instances().Find(bson.M{"name": name}).One(&i)
 	if err != nil {
-		logger().Error(err.Error())
+		logger().Error(err)
 		return nil, err
 	}
 	return &i, nil

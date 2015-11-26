@@ -7,6 +7,8 @@ package log
 import (
 	"log"
 	"os"
+
+	"github.com/getsentry/raven-go"
 )
 
 var lg *Logger
@@ -23,12 +25,9 @@ func (l *Logger) Printf(format string, v ...interface{}) {
 	l.lg.Printf(format, v)
 }
 
-func (l *Logger) Error(v ...interface{}) {
-	l.lg.Print(v)
-}
-
-func (l *Logger) Errorf(format string, v ...interface{}) {
-	l.lg.Printf(format, v)
+func (l *Logger) Error(err error) {
+	raven.CaptureError(err, nil)
+	l.Print(err)
 }
 
 func New() *Logger {

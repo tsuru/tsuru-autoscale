@@ -17,18 +17,18 @@ func newAutoScale(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {
-		logger().Error(err.Error())
+		logger().Error(err)
 		http.Error(w, err.Error(), http.StatusBadRequest)
 	}
 	var a wizard.AutoScale
 	err = json.Unmarshal(body, &a)
 	if err != nil {
-		logger().Error(err.Error())
+		logger().Error(err)
 		http.Error(w, err.Error(), http.StatusBadRequest)
 	}
 	err = wizard.New(&a)
 	if err != nil {
-		logger().Error(err.Error())
+		logger().Error(err)
 		http.Error(w, err.Error(), http.StatusBadRequest)
 	}
 	w.WriteHeader(http.StatusCreated)
@@ -38,13 +38,13 @@ func wizardByName(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	autoScale, err := wizard.FindByName(vars["name"])
 	if err != nil {
-		logger().Error(err.Error())
+		logger().Error(err)
 		http.Error(w, err.Error(), http.StatusNotFound)
 	}
 	w.Header().Set("Content-Type", "application/json")
 	err = json.NewEncoder(w).Encode(&autoScale)
 	if err != nil {
-		logger().Error(err.Error())
+		logger().Error(err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
 }
@@ -53,12 +53,12 @@ func removeWizard(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	autoScale, err := wizard.FindByName(vars["name"])
 	if err != nil {
-		logger().Error(err.Error())
+		logger().Error(err)
 		http.Error(w, err.Error(), http.StatusNotFound)
 	}
 	err = wizard.Remove(autoScale)
 	if err != nil {
-		logger().Error(err.Error())
+		logger().Error(err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
 }
@@ -67,18 +67,18 @@ func eventsByWizardName(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	autoScale, err := wizard.FindByName(vars["name"])
 	if err != nil {
-		logger().Error(err.Error())
+		logger().Error(err)
 		http.Error(w, err.Error(), http.StatusNotFound)
 	}
 	w.Header().Set("Content-Type", "application/json")
 	events, err := autoScale.Events()
 	if err != nil {
-		logger().Error(err.Error())
+		logger().Error(err)
 		http.Error(w, err.Error(), http.StatusNotFound)
 	}
 	err = json.NewEncoder(w).Encode(&events)
 	if err != nil {
-		logger().Error(err.Error())
+		logger().Error(err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
 }

@@ -19,18 +19,18 @@ func newDataSource(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {
-		logger().Error(err.Error())
+		logger().Error(err)
 		http.Error(w, err.Error(), http.StatusBadRequest)
 	}
 	var ds datasource.DataSource
 	err = json.Unmarshal(body, &ds)
 	if err != nil {
-		logger().Error(err.Error())
+		logger().Error(err)
 		http.Error(w, err.Error(), http.StatusBadRequest)
 	}
 	err = datasource.New(&ds)
 	if err != nil {
-		logger().Error(err.Error())
+		logger().Error(err)
 		http.Error(w, err.Error(), http.StatusBadRequest)
 	}
 	w.WriteHeader(http.StatusCreated)
@@ -44,13 +44,13 @@ func allDataSources(w http.ResponseWriter, r *http.Request) {
 	}
 	ds, err := datasource.FindBy(q)
 	if err != nil {
-		logger().Error(err.Error())
+		logger().Error(err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
 	w.Header().Set("Content-Type", "application/json")
 	err = json.NewEncoder(w).Encode(ds)
 	if err != nil {
-		logger().Error(err.Error())
+		logger().Error(err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
 }
@@ -59,12 +59,12 @@ func removeDataSource(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	ds, err := datasource.Get(vars["name"])
 	if err != nil {
-		logger().Error(err.Error())
+		logger().Error(err)
 		http.Error(w, err.Error(), http.StatusNotFound)
 	}
 	err = datasource.Remove(ds)
 	if err != nil {
-		logger().Error(err.Error())
+		logger().Error(err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
 }
@@ -73,13 +73,13 @@ func getDataSource(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	ds, err := datasource.Get(vars["name"])
 	if err != nil {
-		logger().Error(err.Error())
+		logger().Error(err)
 		http.Error(w, err.Error(), http.StatusNotFound)
 	}
 	w.Header().Set("Content-Type", "application/json")
 	err = json.NewEncoder(w).Encode(ds)
 	if err != nil {
-		logger().Error(err.Error())
+		logger().Error(err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
 }
