@@ -239,7 +239,6 @@ func (a *Alarm) Check() (bool, error) {
 func ListAlarmsByToken(token string) ([]Alarm, error) {
 	i, err := tsuru.FindServiceInstance(token)
 	if err != nil {
-		logger().Error(err)
 		return nil, err
 	}
 	instances := []string{}
