@@ -64,6 +64,30 @@ func (s *S) TestNewScale(c *check.C) {
 	c.Assert(al.Actions, check.DeepEquals, []string{action})
 }
 
+func (s *S) TestNewScaleCustomAggregator(c *check.C) {
+	a := ScaleAction{
+		Metric:     "cpu",
+		Operator:   ">",
+		Step:       "1",
+		Value:      "10",
+		Wait:       50,
+		Aggregator: "avg",
+	}
+	action := "scale_up"
+	instanceName := "instanceName"
+	process := "web"
+	scaleName := fmt.Sprintf("%s_%s_%s", action, instanceName, process)
+	err := newScaleAction(a, action, instanceName, process)
+	c.Assert(err, check.IsNil)
+	al, err := alarm.FindAlarmByName(scaleName)
+	c.Assert(err, check.IsNil)
+	c.Assert(al.Name, check.Equals, scaleName)
+	c.Assert(al.Expression, check.Equals, fmt.Sprintf("data.aggregations.range.buckets[0].date.buckets[data.aggregations.range.buckets[0].date.buckets.length - 1].avg.value %s %s", a.Operator, a.Value))
+	c.Assert(al.Envs, check.DeepEquals, map[string]string{"step": a.Step, "process": "web"})
+	c.Assert(al.Enabled, check.Equals, true)
+	c.Assert(al.Actions, check.DeepEquals, []string{action})
+}
+
 func (s *S) TestNew(c *check.C) {
 	scaleUp := ScaleAction{
 		Metric:   "cpu",

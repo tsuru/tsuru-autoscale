@@ -27,11 +27,12 @@ type AutoScale struct {
 }
 
 type ScaleAction struct {
-	Metric   string        `json:"metric"`
-	Operator string        `json:"operator"`
-	Value    string        `json:"value"`
-	Step     string        `json:"step"`
-	Wait     time.Duration `json:"wait"`
+	Aggregator string        `json:"aggregator"`
+	Metric     string        `json:"metric"`
+	Operator   string        `json:"operator"`
+	Value      string        `json:"value"`
+	Step       string        `json:"step"`
+	Wait       time.Duration `json:"wait"`
 }
 
 func New(a *AutoScale) error {
@@ -111,9 +112,13 @@ func newScaleAction(action ScaleAction, kind, instanceName, process string) erro
 	} else {
 		name = fmt.Sprintf("%s_%s_%s", kind, instanceName, process)
 	}
+	aggregator := action.Aggregator
+	if aggregator == "" {
+		aggregator = "max"
+	}
 	a := alarm.Alarm{
 		Name:       name,
-		Expression: fmt.Sprintf("data.aggregations.range.buckets[0].date.buckets[data.aggregations.range.buckets[0].date.buckets.length - 1].max.value %s %s", action.Operator, action.Value),
+		Expression: fmt.Sprintf("data.aggregations.range.buckets[0].date.buckets[data.aggregations.range.buckets[0].date.buckets.length - 1].%s.value %s %s", aggregator, action.Operator, action.Value),
 		Enabled:    true,
 		Wait:       action.Wait * time.Second,
 		Actions:    []string{kind},
