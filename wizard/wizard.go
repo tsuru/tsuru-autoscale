@@ -113,7 +113,7 @@ func newScaleAction(action ScaleAction, kind, instanceName, process string) erro
 	}
 	a := alarm.Alarm{
 		Name:       name,
-		Expression: fmt.Sprintf("data.aggregations.range.buckets[0].date.buckets[0].max.value %s %s", action.Operator, action.Value),
+		Expression: fmt.Sprintf("data.aggregations.range.buckets[0].date.buckets[data.aggregations.range.buckets[0].date.buckets.length - 1].max.value %s %s", action.Operator, action.Value),
 		Enabled:    true,
 		Wait:       action.Wait * time.Second,
 		Actions:    []string{kind},
