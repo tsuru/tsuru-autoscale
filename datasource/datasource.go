@@ -6,6 +6,7 @@ package datasource
 
 import (
 	"errors"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 	"strings"
@@ -92,9 +93,13 @@ func Remove(ds *DataSource) error {
 }
 
 // Get tries to get the data from the data source.
-func (ds *DataSource) Get(appName string) (string, error) {
+func (ds *DataSource) Get(appName string, envs map[string]string) (string, error) {
 	body := strings.Replace(ds.Body, "{app}", appName, -1)
 	url := strings.Replace(ds.URL, "{app}", appName, -1)
+	for key, value := range envs {
+		body = strings.Replace(body, fmt.Sprintf("{%s}", key), value, -1)
+		url = strings.Replace(url, fmt.Sprintf("{%s}", key), value, -1)
+	}
 	req, err := http.NewRequest(ds.Method, url, strings.NewReader(body))
 	if err != nil {
 		return "", err

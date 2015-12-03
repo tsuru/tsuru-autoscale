@@ -213,7 +213,7 @@ func (a *Alarm) Check() (bool, error) {
 		return false, err
 	}
 	appName := instance.Apps[0]
-	data, err := ds.Get(appName)
+	data, err := ds.Get(appName, a.Envs)
 	if err != nil {
 		logger().Error(err)
 		return false, err

@@ -54,16 +54,18 @@ func (s *S) TestHttpDataSourceGet(c *check.C) {
 	h := testHandler{}
 	ts := httptest.NewServer(&h)
 	defer ts.Close()
-	ds := DataSource{Method: "POST", URL: ts.URL, Body: `{"Name": "{app}"}`}
+	ds := DataSource{Method: "POST", URL: ts.URL, Body: `{"Name": "{app}", "Foo": "{foo}"}`}
 	type dataType struct {
 		Name string
+		Foo  string
 	}
 	data := dataType{}
-	result, err := ds.Get("Paul")
+	result, err := ds.Get("Paul", map[string]string{"foo": "bar"})
 	c.Assert(err, check.IsNil)
 	err = json.Unmarshal([]byte(result), &data)
 	c.Assert(err, check.IsNil)
 	c.Assert(data.Name, check.Equals, "Paul")
+	c.Assert(data.Foo, check.Equals, "bar")
 }
 
 func (s *S) TestNew(c *check.C) {
