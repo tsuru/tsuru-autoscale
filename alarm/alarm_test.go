@@ -65,10 +65,11 @@ func (s *S) TestAlarm(c *check.C) {
 	c.Assert(err, check.IsNil)
 	alarm := Alarm{
 		Name:       "name",
-		Expression: `data.id == "ble"`,
+		Expression: `data.id === "{var}"`,
 		DataSource: ds.Name,
 		Actions:    []string{myAction.Name},
 		Instance:   instance.Name,
+		Envs:       map[string]string{"var": "ble"},
 	}
 	err = NewAlarm(&alarm)
 	c.Assert(err, check.IsNil)

@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"os"
 	"strconv"
+	"strings"
 	"sync"
 	"time"
 
@@ -219,15 +220,19 @@ func (a *Alarm) Check() (bool, error) {
 		return false, err
 	}
 	logger().Printf("data for alarm %s - %s", a.Name, data)
+	expression := strings.Replace(a.Expression, "{app}", appName, -1)
+	for key, value := range a.Envs {
+		expression = strings.Replace(expression, fmt.Sprintf("{%s}", key), value, -1)
+	}
 	vm := otto.New()
 	vm.Run(fmt.Sprintf("var data=%s;", data))
-	vm.Run(fmt.Sprintf("var expression=%s", a.Expression))
-	expression, err := vm.Get("expression")
+	vm.Run(fmt.Sprintf("var expression=%s", expression))
+	result, err := vm.Get("expression")
 	if err != nil {
 		logger().Error(err)
 		return false, err
 	}
-	check, err := expression.ToBoolean()
+	check, err := result.ToBoolean()
 	if err != nil {
 		logger().Error(err)
 		return false, err
