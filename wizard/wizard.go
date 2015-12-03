@@ -66,51 +66,66 @@ func New(a *AutoScale) error {
 }
 
 func enableScaleDown(instanceName string, minUnits int, process string) error {
-	var name string
+	var (
+		name        string
+		processName string
+	)
 	if process == "" {
 		name = fmt.Sprintf("scale_down_%s", instanceName)
+		processName = "web"
 	} else {
 		name = fmt.Sprintf("scale_down_%s_%s", instanceName, process)
+		processName = process
 	}
 	a := alarm.Alarm{
 		Name:       fmt.Sprintf("enable_scale_down_%s", instanceName),
-		Expression: fmt.Sprintf(`!data.lock.Locked && data.units.map(function(unit){ if (unit.ProcessName === "web") {return 1} else {return 0}}).reduce(function(c, p) { return c + p }) > %d`, minUnits),
+		Expression: fmt.Sprintf(`!data.lock.Locked && data.units.map(function(unit){ if (unit.ProcessName === "{process}") {return 1} else {return 0}}).reduce(function(c, p) { return c + p }) > %d`, minUnits),
 		Enabled:    true,
 		Wait:       15 * 1000 * 1000 * 1000,
 		Actions:    []string{"enable_alarm"},
 		Instance:   instanceName,
 		DataSource: "units",
-		Envs:       map[string]string{"alarm": name},
+		Envs:       map[string]string{"alarm": name, "process": processName},
 	}
 	return alarm.NewAlarm(&a)
 }
 
 func disableScaleDown(instanceName string, minUnits int, process string) error {
-	var name string
+	var (
+		name        string
+		processName string
+	)
 	if process == "" {
 		name = fmt.Sprintf("scale_down_%s", instanceName)
+		processName = "web"
 	} else {
 		name = fmt.Sprintf("scale_down_%s_%s", instanceName, process)
+		processName = process
 	}
 	a := alarm.Alarm{
 		Name:       fmt.Sprintf("disable_scale_down_%s", instanceName),
-		Expression: fmt.Sprintf(`!data.lock.Locked && data.units.map(function(unit){ if (unit.ProcessName === "web") {return 1} else {return 0}}).reduce(function(c, p) { return c + p }) <= %d`, minUnits),
+		Expression: fmt.Sprintf(`!data.lock.Locked && data.units.map(function(unit){ if (unit.ProcessName === "{process}") {return 1} else {return 0}}).reduce(function(c, p) { return c + p }) <= %d`, minUnits),
 		Enabled:    true,
 		Wait:       15 * 1000 * 1000 * 1000,
 		Actions:    []string{"disable_alarm"},
 		Instance:   instanceName,
 		DataSource: "units",
-		Envs:       map[string]string{"alarm": name},
+		Envs:       map[string]string{"alarm": name, "process": processName},
 	}
 	return alarm.NewAlarm(&a)
 }
 
 func newScaleAction(action ScaleAction, kind, instanceName, process string) error {
-	var name string
+	var (
+		name        string
+		processName string
+	)
 	if process == "" {
 		name = fmt.Sprintf("%s_%s", kind, instanceName)
+		processName = "web"
 	} else {
 		name = fmt.Sprintf("%s_%s_%s", kind, instanceName, process)
+		processName = process
 	}
 	aggregator := action.Aggregator
 	if aggregator == "" {
@@ -126,7 +141,7 @@ func newScaleAction(action ScaleAction, kind, instanceName, process string) erro
 		DataSource: action.Metric,
 		Envs: map[string]string{
 			"step":    action.Step,
-			"process": process,
+			"process": processName,
 		},
 	}
 	return alarm.NewAlarm(&a)
