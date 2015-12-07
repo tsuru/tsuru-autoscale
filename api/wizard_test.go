@@ -93,7 +93,7 @@ func (s *S) TestRemoveWizard(c *check.C) {
 }
 
 func (s *S) TestEventsByWizardName(c *check.C) {
-	al := alarm.Alarm{Name: "enable_scale_down_xpto1234"}
+	al := alarm.Alarm{Name: "enable_scale_down_xpto1234", Instance: "xpto1234"}
 	_, err := alarm.NewEvent(&al, nil)
 	c.Assert(err, check.IsNil)
 	a := wizard.AutoScale{

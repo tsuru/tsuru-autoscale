@@ -212,16 +212,18 @@ func Remove(a *AutoScale) error {
 }
 
 func (a *AutoScale) Events() ([]alarm.Event, error) {
+	conn, err := db.Conn()
+	if err != nil {
+		logger().Error(err)
+		return nil, err
+	}
+	defer conn.Close()
 	var events []alarm.Event
-	for _, al := range a.alarms() {
-		eventList, err := alarm.EventsByAlarmName(al)
-		if err != nil {
-			logger().Error(err)
-			return nil, err
-		}
-		for _, e := range eventList {
-			events = append(events, e)
-		}
+	q := bson.M{"alarm.instance": a.Name}
+	err = conn.Events().Find(q).Sort("-starttime").Limit(200).All(&events)
+	if err != nil {
+		logger().Error(err)
+		return nil, err
 	}
 	return events, nil
 }
