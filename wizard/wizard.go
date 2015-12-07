@@ -219,7 +219,7 @@ func (a *AutoScale) Events() ([]alarm.Event, error) {
 	}
 	defer conn.Close()
 	var events []alarm.Event
-	q := bson.M{"alarm.instance": a.Name}
+	q := bson.M{"alarm.instance": a.Name, "alarm.actions": bson.M{"$in": []string{"scale_up", "scale_down"}}}
 	err = conn.Events().Find(q).Sort("-starttime").Limit(200).All(&events)
 	if err != nil {
 		logger().Error(err)

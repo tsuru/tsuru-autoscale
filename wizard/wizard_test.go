@@ -328,7 +328,11 @@ func (s *S) TestNewWithoutProcess(c *check.C) {
 }
 
 func (s *S) TestEvents(c *check.C) {
-	al := alarm.Alarm{Name: "enable_scale_down_xpto1234", Instance: "xpto1234"}
+	al := alarm.Alarm{
+		Name:     "enable_scale_down_xpto1234",
+		Instance: "xpto1234",
+		Actions:  []string{"scale_up"},
+	}
 	_, err := alarm.NewEvent(&al, nil)
 	c.Assert(err, check.IsNil)
 	a := AutoScale{
