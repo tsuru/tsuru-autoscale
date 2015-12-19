@@ -1,8 +1,9 @@
 language: go
 sudo: false
 go:
-  - 1.4
-  - 1.5
+  - 1.4.2
+  - 1.5.2
+  - 1.6beta1
   - tip
 install: make deps
 script: make test
