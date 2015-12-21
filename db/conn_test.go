@@ -83,6 +83,7 @@ func (s *S) TestEvents(c *check.C) {
 	eventc := strg.Collection("events")
 	c.Assert(event, check.DeepEquals, eventc)
 	c.Assert(event, HasIndex, []string{"alarm.name"})
+	c.Assert(event, HasIndex, []string{"-starttime"})
 }
 
 func (s *S) TestConfigs(c *check.C) {
