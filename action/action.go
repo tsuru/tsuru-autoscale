@@ -107,10 +107,11 @@ func (a *Action) Do(appName string, envs map[string]string) error {
 		req.Header.Add(key, value)
 	}
 	client := &http.Client{}
-	_, err = client.Do(req)
+	resp, err := client.Do(req)
 	if err != nil {
 		logger().Error(err)
 		return err
 	}
+	defer resp.Body.Close()
 	return nil
 }
