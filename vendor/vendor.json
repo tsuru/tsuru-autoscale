@@ -1,0 +1,111 @@
+{
+	"comment": "",
+	"ignore": "test",
+	"package": [
+		{
+			"path": "github.com/codegangsta/negroni",
+			"revision": "a13766a8c2572caeb14341b7de158aff2fd00fa9",
+			"revisionTime": "2014-06-11T10:58:43-07:00"
+		},
+		{
+			"path": "github.com/getsentry/raven-go",
+			"revision": "3966f3ab8333308d76b6cc83a29776a266bbdd92",
+			"revisionTime": "2015-11-24T14:24:36-08:00"
+		},
+		{
+			"path": "github.com/gorilla/context",
+			"revision": "708054d61e5a2918b9f4e9700000ee611dcf03f5",
+			"revisionTime": "2013-05-30T20:21:01-07:00"
+		},
+		{
+			"path": "github.com/gorilla/mux",
+			"revision": "b08c5fcf14d01cb0c20ddf70157f54d4a2c3a38a",
+			"revisionTime": "2013-09-11T13:10:56-07:00"
+		},
+		{
+			"path": "github.com/howeyc/fsnotify",
+			"revision": "5102fde921d31f59c6e45d835aa01f0213aade0f",
+			"revisionTime": "2013-11-21T08:20:02-08:00"
+		},
+		{
+			"path": "github.com/robertkrimen/otto",
+			"revision": "d1b4d8ef0e0e4b088c8328c95ca63ab9ebd8fc9d",
+			"revisionTime": "2014-12-12T11:35:29-04:00"
+		},
+		{
+			"path": "github.com/robertkrimen/otto/ast",
+			"revision": "d1b4d8ef0e0e4b088c8328c95ca63ab9ebd8fc9d",
+			"revisionTime": "2014-12-12T11:35:29-04:00"
+		},
+		{
+			"path": "github.com/robertkrimen/otto/dbg",
+			"revision": "d1b4d8ef0e0e4b088c8328c95ca63ab9ebd8fc9d",
+			"revisionTime": "2014-12-12T11:35:29-04:00"
+		},
+		{
+			"path": "github.com/robertkrimen/otto/file",
+			"revision": "d1b4d8ef0e0e4b088c8328c95ca63ab9ebd8fc9d",
+			"revisionTime": "2014-12-12T11:35:29-04:00"
+		},
+		{
+			"path": "github.com/robertkrimen/otto/parser",
+			"revision": "d1b4d8ef0e0e4b088c8328c95ca63ab9ebd8fc9d",
+			"revisionTime": "2014-12-12T11:35:29-04:00"
+		},
+		{
+			"path": "github.com/robertkrimen/otto/registry",
+			"revision": "d1b4d8ef0e0e4b088c8328c95ca63ab9ebd8fc9d",
+			"revisionTime": "2014-12-12T11:35:29-04:00"
+		},
+		{
+			"path": "github.com/robertkrimen/otto/token",
+			"revision": "d1b4d8ef0e0e4b088c8328c95ca63ab9ebd8fc9d",
+			"revisionTime": "2014-12-12T11:35:29-04:00"
+		},
+		{
+			"path": "github.com/robertkrimen/otto/underscore",
+			"revision": "d1b4d8ef0e0e4b088c8328c95ca63ab9ebd8fc9d",
+			"revisionTime": "2014-12-12T11:35:29-04:00"
+		},
+		{
+			"path": "github.com/tsuru/tsuru/db/dbtest",
+			"revision": "666d0177facc569b944e061c750a36e721c47040",
+			"revisionTime": "2015-04-17T20:23:38-03:00"
+		},
+		{
+			"path": "github.com/tsuru/tsuru/db/storage",
+			"revision": "666d0177facc569b944e061c750a36e721c47040",
+			"revisionTime": "2015-04-17T20:23:38-03:00"
+		},
+		{
+			"path": "gopkg.in/check.v1",
+			"revision": "64131543e7896d5bcc6bd5a76287eb75ea96c673",
+			"revisionTime": "2014-10-24T11:38:53-02:00"
+		},
+		{
+			"path": "gopkg.in/mgo.v2",
+			"revision": "dc255bb679efa273b6544a03261c4053505498a4",
+			"revisionTime": "2014-07-30T17:00:37-03:00"
+		},
+		{
+			"path": "gopkg.in/mgo.v2/bson",
+			"revision": "dc255bb679efa273b6544a03261c4053505498a4",
+			"revisionTime": "2014-07-30T17:00:37-03:00"
+		},
+		{
+			"path": "gopkg.in/mgo.v2/sasl",
+			"revision": "dc255bb679efa273b6544a03261c4053505498a4",
+			"revisionTime": "2014-07-30T17:00:37-03:00"
+		},
+		{
+			"path": "gopkg.in/mgo.v2/txn",
+			"revision": "dc255bb679efa273b6544a03261c4053505498a4",
+			"revisionTime": "2014-07-30T17:00:37-03:00"
+		},
+		{
+			"path": "gopkg.in/yaml.v1",
+			"revision": "4914593b9558e85597f08346c798aea8f6fb899f",
+			"revisionTime": "2014-03-06T13:54:45-03:00"
+		}
+	]
+}

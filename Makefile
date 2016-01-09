@@ -2,11 +2,9 @@
 # Use of this source code is governed by a BSD-style
 # license that can be found in the LICENSE file.
 
-test: deps
-	go test -x ./...
+test:
+	go clean ./...
+	go test ./...
 
-deps:
-	go get -x -t -d ./...
-
-build: deps
+build:
 	go build -x

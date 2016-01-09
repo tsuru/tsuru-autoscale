@@ -1,0 +1,10 @@
+language: go
+go:
+  - 1.4
+  - tip
+before_install:
+  - sudo apt-get update -qqy
+install:
+  - go get -d -t
+script:
+  - go test -race
