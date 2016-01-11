@@ -28,7 +28,7 @@ func (l *Logger) Print(v ...interface{}) {
 }
 
 func (l *Logger) Printf(format string, v ...interface{}) {
-	l.lg.Printf(format, v)
+	l.lg.Printf(format, v...)
 }
 
 func (l *Logger) Error(err error) {
