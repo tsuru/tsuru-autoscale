@@ -33,14 +33,14 @@ func logger() *log.Logger {
 
 // Alarm represents the configuration for the auto scale.
 type Alarm struct {
-	Name       string            `json:"name"`
-	Actions    []string          `json:"actions"`
-	Expression string            `json:"expression"`
-	Enabled    bool              `json:"enabled"`
-	Wait       time.Duration     `json:"wait"`
-	DataSource string            `json:"datasource"`
-	Instance   string            `json:"instance"`
-	Envs       map[string]string `json:"envs"`
+	Name        string            `json:"name"`
+	Actions     []string          `json:"actions"`
+	Expression  string            `json:"expression"`
+	Enabled     bool              `json:"enabled"`
+	Wait        time.Duration     `json:"wait"`
+	DataSources []string          `json:"datasources"`
+	Instance    string            `json:"instance"`
+	Envs        map[string]string `json:"envs"`
 }
 
 func NewAlarm(a *Alarm) error {
@@ -195,13 +195,26 @@ func Disable(alarm *Alarm) error {
 	return conn.Alarms().Update(bson.M{"name": alarm.Name}, bson.M{"$set": bson.M{"enabled": false}})
 }
 
-func (a *Alarm) Check() (bool, error) {
-	logger().Printf("getting data for alarm %s", a.Name)
-	ds, err := datasource.Get(a.DataSource)
-	if err != nil {
-		logger().Error(err)
-		return false, err
+func (a *Alarm) data(appName string) (map[string]string, error) {
+	d := map[string]string{}
+	for _, dataSource := range a.DataSources {
+		ds, err := datasource.Get(dataSource)
+		if err != nil {
+			logger().Error(err)
+			return nil, err
+		}
+		data, err := ds.Get(appName, a.Envs)
+		if err != nil {
+			logger().Error(err)
+			return nil, err
+		}
+		logger().Printf("data for alarm %s - %s", a.Name, data)
+		d[ds.Name] = data
 	}
+	return d, nil
+}
+
+func (a *Alarm) Check() (bool, error) {
 	instance, err := tsuru.GetInstanceByName(a.Instance)
 	if err != nil {
 		logger().Error(err)
@@ -214,19 +227,22 @@ func (a *Alarm) Check() (bool, error) {
 		return false, err
 	}
 	appName := instance.Apps[0]
-	data, err := ds.Get(appName, a.Envs)
+	dataSourceData, err := a.data(appName)
 	if err != nil {
 		logger().Error(err)
 		return false, err
 	}
-	logger().Printf("data for alarm %s - %s", a.Name, data)
 	expression := strings.Replace(a.Expression, "{app}", appName, -1)
 	for key, value := range a.Envs {
 		expression = strings.Replace(expression, fmt.Sprintf("{%s}", key), value, -1)
 	}
+	data := ""
+	for key, value := range dataSourceData {
+		data += fmt.Sprintf("var %s=%s;", key, value)
+	}
 	vm := otto.New()
-	vm.Run(fmt.Sprintf("var data=%s;", data))
-	vm.Run(fmt.Sprintf("var expression=%s", expression))
+	vm.Run(data)
+	vm.Run(fmt.Sprintf("var expression=%s;", expression))
 	result, err := vm.Get("expression")
 	if err != nil {
 		logger().Error(err)
