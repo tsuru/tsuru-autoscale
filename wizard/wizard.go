@@ -78,14 +78,14 @@ func enableScaleDown(instanceName string, minUnits int, process string) error {
 		processName = process
 	}
 	a := alarm.Alarm{
-		Name:       fmt.Sprintf("enable_scale_down_%s", instanceName),
-		Expression: fmt.Sprintf(`!data.lock.Locked && data.units.map(function(unit){ if (unit.ProcessName === "{process}") {return 1} else {return 0}}).reduce(function(c, p) { return c + p }) > %d`, minUnits),
-		Enabled:    true,
-		Wait:       15 * 1000 * 1000 * 1000,
-		Actions:    []string{"enable_alarm"},
-		Instance:   instanceName,
-		DataSource: "units",
-		Envs:       map[string]string{"alarm": name, "process": processName},
+		Name:        fmt.Sprintf("enable_scale_down_%s", instanceName),
+		Expression:  fmt.Sprintf(`!units.lock.Locked && units.units.map(function(unit){ if (unit.ProcessName === "{process}") {return 1} else {return 0}}).reduce(function(c, p) { return c + p }) > %d`, minUnits),
+		Enabled:     true,
+		Wait:        15 * 1000 * 1000 * 1000,
+		Actions:     []string{"enable_alarm"},
+		Instance:    instanceName,
+		DataSources: []string{"units"},
+		Envs:        map[string]string{"alarm": name, "process": processName},
 	}
 	return alarm.NewAlarm(&a)
 }
@@ -103,14 +103,14 @@ func disableScaleDown(instanceName string, minUnits int, process string) error {
 		processName = process
 	}
 	a := alarm.Alarm{
-		Name:       fmt.Sprintf("disable_scale_down_%s", instanceName),
-		Expression: fmt.Sprintf(`!data.lock.Locked && data.units.map(function(unit){ if (unit.ProcessName === "{process}") {return 1} else {return 0}}).reduce(function(c, p) { return c + p }) <= %d`, minUnits),
-		Enabled:    true,
-		Wait:       15 * 1000 * 1000 * 1000,
-		Actions:    []string{"disable_alarm"},
-		Instance:   instanceName,
-		DataSource: "units",
-		Envs:       map[string]string{"alarm": name, "process": processName},
+		Name:        fmt.Sprintf("disable_scale_down_%s", instanceName),
+		Expression:  fmt.Sprintf(`!units.lock.Locked && units.units.map(function(unit){ if (unit.ProcessName === "{process}") {return 1} else {return 0}}).reduce(function(c, p) { return c + p }) <= %d`, minUnits),
+		Enabled:     true,
+		Wait:        15 * 1000 * 1000 * 1000,
+		Actions:     []string{"disable_alarm"},
+		Instance:    instanceName,
+		DataSources: []string{"units"},
+		Envs:        map[string]string{"alarm": name, "process": processName},
 	}
 	return alarm.NewAlarm(&a)
 }
@@ -132,13 +132,13 @@ func newScaleAction(action ScaleAction, kind, instanceName, process string) erro
 		aggregator = "max"
 	}
 	a := alarm.Alarm{
-		Name:       name,
-		Expression: fmt.Sprintf("data.aggregations.range.buckets[0].date.buckets[data.aggregations.range.buckets[0].date.buckets.length - 1].%s.value %s %s", aggregator, action.Operator, action.Value),
-		Enabled:    true,
-		Wait:       action.Wait * time.Second,
-		Actions:    []string{kind},
-		Instance:   instanceName,
-		DataSource: action.Metric,
+		Name:        name,
+		Expression:  fmt.Sprintf("%s.aggregations.range.buckets[0].date.buckets[%s.aggregations.range.buckets[0].date.buckets.length - 1].%s.value %s %s", action.Metric, action.Metric, aggregator, action.Operator, action.Value),
+		Enabled:     true,
+		Wait:        action.Wait * time.Second,
+		Actions:     []string{kind},
+		Instance:    instanceName,
+		DataSources: []string{action.Metric},
 		Envs: map[string]string{
 			"step":    action.Step,
 			"process": processName,
