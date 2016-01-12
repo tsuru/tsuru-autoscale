@@ -114,6 +114,7 @@ func (s *S) TestNew(c *check.C) {
 		ScaleUp:   scaleUp,
 		ScaleDown: scaleDown,
 		Process:   "web",
+		MinUnits:  2,
 	}
 	err := New(&a)
 	c.Assert(err, check.IsNil)
@@ -142,6 +143,66 @@ func (s *S) TestNew(c *check.C) {
 	err = s.conn.Wizard().Find(&a).One(&as)
 	c.Assert(err, check.IsNil)
 	c.Assert(as.Name, check.Equals, a.Name)
+	c.Assert(as.MinUnits, check.Equals, 2)
+}
+
+func (s *S) TestNewMinUnitsLessThanZero(c *check.C) {
+	scaleUp := ScaleAction{
+		Metric:   "cpu",
+		Operator: ">",
+		Step:     "1",
+		Value:    "10",
+		Wait:     50,
+	}
+	scaleDown := ScaleAction{
+		Metric:   "cpu",
+		Operator: "<",
+		Step:     "1",
+		Value:    "2",
+		Wait:     50,
+	}
+	a := AutoScale{
+		Name:      "test",
+		ScaleUp:   scaleUp,
+		ScaleDown: scaleDown,
+		Process:   "web",
+		MinUnits:  -1,
+	}
+	err := New(&a)
+	c.Assert(err, check.IsNil)
+	var as AutoScale
+	err = s.conn.Wizard().Find(&a).One(&as)
+	c.Assert(err, check.IsNil)
+	c.Assert(as.MinUnits, check.Equals, 1)
+}
+
+func (s *S) TestNewWithoutMinUnits(c *check.C) {
+	scaleUp := ScaleAction{
+		Metric:   "cpu",
+		Operator: ">",
+		Step:     "1",
+		Value:    "10",
+		Wait:     50,
+	}
+	scaleDown := ScaleAction{
+		Metric:   "cpu",
+		Operator: "<",
+		Step:     "1",
+		Value:    "2",
+		Wait:     50,
+	}
+	a := AutoScale{
+		Name:      "test",
+		ScaleUp:   scaleUp,
+		ScaleDown: scaleDown,
+		Process:   "web",
+	}
+	err := New(&a)
+	c.Assert(err, check.IsNil)
+	var as AutoScale
+	err = s.conn.Wizard().Find(&a).One(&as)
+	c.Assert(err, check.IsNil)
+	c.Assert(as.MinUnits, check.Equals, 1)
 }
 
 func (s *S) TestAutoScaleUnmarshal(c *check.C) {
@@ -263,7 +324,7 @@ func (s *S) TestNewWithoutProcess(c *check.C) {
 	al, err = alarm.FindAlarmByName(scaleName)
 	c.Assert(err, check.IsNil)
 	c.Assert(al.Name, check.Equals, scaleName)
-	expression := fmt.Sprintf(`!units.lock.Locked && units.units.map(function(unit){ if (unit.ProcessName === "{process}") {return 1} else {return 0}}).reduce(function(c, p) { return c + p }) > %d && `, a.MinUnits)
+	expression := fmt.Sprintf(`!units.lock.Locked && units.units.map(function(unit){ if (unit.ProcessName === "{process}") {return 1} else {return 0}}).reduce(function(c, p) { return c + p }) > %d && `, 1)
 	expression += fmt.Sprintf("cpu.aggregations.range.buckets[0].date.buckets[cpu.aggregations.range.buckets[0].date.buckets.length - 1].max.value %s %s", scaleDown.Operator, scaleDown.Value)
 	c.Assert(al.Expression, check.Equals, expression)
 	c.Assert(al.Envs, check.DeepEquals, map[string]string{"step": scaleDown.Step, "process": "web", "alarm": "test"})

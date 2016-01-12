@@ -36,6 +36,9 @@ type ScaleAction struct {
 }
 
 func New(a *AutoScale) error {
+	if a.MinUnits <= 0 {
+		a.MinUnits = 1
+	}
 	err := newScaleAction(a, "scale_up")
 	if err != nil {
 		logger().Error(err)
