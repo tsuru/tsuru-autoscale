@@ -64,13 +64,16 @@ func newScaleAction(scaleConfig *AutoScale, kind string) error {
 		processName string
 		action      ScaleAction
 		expression  string
+		datasources []string
 	)
 	if kind == "scale_up" {
 		action = scaleConfig.ScaleUp
+		datasources = []string{action.Metric}
 	}
 	if kind == "scale_down" {
 		action = scaleConfig.ScaleDown
 		expression = fmt.Sprintf(`!units.lock.Locked && units.units.map(function(unit){ if (unit.ProcessName === "{process}") {return 1} else {return 0}}).reduce(function(c, p) { return c + p }) > %d && `, scaleConfig.MinUnits)
+		datasources = []string{action.Metric, "units"}
 	}
 	if scaleConfig.Process == "" {
 		name = fmt.Sprintf("%s_%s", kind, scaleConfig.Name)
@@ -85,7 +88,6 @@ func newScaleAction(scaleConfig *AutoScale, kind string) error {
 	}
 	expression += fmt.Sprintf("%s.aggregations.range.buckets[0].date.buckets[%s.aggregations.range.buckets[0].date.buckets.length - 1].%s.value %s %s", action.Metric, action.Metric, aggregator, action.Operator, action.Value)
 	envs := map[string]string{
-		"alarm":   scaleConfig.Name,
 		"step":    action.Step,
 		"process": processName,
 	}
@@ -96,7 +98,7 @@ func newScaleAction(scaleConfig *AutoScale, kind string) error {
 		Wait:        action.Wait * time.Second,
 		Actions:     []string{kind},
 		Instance:    scaleConfig.Name,
-		DataSources: []string{action.Metric, "units"},
+		DataSources: datasources,
 		Envs:        envs,
 	}
 	return alarm.NewAlarm(&a)

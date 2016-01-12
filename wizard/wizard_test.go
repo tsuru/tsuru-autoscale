@@ -62,7 +62,7 @@ func (s *S) TestNewScale(c *check.C) {
 	c.Assert(err, check.IsNil)
 	c.Assert(al.Name, check.Equals, scaleName)
 	c.Assert(al.Expression, check.Equals, fmt.Sprintf("cpu.aggregations.range.buckets[0].date.buckets[cpu.aggregations.range.buckets[0].date.buckets.length - 1].max.value %s %s", a.Operator, a.Value))
-	c.Assert(al.Envs, check.DeepEquals, map[string]string{"step": a.Step, "process": "web", "alarm": "instanceName"})
+	c.Assert(al.Envs, check.DeepEquals, map[string]string{"step": a.Step, "process": "web"})
 	c.Assert(al.Enabled, check.Equals, true)
 	c.Assert(al.Actions, check.DeepEquals, []string{action})
 }
@@ -89,7 +89,7 @@ func (s *S) TestNewScaleCustomAggregator(c *check.C) {
 	c.Assert(err, check.IsNil)
 	c.Assert(al.Name, check.Equals, scaleName)
 	c.Assert(al.Expression, check.Equals, fmt.Sprintf("cpu.aggregations.range.buckets[0].date.buckets[cpu.aggregations.range.buckets[0].date.buckets.length - 1].avg.value %s %s", a.Operator, a.Value))
-	c.Assert(al.Envs, check.DeepEquals, map[string]string{"step": a.Step, "process": "web", "alarm": "instanceName"})
+	c.Assert(al.Envs, check.DeepEquals, map[string]string{"step": a.Step, "process": "web"})
 	c.Assert(al.Enabled, check.Equals, true)
 	c.Assert(al.Actions, check.DeepEquals, []string{action})
 }
@@ -123,9 +123,9 @@ func (s *S) TestNew(c *check.C) {
 	c.Assert(err, check.IsNil)
 	c.Assert(al.Name, check.Equals, scaleName)
 	c.Assert(al.Expression, check.Equals, fmt.Sprintf("cpu.aggregations.range.buckets[0].date.buckets[cpu.aggregations.range.buckets[0].date.buckets.length - 1].max.value %s %s", scaleUp.Operator, scaleUp.Value))
-	c.Assert(al.Envs, check.DeepEquals, map[string]string{"step": scaleUp.Step, "process": "web", "alarm": "test"})
+	c.Assert(al.Envs, check.DeepEquals, map[string]string{"step": scaleUp.Step, "process": "web"})
 	c.Assert(al.Enabled, check.Equals, true)
-	c.Assert(al.DataSources, check.DeepEquals, []string{scaleUp.Metric, "units"})
+	c.Assert(al.DataSources, check.DeepEquals, []string{scaleUp.Metric})
 	c.Assert(al.Actions, check.DeepEquals, []string{"scale_up"})
 	scaleName = "scale_down_test_web"
 	al, err = alarm.FindAlarmByName(scaleName)
@@ -134,7 +134,7 @@ func (s *S) TestNew(c *check.C) {
 	expression := fmt.Sprintf(`!units.lock.Locked && units.units.map(function(unit){ if (unit.ProcessName === "{process}") {return 1} else {return 0}}).reduce(function(c, p) { return c + p }) > %d && `, a.MinUnits)
 	expression += fmt.Sprintf("cpu.aggregations.range.buckets[0].date.buckets[cpu.aggregations.range.buckets[0].date.buckets.length - 1].max.value %s %s", scaleDown.Operator, scaleDown.Value)
 	c.Assert(al.Expression, check.Equals, expression)
-	c.Assert(al.Envs, check.DeepEquals, map[string]string{"step": scaleDown.Step, "process": "web", "alarm": "test"})
+	c.Assert(al.Envs, check.DeepEquals, map[string]string{"step": scaleDown.Step, "process": "web"})
 	c.Assert(al.Enabled, check.Equals, true)
 	c.Assert(al.Actions, check.DeepEquals, []string{"scale_down"})
 	c.Assert(al.Wait, check.Equals, 50*time.Second)
@@ -317,7 +317,7 @@ func (s *S) TestNewWithoutProcess(c *check.C) {
 	c.Assert(err, check.IsNil)
 	c.Assert(al.Name, check.Equals, scaleName)
 	c.Assert(al.Expression, check.Equals, fmt.Sprintf("cpu.aggregations.range.buckets[0].date.buckets[cpu.aggregations.range.buckets[0].date.buckets.length - 1].max.value %s %s", scaleUp.Operator, scaleUp.Value))
-	c.Assert(al.Envs, check.DeepEquals, map[string]string{"step": scaleUp.Step, "process": "web", "alarm": "test"})
+	c.Assert(al.Envs, check.DeepEquals, map[string]string{"step": scaleUp.Step, "process": "web"})
 	c.Assert(al.Enabled, check.Equals, true)
 	c.Assert(al.Actions, check.DeepEquals, []string{"scale_up"})
 	scaleName = "scale_down_test"
@@ -327,7 +327,7 @@ func (s *S) TestNewWithoutProcess(c *check.C) {
 	expression := fmt.Sprintf(`!units.lock.Locked && units.units.map(function(unit){ if (unit.ProcessName === "{process}") {return 1} else {return 0}}).reduce(function(c, p) { return c + p }) > %d && `, 1)
 	expression += fmt.Sprintf("cpu.aggregations.range.buckets[0].date.buckets[cpu.aggregations.range.buckets[0].date.buckets.length - 1].max.value %s %s", scaleDown.Operator, scaleDown.Value)
 	c.Assert(al.Expression, check.Equals, expression)
-	c.Assert(al.Envs, check.DeepEquals, map[string]string{"step": scaleDown.Step, "process": "web", "alarm": "test"})
+	c.Assert(al.Envs, check.DeepEquals, map[string]string{"step": scaleDown.Step, "process": "web"})
 	c.Assert(al.Enabled, check.Equals, true)
 	c.Assert(al.Actions, check.DeepEquals, []string{"scale_down"})
 	var as AutoScale
