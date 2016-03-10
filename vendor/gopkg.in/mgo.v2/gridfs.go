@@ -131,7 +131,7 @@ func finalizeFile(file *GridFile) {
 //     }
 //     file, err := db.GridFS("fs").Create("myfile.txt")
 //     check(err)
-//     n, err := file.Write([]byte("Hello world!")
+//     n, err := file.Write([]byte("Hello world!"))
 //     check(err)
 //     err = file.Close()
 //     check(err)
@@ -154,7 +154,7 @@ func (gfs *GridFS) Create(name string) (file *GridFile, err error) {
 	file = gfs.newFile()
 	file.mode = gfsWriting
 	file.wsum = md5.New()
-	file.doc = gfsFile{Id: bson.NewObjectId(), ChunkSize: 256 * 1024, Filename: name}
+	file.doc = gfsFile{Id: bson.NewObjectId(), ChunkSize: 255 * 1024, Filename: name}
 	return
 }
 
@@ -481,6 +481,17 @@ func (file *GridFile) UploadDate() time.Time {
 	return file.doc.UploadDate
 }
 
+// SetUploadDate changes the file upload time.
+//
+// It is a runtime error to call this function when the file is not open
+// for writing.
+func (file *GridFile) SetUploadDate(t time.Time) {
+	file.assertMode(gfsWriting)
+	file.m.Lock()
+	file.doc.UploadDate = t
+	file.m.Unlock()
+}
+
 // Close flushes any pending changes in case the file is being written
 // to, waits for any background operations to finish, and closes the file.
 //
@@ -510,15 +521,24 @@ func (file *GridFile) completeWrite() {
 		debugf("GridFile %p: waiting for %d pending chunks to complete file write", file, file.wpending)
 		file.c.Wait()
 	}
+	if file.err == nil {
+		hexsum := hex.EncodeToString(file.wsum.Sum(nil))
+		if file.doc.UploadDate.IsZero() {
+			file.doc.UploadDate = bson.Now()
+		}
+		file.doc.MD5 = hexsum
+		file.err = file.gfs.Files.Insert(file.doc)
+	}
 	if file.err != nil {
 		file.gfs.Chunks.RemoveAll(bson.D{{"files_id", file.doc.Id}})
-		return
 	}
-	hexsum := hex.EncodeToString(file.wsum.Sum(nil))
-	file.doc.UploadDate = bson.Now()
-	file.doc.MD5 = hexsum
-	file.err = file.gfs.Files.Insert(file.doc)
-	file.gfs.Chunks.EnsureIndexKey("files_id", "n")
+	if file.err == nil {
+		index := Index{
+			Key:    []string{"files_id", "n"},
+			Unique: true,
+		}
+		file.err = file.gfs.Chunks.EnsureIndex(index)
+	}
 }
 
 // Abort cancels an in-progress write, preventing the file from being
@@ -651,6 +671,14 @@ func (file *GridFile) Seek(offset int64, whence int) (pos int64, err error) {
 	if offset > file.doc.Length {
 		return file.offset, errors.New("seek past end of file")
 	}
+	if offset == file.doc.Length {
+		// If we're seeking to the end of the file,
+		// no need to read anything. This enables
+		// a client to find the size of the file using only the
+		// io.ReadSeeker interface with low overhead.
+		file.offset = offset
+		return file.offset, nil
+	}
 	chunk := int(offset / int64(file.doc.ChunkSize))
 	if chunk+1 == file.chunk && offset >= file.offset {
 		file.rbuf = file.rbuf[int(offset-file.offset):]
@@ -670,7 +698,7 @@ func (file *GridFile) Seek(offset int64, whence int) (pos int64, err error) {
 // Read reads into b the next available data from the file and
 // returns the number of bytes written and an error in case
 // something wrong happened.  At the end of the file, n will
-// be zero and err will be set to os.EOF.
+// be zero and err will be set to io.EOF.
 //
 // The parameters and behavior of this function turn the file
 // into an io.Reader.

@@ -84,13 +84,18 @@
 		},
 		{
 			"path": "gopkg.in/mgo.v2",
-			"revision": "dc255bb679efa273b6544a03261c4053505498a4",
-			"revisionTime": "2014-07-30T17:00:37-03:00"
+			"revision": "d90005c5262a3463800497ea5a89aed5fe22c886",
+			"revisionTime": "2016-02-08T22:46:34-02:00"
 		},
 		{
 			"path": "gopkg.in/mgo.v2/bson",
 			"revision": "dc255bb679efa273b6544a03261c4053505498a4",
 			"revisionTime": "2014-07-30T17:00:37-03:00"
+		},
+		{
+			"path": "gopkg.in/mgo.v2/internal/scram",
+			"revision": "d90005c5262a3463800497ea5a89aed5fe22c886",
+			"revisionTime": "2016-02-08T22:46:34-02:00"
 		},
 		{
 			"path": "gopkg.in/mgo.v2/sasl",
