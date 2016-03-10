@@ -58,6 +58,7 @@ func runAutoScaleOnce() {
 	alarms := []Alarm{}
 	conn, err := db.Conn()
 	if err != nil {
+		logger().Error(err)
 		return
 	}
 	defer conn.Close()
