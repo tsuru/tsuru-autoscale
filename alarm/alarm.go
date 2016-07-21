@@ -23,6 +23,7 @@ import (
 	"gopkg.in/mgo.v2/bson"
 )
 
+// StartAutoScale start the auto scale
 func StartAutoScale() {
 	runAutoScale()
 }
@@ -43,6 +44,7 @@ type Alarm struct {
 	Envs        map[string]string `json:"envs"`
 }
 
+// NewAlarm creates a new alarm
 func NewAlarm(a *Alarm) error {
 	conn, err := db.Conn()
 	if err != nil {
@@ -102,7 +104,7 @@ func runAutoScale() {
 
 func scaleIfNeeded(alarm *Alarm) error {
 	if alarm == nil {
-		return errors.New("alarm: alarm is not configured.")
+		return errors.New("alarm: alarm is not configured")
 	}
 	check, err := alarm.Check()
 	if err != nil {
@@ -176,6 +178,7 @@ func shouldWait(alarm *Alarm) (bool, error) {
 	return true, nil
 }
 
+// Enable enables an alarm
 func Enable(alarm *Alarm) error {
 	conn, err := db.Conn()
 	if err != nil {
@@ -186,6 +189,7 @@ func Enable(alarm *Alarm) error {
 	return conn.Alarms().Update(bson.M{"name": alarm.Name}, bson.M{"$set": bson.M{"enabled": true}})
 }
 
+// Disable disables an alarm
 func Disable(alarm *Alarm) error {
 	conn, err := db.Conn()
 	if err != nil {
@@ -215,6 +219,7 @@ func (a *Alarm) data(appName string) (map[string]string, error) {
 	return d, nil
 }
 
+// Check executes the alarm expression
 func (a *Alarm) Check() (bool, error) {
 	instance, err := tsuru.GetInstanceByName(a.Instance)
 	if err != nil {

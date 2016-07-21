@@ -24,6 +24,7 @@ type Event struct {
 	Action     *action.Action
 }
 
+// NewEvent creates a new alarm event
 func NewEvent(alarm *Alarm, action *action.Action) (*Event, error) {
 	evt := Event{
 		ID:        bson.NewObjectId(),
@@ -67,6 +68,7 @@ func lastScaleEvent(alarm *Alarm) (Event, error) {
 	return event, err
 }
 
+// EventsByAlarmName returns a list of events by alarm name
 func EventsByAlarmName(alarm string) ([]Event, error) {
 	return eventsByAlarmName(&Alarm{Name: alarm})
 }
