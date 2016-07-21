@@ -4,19 +4,12 @@
 [![Go Report Card](https://goreportcard.com/badge/github.com/tsuru/tsuru-autoscale)](https://goreportcard.com/report/github.com/tsuru/tsuru-autoscale)
 [![codecov](https://codecov.io/gh/tsuru/tsuru-autoscale/branch/master/graph/badge.svg)](https://codecov.io/gh/tsuru/tsuru-autoscale)
 
-## roadmap
+## features
 
-### 0.1
-
-* api to manage auto scale configuration
-* support tsuru metrics backend
-* single action expression: "{metric} {operator} {value}"
-* scale up / scale down
-* integration by bind / unbind
-* tsuru plugin
-
-### 0.2
-
-* http backend
-* more than one scale (up / down) action
-* auto scale disable action
+* HTTP api to manage auto scale configuration
+* integration with [tsuru](https://tsuru.io)
+* Wizard that makes easy configure an auto scale for [tsuru](https://tsuru.io)
+applications
+* Support HTTP based data sources
+* Support HTTP based actions
+* Support alarm scripts in javascript
