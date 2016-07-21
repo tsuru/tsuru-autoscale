@@ -24,7 +24,6 @@ type AutoScale struct {
 	ScaleDown ScaleAction `json:"scaleDown"`
 	MinUnits  int         `json:"minUnits"`
 	Process   string      `json:"process"`
-	Enabled   bool        `json:"enabled"`
 }
 
 type ScaleAction struct {
@@ -181,4 +180,45 @@ func (a *AutoScale) Events() ([]alarm.Event, error) {
 		return nil, err
 	}
 	return events, nil
+}
+
+func (a *AutoScale) Enable() error {
+	for _, alarmName := range a.alarms() {
+		al, err := alarm.FindAlarmByName(alarmName)
+		if err != nil {
+			return err
+		}
+		err = alarm.Enable(al)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func (a *AutoScale) Disable() error {
+	for _, alarmName := range a.alarms() {
+		al, err := alarm.FindAlarmByName(alarmName)
+		if err != nil {
+			return err
+		}
+		err = alarm.Disable(al)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func (a *AutoScale) Enabled() bool {
+	for _, alarmName := range a.alarms() {
+		al, err := alarm.FindAlarmByName(alarmName)
+		if err != nil {
+			return false
+		}
+		if !al.Enabled {
+			return false
+		}
+	}
+	return true
 }

@@ -355,3 +355,36 @@ func (s *S) TestEvents(c *check.C) {
 	c.Assert(err, check.IsNil)
 	c.Assert(events, check.HasLen, 1)
 }
+
+func (s *S) TestEnabled(c *check.C) {
+	scaleUp := ScaleAction{
+		Metric:   "cpu",
+		Operator: ">",
+		Step:     "1",
+		Value:    "10",
+		Wait:     50,
+	}
+	scaleDown := ScaleAction{
+		Metric:   "cpu",
+		Operator: "<",
+		Step:     "1",
+		Value:    "2",
+		Wait:     50,
+	}
+	a := AutoScale{
+		Name:      "test",
+		ScaleUp:   scaleUp,
+		ScaleDown: scaleDown,
+		Process:   "web",
+		MinUnits:  2,
+	}
+	err := New(&a)
+	c.Assert(err, check.IsNil)
+	c.Assert(a.Enabled(), check.Equals, true)
+	err = a.Disable()
+	c.Assert(err, check.IsNil)
+	c.Assert(a.Enabled(), check.Equals, false)
+	err = a.Enable()
+	c.Assert(err, check.IsNil)
+	c.Assert(a.Enabled(), check.Equals, true)
+}
