@@ -18,6 +18,7 @@ func logger() *log.Logger {
 	return log.Log()
 }
 
+// AutoScale represents a auto scale configuration
 type AutoScale struct {
 	Name      string      `json:"name"`
 	ScaleUp   ScaleAction `json:"scaleUp"`
@@ -26,6 +27,7 @@ type AutoScale struct {
 	Process   string      `json:"process"`
 }
 
+// ScaleAction represents a auto scale action like scale up or scale down.
 type ScaleAction struct {
 	Aggregator string        `json:"aggregator"`
 	Metric     string        `json:"metric"`
@@ -35,6 +37,7 @@ type ScaleAction struct {
 	Wait       time.Duration `json:"wait"`
 }
 
+// New creates a new auto scale based on AutoScale configuration
 func New(a *AutoScale) error {
 	if a.MinUnits <= 0 {
 		a.MinUnits = 1
@@ -165,6 +168,7 @@ func Remove(a *AutoScale) error {
 	return conn.Wizard().Remove(a)
 }
 
+// Events return a list of AutoScale events
 func (a *AutoScale) Events() ([]alarm.Event, error) {
 	conn, err := db.Conn()
 	if err != nil {
@@ -182,6 +186,7 @@ func (a *AutoScale) Events() ([]alarm.Event, error) {
 	return events, nil
 }
 
+// Enable enables the AutoScale alarms
 func (a *AutoScale) Enable() error {
 	for _, alarmName := range a.alarms() {
 		al, err := alarm.FindAlarmByName(alarmName)
@@ -196,6 +201,7 @@ func (a *AutoScale) Enable() error {
 	return nil
 }
 
+// Disable disables the AutoScale alarms
 func (a *AutoScale) Disable() error {
 	for _, alarmName := range a.alarms() {
 		al, err := alarm.FindAlarmByName(alarmName)
@@ -210,6 +216,7 @@ func (a *AutoScale) Disable() error {
 	return nil
 }
 
+// Enabled returns true if the AutoScale alarms are enabled
 func (a *AutoScale) Enabled() bool {
 	for _, alarmName := range a.alarms() {
 		al, err := alarm.FindAlarmByName(alarmName)
