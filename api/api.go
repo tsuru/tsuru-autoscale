@@ -16,6 +16,7 @@ func logger() *log.Logger {
 	return log.Log()
 }
 
+// Router return a http.Handler with all api routes 
 func Router() http.Handler {
 	m := mux.NewRouter()
 	m.HandleFunc("/healthcheck", healthcheck).Methods("GET")
