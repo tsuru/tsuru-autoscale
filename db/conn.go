@@ -20,7 +20,7 @@ import (
 
 const (
 	// DefaultDatabaseURL represents the default database url
-	DefaultDatabaseURL  = "127.0.0.1:27017"
+	DefaultDatabaseURL = "127.0.0.1:27017"
 	// DefaultDatabaseName represents the default database name
 	DefaultDatabaseName = "tsuru_autoscale"
 )
