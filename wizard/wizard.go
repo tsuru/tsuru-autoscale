@@ -24,6 +24,7 @@ type AutoScale struct {
 	ScaleDown ScaleAction `json:"scaleDown"`
 	MinUnits  int         `json:"minUnits"`
 	Process   string      `json:"process"`
+	Enabled   bool        `json:"enabled"`
 }
 
 type ScaleAction struct {
