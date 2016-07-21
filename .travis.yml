@@ -10,7 +10,7 @@ env:
   global:
     - GO15VENDOREXPERIMENT=1
 script:
-  - ./go.test.sh
+  - ./go.test.bash
 services:
   - mongodb
 matrix:
