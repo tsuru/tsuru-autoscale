@@ -9,9 +9,12 @@ go:
 env:
   global:
     - GO15VENDOREXPERIMENT=1
-script: make test
+script:
+  - ./go.test.sh
 services:
   - mongodb
 matrix:
   allow_failures:
     - go: tip
+after_success:
+  - bash <(curl -s https://codecov.io/bash)
