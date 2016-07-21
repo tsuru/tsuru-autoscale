@@ -5,9 +5,6 @@ go:
   - 1.6.3
   - 1.7rc2
   - tip
-env:
-  global:
-    - GO15VENDOREXPERIMENT=1
 script:
   - ./go.test.bash
 services:
