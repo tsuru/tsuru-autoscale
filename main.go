@@ -23,8 +23,7 @@ func port() string {
 }
 
 func runServer() {
-	r := api.Router()
-	http.Handle("/", r)
+	http.Handle("/", api.Router())
 	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%s", port()), nil))
 }
 
