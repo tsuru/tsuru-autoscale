@@ -74,6 +74,7 @@ func Remove(a *Action) error {
 	return conn.Actions().Remove(bson.M{"name": a.Name})
 }
 
+// All return a list of all actions
 func All() ([]Action, error) {
 	conn, err := db.Conn()
 	if err != nil {
@@ -90,6 +91,7 @@ func All() ([]Action, error) {
 	return actions, nil
 }
 
+// Do executes the action
 func (a *Action) Do(appName string, envs map[string]string) error {
 	body := a.Body
 	url := strings.Replace(a.URL, "{app}", appName, -1)
