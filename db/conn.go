@@ -19,10 +19,13 @@ import (
 )
 
 const (
+	// DefaultDatabaseURL represents the default database url
 	DefaultDatabaseURL  = "127.0.0.1:27017"
+	// DefaultDatabaseName represents the default database name
 	DefaultDatabaseName = "tsuru_autoscale"
 )
 
+// Storage represents a storage
 type Storage struct {
 	*storage.Storage
 }
@@ -40,6 +43,7 @@ func conn() (*storage.Storage, error) {
 	return storage.Open(url, dbname)
 }
 
+// Conn creates a database connection
 func Conn() (*Storage, error) {
 	var (
 		strg Storage
