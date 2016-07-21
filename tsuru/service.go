@@ -89,6 +89,7 @@ func NewInstance(i *Instance) error {
 	return conn.Instances().Insert(i)
 }
 
+// RemoveInstance removes an auto scale instance
 func RemoveInstance(i *Instance) error {
 	conn, err := db.Conn()
 	if err != nil {

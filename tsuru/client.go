@@ -13,6 +13,7 @@ import (
 	"os"
 )
 
+// FindServiceInstance returns an auto scale instance
 func FindServiceInstance(token string) ([]Instance, error) {
 	tsuruHost := os.Getenv("TSURU_HOST")
 	url := fmt.Sprintf("%s/services/autoscale", tsuruHost)
