@@ -6,7 +6,6 @@ package main
 
 import (
 	"fmt"
-	"html/template"
 	"log"
 	"net/http"
 	"os"
@@ -15,20 +14,10 @@ import (
 	"github.com/gorilla/mux"
 )
 
-func wizard(w http.ResponseWriter, r *http.Request) {
-	t, _ := template.ParseFiles("templates/wizard.html")
-	t.Execute(w, nil)
-}
-
-func index(w http.ResponseWriter, r *http.Request) {
-	t, _ := template.ParseFiles("templates/index.html")
-	t.Execute(w, nil)
-}
-
 func router() http.Handler {
 	m := mux.NewRouter()
-	m.HandleFunc("/", index).Methods("GET")
-	m.HandleFunc("/wizard", wizard).Methods("GET")
+	m.HandleFunc("/", indexHandler).Methods("GET")
+	m.HandleFunc("/wizard", wizardHandler).Methods("GET")
 	n := negroni.New()
 	n.Use(negroni.NewRecovery())
 	n.Use(negroni.NewLogger())
