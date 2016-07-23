@@ -9,6 +9,7 @@ import (
 
 	"gopkg.in/check.v1"
 	"gopkg.in/mgo.v2"
+	"gopkg.in/mgo.v2/bson"
 )
 
 func (s *S) TestLastScaleEvent(c *check.C) {
@@ -35,7 +36,7 @@ func (s *S) TestEventsByAlarmNameWithoutName(c *check.C) {
 	alarm := Alarm{Name: "all"}
 	_, err := NewEvent(&alarm, nil)
 	c.Assert(err, check.IsNil)
-	events, err := eventsByAlarmName(nil)
+	events, err := EventsByAlarmName("")
 	c.Assert(err, check.IsNil)
 	c.Assert(events, check.HasLen, 1)
 	c.Assert(events[0].StartTime, check.Not(check.DeepEquals), time.Time{})
@@ -48,7 +49,7 @@ func (s *S) TestEventsByAlarmOrderByStartTime(c *check.C) {
 	time.Sleep(1 * time.Second)
 	_, err = NewEvent(&alarm, nil)
 	c.Assert(err, check.IsNil)
-	events, err := eventsByAlarmName(nil)
+	events, err := EventsByAlarmName("")
 	c.Assert(err, check.IsNil)
 	c.Assert(events, check.HasLen, 2)
 	c.Assert(events[0].StartTime.After(events[1].StartTime), check.Equals, true)
@@ -61,8 +62,23 @@ func (s *S) TestEventsByAlarmName(c *check.C) {
 	alarm = Alarm{Name: "another"}
 	_, err = NewEvent(&alarm, nil)
 	c.Assert(err, check.IsNil)
-	events, err := eventsByAlarmName(&alarm)
+	events, err := EventsByAlarmName(alarm.Name)
 	c.Assert(err, check.IsNil)
 	c.Assert(events, check.HasLen, 1)
 	c.Assert(events[0].StartTime, check.Not(check.DeepEquals), time.Time{})
+}
+
+func (s *S) TestFindEventsBy(c *check.C) {
+	alarm := Alarm{Name: "config"}
+	_, err := NewEvent(&alarm, nil)
+	c.Assert(err, check.IsNil)
+	alarm = Alarm{Name: "another"}
+	_, err = NewEvent(&alarm, nil)
+	c.Assert(err, check.IsNil)
+	events, err := FindEventsBy(bson.M{"name": alarm.Name}, "", 1000)
+	c.Assert(err, check.IsNil)
+	c.Assert(events, check.HasLen, 1)
+	events, err = FindEventsBy(nil, "", 1000)
+	c.Assert(err, check.IsNil)
+	c.Assert(events, check.HasLen, 2)
 }
