@@ -75,10 +75,10 @@ func (s *S) TestFindEventsBy(c *check.C) {
 	alarm = Alarm{Name: "another"}
 	_, err = NewEvent(&alarm, nil)
 	c.Assert(err, check.IsNil)
-	events, err := FindEventsBy(bson.M{"name": alarm.Name}, "", 1000)
+	events, err := FindEventsBy(bson.M{"alarm.name": alarm.Name}, 1000)
 	c.Assert(err, check.IsNil)
 	c.Assert(events, check.HasLen, 1)
-	events, err = FindEventsBy(nil, "", 1000)
+	events, err = FindEventsBy(nil, 1000)
 	c.Assert(err, check.IsNil)
 	c.Assert(events, check.HasLen, 2)
 }

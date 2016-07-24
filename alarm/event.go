@@ -69,7 +69,7 @@ func lastScaleEvent(alarm *Alarm) (Event, error) {
 }
 
 // FindEventsBy is an extensible way to find events by query
-func FindEventsBy(q bson.M, sortBy string, limit int) ([]Event, error) {
+func FindEventsBy(q bson.M, limit int) ([]Event, error) {
 	conn, err := db.Conn()
 	if err != nil {
 		logger().Error(err)
@@ -77,7 +77,7 @@ func FindEventsBy(q bson.M, sortBy string, limit int) ([]Event, error) {
 	}
 	defer conn.Close()
 	var events []Event
-	err = conn.Events().Find(q).Sort(sortBy).Limit(limit).All(&events)
+	err = conn.Events().Find(q).Sort("-starttime").Limit(limit).All(&events)
 	if err != nil {
 		logger().Error(err)
 		return nil, err
@@ -91,5 +91,5 @@ func EventsByAlarmName(alarm string) ([]Event, error) {
 	if alarm != "" {
 		q["alarm.name"] = alarm
 	}
-	return FindEventsBy(q, "-starttime", 200)
+	return FindEventsBy(q, 200)
 }
