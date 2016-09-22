@@ -4,7 +4,7 @@
 [![Go Report Card](https://goreportcard.com/badge/github.com/tsuru/tsuru-autoscale)](https://goreportcard.com/report/github.com/tsuru/tsuru-autoscale)
 [![codecov](https://codecov.io/gh/tsuru/tsuru-autoscale/branch/master/graph/badge.svg)](https://codecov.io/gh/tsuru/tsuru-autoscale)
 
-## features
+## Features
 
 * HTTP api to manage auto scale configuration
 * integration with [tsuru](https://tsuru.io)
@@ -13,6 +13,23 @@ applications
 * Support HTTP based data sources
 * Support HTTP based actions
 * Support alarm scripts in javascript
+
+## Concepts
+
+The `tsuru-autoscale` is based on three elements: `data sources`, `actions` and `alarms`.
+
+### Data sources
+
+Data source is a http endpoint that provide the data to an alarm. Is based on the
+data source data that the alarm will execute an action.
+
+### Actions
+
+Action is a http endpoint that is called when the alarm expression result is `true`.
+
+### Alarms
+
+Alarm is composed by data sources, actions and by an expression. When the expression result is `true` the actions will be executed.
 
 ## Install as tsuru application
 
