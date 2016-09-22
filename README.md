@@ -13,3 +13,25 @@ applications
 * Support HTTP based data sources
 * Support HTTP based actions
 * Support alarm scripts in javascript
+
+## Install as tsuru application
+
+### Create tsuru app using Go platform
+
+```
+tsuru app-create autoscale go
+```
+
+### Configuring MongoDB
+
+We should use environment variables to configure the database:
+
+```
+tsuru env-set "MONGODB_URL=mongodb://172.17.0.1:27017/tsuru_autoscale" -a autoscale
+```
+
+### Deploy the applications
+
+```
+tsuru app-deploy . -a autoscale
+```
