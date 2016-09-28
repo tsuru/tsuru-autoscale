@@ -52,3 +52,59 @@ tsuru env-set "MONGODB_URL=mongodb://172.17.0.1:27017/tsuru_autoscale" -a autosc
 ```
 tsuru app-deploy . -a autoscale
 ```
+
+## API Reference
+
+### list data sources
+
+```
+GET /datasource
+```
+
+### add data source
+
+```
+POST /datasource
+```
+
+### remove a data source
+
+```
+DELETE /datasource/{name}
+```
+
+### list actions
+
+```
+GET /action
+```
+
+### add an action
+
+```
+POST /action
+```
+
+### remove an action
+
+```
+DELETE /action/{name}
+```
+
+### list alarms
+
+```
+GET /alarm
+```
+
+### add an alarm
+
+```
+POST /alarm
+```
+
+### remove an alarm
+
+```
+DELETE /alarm/{name}
+```
