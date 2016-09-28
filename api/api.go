@@ -30,7 +30,7 @@ func Router() http.Handler {
 	m.HandleFunc("/action/{name}", actionInfo).Methods("GET")
 	m.HandleFunc("/alarm", newAlarm).Methods("POST")
 	m.HandleFunc("/alarm/instance/{instance}", listAlarmsByInstance).Methods("GET")
-	m.HandleFunc("/alarm", listAlarms).Methods("GET")
+	m.HandleFunc("/alarm", authorizationRequiredHandler(listAlarms)).Methods("GET")
 	m.HandleFunc("/alarm/{name}/enable", enableAlarm).Methods("PUT")
 	m.HandleFunc("/alarm/{name}/disable", disableAlarm).Methods("PUT")
 	m.HandleFunc("/alarm/{name}", removeAlarm).Methods("DELETE")
@@ -43,7 +43,7 @@ func Router() http.Handler {
 	m.HandleFunc("/resources/{name}/bind", serviceUnbindUnit).Methods("DELETE")
 	m.HandleFunc("/resources/{name}", serviceRemove).Methods("DELETE")
 	m.HandleFunc("/service/instance/{name}", serviceInstanceByName).Methods("GET")
-	m.HandleFunc("/service/instance", serviceInstances).Methods("GET")
+	m.HandleFunc("/service/instance", authorizationRequiredHandler(serviceInstances)).Methods("GET")
 	m.HandleFunc("/wizard/{name}/events", eventsByWizardName).Methods("GET")
 	m.HandleFunc("/wizard/{name}", wizardByName).Methods("GET")
 	m.HandleFunc("/wizard/{name}", removeWizard).Methods("DELETE")
@@ -51,7 +51,6 @@ func Router() http.Handler {
 	n := negroni.New()
 	n.Use(negroni.NewRecovery())
 	n.Use(negroni.NewLogger())
-	n.Use(newAuthMiddleware())
 	n.UseHandler(m)
 	return n
 }
