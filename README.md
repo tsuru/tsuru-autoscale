@@ -58,53 +58,53 @@ tsuru app-deploy . -a autoscale
 ### list data sources
 
 ```
-GET /datasource
+curl <autoscale-url>/datasource
 ```
 
 ### add data source
 
 ```
-POST /datasource
+curl -XPOST -d '{}' -H "Content-Type: application/json" <autoscale-url>/datasource
 ```
 
 ### remove a data source
 
 ```
-DELETE /datasource/{name}
+curl -XDELETE <autoscale-url>/datasource/{name}
 ```
 
 ### list actions
 
 ```
-GET /action
+curl <autoscale-url>/action
 ```
 
 ### add an action
 
 ```
-POST /action
+curl -XPOST -d '{}' -H "Content-Type: applicaiton/json" <autoscale-url>/action
 ```
 
 ### remove an action
 
 ```
-DELETE /action/{name}
+curl -XDELETE <autoscale-url>/action/{name}
 ```
 
 ### list alarms
 
 ```
-GET /alarm
+curl <autoscale-url>/alarm
 ```
 
 ### add an alarm
 
 ```
-POST /alarm
+curl -XPOST -d '{}' -H "Content-Type: application/json" <autoscale-url>/alarm
 ```
 
 ### remove an alarm
 
 ```
-DELETE /alarm/{name}
+curl -XDELETE <autoscale-url>/alarm/{name}
 ```
