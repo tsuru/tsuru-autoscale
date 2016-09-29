@@ -31,6 +31,11 @@ Action is a http endpoint that is called when the alarm expression result is `tr
 
 Alarm is composed by data sources, actions and by an expression. When the expression result is `true` the actions will be executed.
 
+### Wizard
+
+Wizard is an easy way to use autoscale with `tsuru`. Wizard creates the alarms
+for scale up and scale down, based on simple inputs like: ``
+
 ## Install as tsuru application
 
 ### Create tsuru app using Go platform
@@ -107,4 +112,21 @@ curl -XPOST -d '{}' -H "Content-Type: application/json" <autoscale-url>/alarm
 
 ```
 curl -XDELETE <autoscale-url>/alarm/{name}
+```
+
+## Configuring Wizard to works with tsuru
+
+To `wizard` works fine with `tsuru` it is necessary to configure some data sources
+and the actions to scale up and scale down.
+
+### Add the scale up action
+
+```
+curl -XPOST -d '{"name": "scale_up", "url": "http://<tsuru_url>/apps/{app}/units", "method": "PUT", "body": "units={step}&process={process}", "headers": {"Authorization": "bearer <tsuru-token>", "Content-Type": "application/x-www-form-urlencoded"}}' -H "Content-Type: application/json" <autoscale-url>/alarm
+```
+
+### Add the scale down action
+
+```
+curl -XPOST -d '{"name": "scale_down", "url": "http://<tsuru_url>/apps/{app}/units?units={step}&process={process}", "method": "DELETE", "headers": {"Authorization": "bearer <tsuru-token>", "Content-Type": "application/x-www-form-urlencoded"}}' -H "Content-Type: application/json" <autoscale-url>/alarm
 ```
