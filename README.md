@@ -130,3 +130,17 @@ curl -XPOST -d '{"name": "scale_up", "url": "http://<tsuru_url>/apps/{app}/units
 ```
 curl -XPOST -d '{"name": "scale_down", "url": "http://<tsuru_url>/apps/{app}/units?units={step}&process={process}", "method": "DELETE", "headers": {"Authorization": "bearer <tsuru-token>", "Content-Type": "application/x-www-form-urlencoded"}}' -H "Content-Type: application/json" <autoscale-url>/alarm
 ```
+
+### Add data source to get the number of units
+
+```
+curl -XPOST -d '{"name": "units", "url": "http://<tsuru_url>/apps/{app}", "method": "GET", "headers" : {"Authorization": "bearer <tsuru_token>"}}' -H "Content-Type: application/json" <autoscale-url>/datasource
+```
+
+### Add data source to get cpu data from ElasticSearch
+
+Only configure it if you are using ElasticSearch as tsuru metrics backend.
+
+```
+curl -XPOST -d '{"name": "cpu", "url": "http://<elasticsearch_url>/<elasticsearch_index>/cpu_max/_search", "method": "POST", "body" : "{\"size\":0, \"query\": {\"filtered\": {\"filter\": {\"bool\": {\"must\": [{\"range\": {\"value\": {\"lt\": 500}}},{ \"term\": {\"app.raw\": \"{app}\"}}, {\"term\": {\"process.raw\": \"{process}\"}}]}}}}, \"aggs\": {\"range\": {\"date_range\": {\"field\": \"@timestamp\", \"ranges\": [{\"from\": \"now-5m/m\", \"to\": \"now\"}]}, \"aggs\": {\"date\": {\"date_histogram\": {\"field\": \"@timestamp\", \"interval\": \"1m\"}, \"aggs\": {\"max\": {\"max\": {\"field\": \"value\"}}, \"avg\": {\"avg\": {\"field\": \"value\"}}}}}}}}", "public": true}' -H "Content-Type: application/json" <autoscale-url>/datasource
+```
