@@ -141,6 +141,6 @@ curl -XPOST -d '{"name": "units", "url": "http://<tsuru_url>/apps/{app}", "metho
 
 Only configure it if you are using ElasticSearch as tsuru metrics backend.
 
-```
+```bash
 curl -XPOST -d '{"name": "cpu", "url": "http://<elasticsearch_url>/<elasticsearch_index>/cpu_max/_search", "method": "POST", "body" : "{\"size\":0, \"query\": {\"filtered\": {\"filter\": {\"bool\": {\"must\": [{\"range\": {\"value\": {\"lt\": 500}}},{ \"term\": {\"app.raw\": \"{app}\"}}, {\"term\": {\"process.raw\": \"{process}\"}}]}}}}, \"aggs\": {\"range\": {\"date_range\": {\"field\": \"@timestamp\", \"ranges\": [{\"from\": \"now-5m/m\", \"to\": \"now\"}]}, \"aggs\": {\"date\": {\"date_histogram\": {\"field\": \"@timestamp\", \"interval\": \"1m\"}, \"aggs\": {\"max\": {\"max\": {\"field\": \"value\"}}, \"avg\": {\"avg\": {\"field\": \"value\"}}}}}}}}", "public": true}' -H "Content-Type: application/json" <autoscale-url>/datasource
 ```
