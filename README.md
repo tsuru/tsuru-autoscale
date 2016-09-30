@@ -144,3 +144,11 @@ Only configure it if you are using ElasticSearch as tsuru metrics backend.
 ```bash
 curl -XPOST -d '{"name": "cpu", "url": "http://<elasticsearch_url>/<elasticsearch_index>/cpu_max/_search", "method": "POST", "body" : "{\"size\":0, \"query\": {\"filtered\": {\"filter\": {\"bool\": {\"must\": [{\"range\": {\"value\": {\"lt\": 500}}},{ \"term\": {\"app.raw\": \"{app}\"}}, {\"term\": {\"process.raw\": \"{process}\"}}]}}}}, \"aggs\": {\"range\": {\"date_range\": {\"field\": \"@timestamp\", \"ranges\": [{\"from\": \"now-5m/m\", \"to\": \"now\"}]}, \"aggs\": {\"date\": {\"date_histogram\": {\"field\": \"@timestamp\", \"interval\": \"1m\"}, \"aggs\": {\"max\": {\"max\": {\"field\": \"value\"}}, \"avg\": {\"avg\": {\"field\": \"value\"}}}}}}}}", "public": true}' -H "Content-Type: application/json" <autoscale-url>/datasource
 ```
+
+### Add data source to get cpu data from Prometheus
+
+Only configure it if you are using Prometheus as tsuru metrics backend.
+
+```bash
+curl -XPOST -d '{"name": "cpu", "url": "<prometheus_url>/api/v1/query?query=max(irate(container_cpu_usage_seconds_total{container_label_tsuru_process_name=\"{process}\",container_label_tsuru_app_name=\"{app}\"}))*100&time=1475242592.104", "public": true}' -H "Content-Type: application/json" <autoscale-url>/datasource
+```
