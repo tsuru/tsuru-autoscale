@@ -122,13 +122,13 @@ and the actions to scale up and scale down.
 ### Add the scale up action
 
 ```
-curl -XPOST -d '{"name": "scale_up", "url": "http://<tsuru_url>/apps/{app}/units", "method": "PUT", "body": "units={step}&process={process}", "headers": {"Authorization": "bearer <tsuru-token>", "Content-Type": "application/x-www-form-urlencoded"}}' -H "Content-Type: application/json" <autoscale-url>/alarm
+curl -XPOST -d '{"name": "scale_up", "url": "http://<tsuru_url>/apps/{app}/units", "method": "PUT", "body": "units={step}&process={process}", "headers": {"Authorization": "bearer <tsuru-token>", "Content-Type": "application/x-www-form-urlencoded"}}' -H "Content-Type: application/json" <autoscale-url>/action
 ```
 
 ### Add the scale down action
 
 ```
-curl -XPOST -d '{"name": "scale_down", "url": "http://<tsuru_url>/apps/{app}/units?units={step}&process={process}", "method": "DELETE", "headers": {"Authorization": "bearer <tsuru-token>", "Content-Type": "application/x-www-form-urlencoded"}}' -H "Content-Type: application/json" <autoscale-url>/alarm
+curl -XPOST -d '{"name": "scale_down", "url": "http://<tsuru_url>/apps/{app}/units?units={step}&process={process}", "method": "DELETE", "headers": {"Authorization": "bearer <tsuru-token>", "Content-Type": "application/x-www-form-urlencoded"}}' -H "Content-Type: application/json" <autoscale-url>/action
 ```
 
 ### Add data source to get the number of units
