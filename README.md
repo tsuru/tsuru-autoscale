@@ -150,5 +150,5 @@ curl -XPOST -d '{"name": "cpu", "url": "http://<elasticsearch_url>/<elasticsearc
 Only configure it if you are using Prometheus as tsuru metrics backend.
 
 ```bash
-curl -XPOST -d '{"name": "cpu", "url": "<prometheus_url>/api/v1/query?query=max(irate(container_cpu_usage_seconds_total{container_label_tsuru_process_name=\"{process}\",container_label_tsuru_app_name=\"{app}\"}))*100&time=1475242592.104", "public": true}' -H "Content-Type: application/json" <autoscale-url>/datasource
+curl -XPOST -d '{"name": "cpu", "url": "<prometheus_url>/api/v1/query?query=max(irate(container_cpu_usage_seconds_total{container_label_tsuru_process_name=\"{process}\",container_label_tsuru_app_name=\"{app}\"}[2m]))*100&time=1475242592.104", "public": true}' -H "Content-Type: application/json" <autoscale-url>/datasource
 ```
