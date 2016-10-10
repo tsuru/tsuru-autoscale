@@ -10,6 +10,8 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/codegangsta/negroni"
+	"github.com/gorilla/mux"
 	"github.com/tsuru/tsuru-autoscale/alarm"
 	"github.com/tsuru/tsuru-autoscale/api"
 	"github.com/tsuru/tsuru-autoscale/web"
@@ -23,9 +25,21 @@ func port() string {
 	return "8080"
 }
 
+func router() http.Handler {
+	m := mux.NewRouter()
+	apiRouter := m.PathPrefix("/").Subrouter()
+	api.Router(apiRouter)
+	webRouter := m.PathPrefix("/web").Subrouter()
+	web.Router(webRouter)
+	n := negroni.New()
+	n.Use(negroni.NewRecovery())
+	n.Use(negroni.NewLogger())
+	n.UseHandler(m)
+	return n
+}
+
 func runServer() {
-	http.Handle("/", api.Router())
-	http.Handle("/web", web.Router())
+	http.Handle("/", router())
 	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%s", port()), nil))
 }
 

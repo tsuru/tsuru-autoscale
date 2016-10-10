@@ -5,9 +5,6 @@
 package api
 
 import (
-	"net/http"
-
-	"github.com/codegangsta/negroni"
 	"github.com/gorilla/mux"
 	"github.com/tsuru/tsuru-autoscale/log"
 )
@@ -17,8 +14,7 @@ func logger() *log.Logger {
 }
 
 // Router return a http.Handler with all api routes
-func Router() http.Handler {
-	m := mux.NewRouter()
+func Router(m *mux.Router) {
 	m.HandleFunc("/healthcheck", healthcheck).Methods("GET")
 	m.HandleFunc("/datasource", newDataSource).Methods("POST")
 	m.HandleFunc("/datasource", allDataSources).Methods("GET")
@@ -48,9 +44,4 @@ func Router() http.Handler {
 	m.HandleFunc("/wizard/{name}", wizardByName).Methods("GET")
 	m.HandleFunc("/wizard/{name}", removeWizard).Methods("DELETE")
 	m.HandleFunc("/wizard", newAutoScale).Methods("POST")
-	n := negroni.New()
-	n.Use(negroni.NewRecovery())
-	n.Use(negroni.NewLogger())
-	n.UseHandler(m)
-	return n
 }

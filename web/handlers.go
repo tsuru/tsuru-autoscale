@@ -10,11 +10,11 @@ import (
 )
 
 func wizardHandler(w http.ResponseWriter, r *http.Request) {
-	t, _ := template.ParseFiles("templates/wizard.html")
+	t, _ := template.ParseFiles("web/templates/wizard.html")
 	t.Execute(w, nil)
 }
 
 func indexHandler(w http.ResponseWriter, r *http.Request) {
-	t, _ := template.ParseFiles("templates/index.html")
+	t, _ := template.ParseFiles("web/templates/index.html")
 	t.Execute(w, nil)
 }
