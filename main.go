@@ -1,4 +1,4 @@
-// Copyright 2015 tsuru-autoscale authors. All rights reserved.
+// Copyright 2016 tsuru-autoscale authors. All rights reserved.
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
@@ -12,6 +12,7 @@ import (
 
 	"github.com/tsuru/tsuru-autoscale/alarm"
 	"github.com/tsuru/tsuru-autoscale/api"
+	"github.com/tsuru/tsuru-autoscale/web"
 )
 
 func port() string {
@@ -24,6 +25,7 @@ func port() string {
 
 func runServer() {
 	http.Handle("/", api.Router())
+	http.Handle("/web", web.Router())
 	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%s", port()), nil))
 }
 
