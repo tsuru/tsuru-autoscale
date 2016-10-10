@@ -4,8 +4,11 @@
   </head>
   <body>
     <h1>wizard</h1>
-    <ul>
-      <li></li>
-    </ul>
+    {{range $item := .}}
+      <div>
+        <h2>{{$item.Name}}</h2>
+        <p>scale up: {{$item.ScaleUp}} - scale down: {{$item.ScaleDown}}</p>
+      </div>
+    {{end}}
   </body>
 </html>
