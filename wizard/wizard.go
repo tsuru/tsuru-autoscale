@@ -107,21 +107,34 @@ func newScaleAction(scaleConfig *AutoScale, kind string) error {
 	return alarm.NewAlarm(&a)
 }
 
-// FindByName finds auto scale by name
-func FindByName(name string) (*AutoScale, error) {
+// FindByfinds auto scale by a query "q"
+func FindBy(q bson.M) ([]AutoScale, error) {
 	conn, err := db.Conn()
 	if err != nil {
 		logger().Error(err)
 		return nil, err
 	}
 	defer conn.Close()
-	var autoScale AutoScale
-	err = conn.Wizard().Find(bson.M{"name": name}).One(&autoScale)
+	var a []AutoScale
+	err = conn.Wizard().Find(q).All(&a)
 	if err != nil {
 		logger().Error(err)
 		return nil, err
 	}
-	return &autoScale, nil
+	return a, nil
+}
+
+// FindByName finds auto scale by name
+func FindByName(name string) (*AutoScale, error) {
+	l, err := FindBy(bson.M{"name": name})
+	if err != nil {
+		logger().Error(err)
+		return nil, err
+	}
+	if len(l) > 0 {
+		return &l[0], nil
+	}
+	return nil, fmt.Errorf("wizard %q not found", name)
 }
 
 func (a *AutoScale) alarms() []string {

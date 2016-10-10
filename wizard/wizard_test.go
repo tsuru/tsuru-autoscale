@@ -388,3 +388,17 @@ func (s *S) TestEnabled(c *check.C) {
 	c.Assert(err, check.IsNil)
 	c.Assert(a.Enabled(), check.Equals, true)
 }
+
+func (s *S) TestFindBy(c *check.C) {
+	a := AutoScale{
+		Name: "xpto123",
+	}
+	s.conn.Wizard().Insert(&a)
+	a = AutoScale{
+		Name: "xpto1234",
+	}
+	s.conn.Wizard().Insert(&a)
+	na, err := FindBy(nil)
+	c.Assert(err, check.IsNil)
+	c.Assert(len(na), check.Equals, 2)
+}
