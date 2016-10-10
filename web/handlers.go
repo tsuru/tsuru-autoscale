@@ -9,6 +9,7 @@ import (
 	"net/http"
 
 	"github.com/gorilla/mux"
+	"github.com/tsuru/tsuru-autoscale/action"
 	"github.com/tsuru/tsuru-autoscale/datasource"
 	"github.com/tsuru/tsuru-autoscale/wizard"
 	"gopkg.in/mgo.v2/bson"
@@ -87,6 +88,24 @@ func dataSourceDetailHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	err = t.Execute(w, ds)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+}
+
+func actionHandler(w http.ResponseWriter, r *http.Request) {
+	t, err := template.ParseFiles("web/templates/actions.html")
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	a, err := action.All()
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	err = t.Execute(w, a)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
