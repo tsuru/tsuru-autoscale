@@ -11,6 +11,7 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/tsuru/tsuru-autoscale/datasource"
 	"github.com/tsuru/tsuru-autoscale/wizard"
+	"gopkg.in/mgo.v2/bson"
 )
 
 func wizardDetailHandler(w http.ResponseWriter, r *http.Request) {
@@ -64,6 +65,25 @@ func dataSourceHandler(w http.ResponseWriter, r *http.Request) {
 	ds, err := datasource.FindBy(nil)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	err = t.Execute(w, ds)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+}
+
+func dataSourceDetailHandler(w http.ResponseWriter, r *http.Request) {
+	t, err := template.ParseFiles("web/templates/datasource.html")
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	vars := mux.Vars(r)
+	ds, err := datasource.FindBy(bson.M{"name": vars["name"]})
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusNotFound)
 		return
 	}
 	err = t.Execute(w, ds)
