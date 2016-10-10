@@ -8,11 +8,31 @@ import (
 	"html/template"
 	"net/http"
 
+	"github.com/gorilla/mux"
 	"github.com/tsuru/tsuru-autoscale/wizard"
 )
 
-func wizardHandler(w http.ResponseWriter, r *http.Request) {
+func wizardDetailHandler(w http.ResponseWriter, r *http.Request) {
 	t, err := template.ParseFiles("web/templates/wizard.html")
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	vars := mux.Vars(r)
+	a, err := wizard.FindByName(vars["name"])
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusNotFound)
+		return
+	}
+	err = t.Execute(w, a)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+}
+
+func wizardHandler(w http.ResponseWriter, r *http.Request) {
+	t, err := template.ParseFiles("web/templates/wizards.html")
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return

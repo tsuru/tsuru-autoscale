@@ -12,4 +12,5 @@ import (
 func Router(m *mux.Router) {
 	m.HandleFunc("/", indexHandler).Methods("GET")
 	m.HandleFunc("/wizard", wizardHandler).Methods("GET")
+	m.HandleFunc("/wizard/{name}", wizardDetailHandler).Methods("GET")
 }
