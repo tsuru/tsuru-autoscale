@@ -12,6 +12,7 @@ import (
 func Router(m *mux.Router) {
 	m.HandleFunc("/", indexHandler).Methods("GET")
 	m.HandleFunc("/alarm", alarmHandler).Methods("GET")
+	m.HandleFunc("/alarm/{name}", alarmDetailHandler).Methods("GET")
 	m.HandleFunc("/action", actionHandler).Methods("GET")
 	m.HandleFunc("/action/{name}", actionDetailHandler).Methods("GET")
 	m.HandleFunc("/datasource", dataSourceHandler).Methods("GET")

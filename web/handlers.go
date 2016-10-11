@@ -149,3 +149,22 @@ func alarmHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 }
+
+func alarmDetailHandler(w http.ResponseWriter, r *http.Request) {
+	t, err := template.ParseFiles("web/templates/alarm.html")
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	vars := mux.Vars(r)
+	a, err := alarm.FindAlarmByName(vars["name"])
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusNotFound)
+		return
+	}
+	err = t.Execute(w, a)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+}
