@@ -111,3 +111,22 @@ func actionHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 }
+
+func actionDetailHandler(w http.ResponseWriter, r *http.Request) {
+	t, err := template.ParseFiles("web/templates/action.html")
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	vars := mux.Vars(r)
+	a, err := action.FindByName(vars["name"])
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusNotFound)
+		return
+	}
+	err = t.Execute(w, a)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+}
