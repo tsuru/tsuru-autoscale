@@ -5,7 +5,7 @@
     <h1>alarms</h1>
     <ul>
     {{range $item := .}}
-      <li>{{$item.Name}}</li>
+      <li><a href="/alarm/{{$item.Name}}">{{$item.Name}}</a></li>
     {{end}}
   </ul>
   </body>

@@ -6,7 +6,7 @@
     <h1>wizard</h1>
     {{range $item := .}}
       <div>
-        <h2>{{$item.Name}}</h2>
+        <h2><a href="/wizard/{{$item.Name}}">{{$item.Name}}</a></h2>
         <p>scale up: {{$item.ScaleUp}} - scale down: {{$item.ScaleDown}}</p>
       </div>
     {{end}}
