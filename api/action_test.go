@@ -11,9 +11,16 @@ import (
 	"net/http/httptest"
 	"strings"
 
+	"github.com/gorilla/mux"
 	"github.com/tsuru/tsuru-autoscale/action"
 	"gopkg.in/check.v1"
 )
+
+func server(w http.ResponseWriter, r *http.Request) {
+	m := mux.NewRouter()
+	Router(m)
+	m.ServeHTTP(w, r)
+}
 
 func (s *S) TestNewAction(c *check.C) {
 	body := `{"name":"new","url":"http://tsuru.io","method":"GET"}`
@@ -21,8 +28,7 @@ func (s *S) TestNewAction(c *check.C) {
 	request, err := http.NewRequest("POST", "/action", strings.NewReader(body))
 	request.Header.Add("Authorization", "token")
 	c.Assert(err, check.IsNil)
-	r := Router()
-	r.ServeHTTP(recorder, request)
+	server(recorder, request)
 	c.Assert(recorder.Code, check.Equals, http.StatusCreated)
 }
 
@@ -33,8 +39,7 @@ func (s *S) TestAllActions(c *check.C) {
 	request, err := http.NewRequest("GET", "/action", nil)
 	request.Header.Add("Authorization", "token")
 	c.Assert(err, check.IsNil)
-	r := Router()
-	r.ServeHTTP(recorder, request)
+	server(recorder, request)
 	c.Assert(recorder.Code, check.Equals, http.StatusOK)
 	c.Assert(recorder.HeaderMap["Content-Type"], check.DeepEquals, []string{"application/json"})
 	body := recorder.Body.Bytes()
@@ -49,8 +54,7 @@ func (s *S) TestRemoveActionNotFound(c *check.C) {
 	request, err := http.NewRequest("DELETE", "/action", nil)
 	request.Header.Add("Authorization", "token")
 	c.Assert(err, check.IsNil)
-	r := Router()
-	r.ServeHTTP(recorder, request)
+	server(recorder, request)
 	c.Assert(recorder.Code, check.Equals, http.StatusNotFound)
 }
 
@@ -62,8 +66,7 @@ func (s *S) TestRemoveAction(c *check.C) {
 	request, err := http.NewRequest("DELETE", fmt.Sprintf("/action/%s", a.Name), nil)
 	request.Header.Add("Authorization", "token")
 	c.Assert(err, check.IsNil)
-	r := Router()
-	r.ServeHTTP(recorder, request)
+	server(recorder, request)
 	c.Assert(recorder.Code, check.Equals, http.StatusOK)
 	_, err = action.FindByName(a.Name)
 	c.Assert(err, check.NotNil)
@@ -77,8 +80,7 @@ func (s *S) TestActionInfo(c *check.C) {
 	request, err := http.NewRequest("GET", fmt.Sprintf("/action/%s", a.Name), nil)
 	request.Header.Add("Authorization", "token")
 	c.Assert(err, check.IsNil)
-	r := Router()
-	r.ServeHTTP(recorder, request)
+	server(recorder, request)
 	c.Assert(recorder.Code, check.Equals, http.StatusOK)
 	c.Assert(recorder.HeaderMap["Content-Type"], check.DeepEquals, []string{"application/json"})
 	body := recorder.Body.Bytes()

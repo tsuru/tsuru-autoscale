@@ -55,6 +55,7 @@ func removeWizard(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		logger().Error(err)
 		http.Error(w, err.Error(), http.StatusNotFound)
+		return
 	}
 	err = wizard.Remove(autoScale)
 	if err != nil {

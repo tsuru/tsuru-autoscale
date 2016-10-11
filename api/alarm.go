@@ -70,6 +70,7 @@ func removeAlarm(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		logger().Error(err)
 		http.Error(w, err.Error(), http.StatusNotFound)
+		return
 	}
 	err = alarm.RemoveAlarm(a)
 	if err != nil {

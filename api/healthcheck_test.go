@@ -15,8 +15,7 @@ func (s *S) TestHealthcheck(c *check.C) {
 	recorder := httptest.NewRecorder()
 	request, err := http.NewRequest("GET", "/healthcheck", nil)
 	c.Assert(err, check.IsNil)
-	r := Router()
-	r.ServeHTTP(recorder, request)
+	server(recorder, request)
 	c.Assert(recorder.Code, check.Equals, http.StatusOK)
 	c.Assert(recorder.Body.String(), check.Equals, "WORKING")
 }
