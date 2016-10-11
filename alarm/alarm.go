@@ -304,21 +304,36 @@ func ListAlarmsByInstance(instanceName string) ([]Alarm, error) {
 	return alarms, nil
 }
 
+// FindAlarmBy finds alarm by query "q".
+func FindAlarmBy(q bson.M) ([]Alarm, error) {
+	conn, err := db.Conn()
+	if err != nil {
+		return nil, err
+	}
+	defer conn.Close()
+	var alarms []Alarm
+	err = conn.Alarms().Find(q).All(&alarms)
+	if err != nil {
+		return nil, err
+	}
+	return alarms, nil
+}
+
 // FindAlarmByName find alarm by name.
 func FindAlarmByName(name string) (*Alarm, error) {
 	conn, err := db.Conn()
 	if err != nil {
-		logger().Error(err)
 		return nil, err
 	}
 	defer conn.Close()
-	var alarm Alarm
-	err = conn.Alarms().Find(bson.M{"name": name}).One(&alarm)
+	alarms, err := FindAlarmBy(bson.M{"name": name})
 	if err != nil {
-		logger().Error(err)
 		return nil, err
 	}
-	return &alarm, nil
+	if len(alarms) > 0 {
+		return &alarms[0], nil
+	}
+	return nil, fmt.Errorf("Alarm %q not found", name)
 }
 
 // RemoveAlarm removes an alarm.

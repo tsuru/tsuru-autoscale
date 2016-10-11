@@ -10,6 +10,7 @@ import (
 
 	"github.com/gorilla/mux"
 	"github.com/tsuru/tsuru-autoscale/action"
+	"github.com/tsuru/tsuru-autoscale/alarm"
 	"github.com/tsuru/tsuru-autoscale/datasource"
 	"github.com/tsuru/tsuru-autoscale/wizard"
 	"gopkg.in/mgo.v2/bson"
@@ -122,6 +123,24 @@ func actionDetailHandler(w http.ResponseWriter, r *http.Request) {
 	a, err := action.FindByName(vars["name"])
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusNotFound)
+		return
+	}
+	err = t.Execute(w, a)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+}
+
+func alarmHandler(w http.ResponseWriter, r *http.Request) {
+	t, err := template.ParseFiles("web/templates/alarms.html")
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	a, err := alarm.FindAlarmBy(nil)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 	err = t.Execute(w, a)
