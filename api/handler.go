@@ -8,14 +8,19 @@ import (
 	"net/http"
 )
 
-type authorizationRequiredHandler func(http.ResponseWriter, *http.Request)
+type authorizationRequiredHandler func(http.ResponseWriter, *http.Request) error
 
 func (fn authorizationRequiredHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	token := r.Header.Get("Authorization")
 	if token == "" {
-		err := "Authorization header is required."
-		logger().Print(err)
-		http.Error(w, err, http.StatusUnauthorized)
+		msg := "Authorization header is required."
+		logger().Print(msg)
+		http.Error(w, msg, http.StatusUnauthorized)
+		return
 	}
-	fn(w, r)
+	err := fn(w, r)
+	if err != nil {
+		logger().Error(err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
 }

@@ -5,12 +5,29 @@
 package api
 
 import (
+	"net/http"
+	"strings"
+
 	"github.com/gorilla/mux"
 	"github.com/tsuru/tsuru-autoscale/log"
 )
 
 func logger() *log.Logger {
 	return log.Log()
+}
+
+type handler func(http.ResponseWriter, *http.Request) error
+
+func (fn handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	err := fn(w, r)
+	if err != nil {
+		logger().Error(err)
+		if strings.Contains(err.Error(), "not found") {
+			http.Error(w, err.Error(), http.StatusNotFound)
+		} else {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+		}
+	}
 }
 
 // Router return a http.Handler with all api routes
@@ -24,14 +41,14 @@ func Router(m *mux.Router) {
 	m.HandleFunc("/action", newAction).Methods("POST")
 	m.HandleFunc("/action/{name}", removeAction).Methods("DELETE")
 	m.HandleFunc("/action/{name}", actionInfo).Methods("GET")
-	m.HandleFunc("/alarm", newAlarm).Methods("POST")
-	m.HandleFunc("/alarm/instance/{instance}", listAlarmsByInstance).Methods("GET")
-	m.HandleFunc("/alarm", authorizationRequiredHandler(listAlarms)).Methods("GET")
-	m.HandleFunc("/alarm/{name}/enable", enableAlarm).Methods("PUT")
-	m.HandleFunc("/alarm/{name}/disable", disableAlarm).Methods("PUT")
-	m.HandleFunc("/alarm/{name}", removeAlarm).Methods("DELETE")
-	m.HandleFunc("/alarm/{name}", getAlarm).Methods("GET")
-	m.HandleFunc("/alarm/{name}/event", listEvents).Methods("GET")
+	m.Handle("/alarm", handler(newAlarm)).Methods("POST")
+	m.Handle("/alarm/instance/{instance}", handler(listAlarmsByInstance)).Methods("GET")
+	m.Handle("/alarm", authorizationRequiredHandler(listAlarms)).Methods("GET")
+	m.Handle("/alarm/{name}/enable", handler(enableAlarm)).Methods("PUT")
+	m.Handle("/alarm/{name}/disable", handler(disableAlarm)).Methods("PUT")
+	m.Handle("/alarm/{name}", handler(removeAlarm)).Methods("DELETE")
+	m.Handle("/alarm/{name}", handler(getAlarm)).Methods("GET")
+	m.Handle("/alarm/{name}/event", handler(listEvents)).Methods("GET")
 	m.HandleFunc("/resources", serviceAdd)
 	m.HandleFunc("/resources/{name}/bind", serviceBindUnit).Methods("POST")
 	m.HandleFunc("/resources/{name}/bind-app", serviceBindApp).Methods("POST")
@@ -39,7 +56,7 @@ func Router(m *mux.Router) {
 	m.HandleFunc("/resources/{name}/bind", serviceUnbindUnit).Methods("DELETE")
 	m.HandleFunc("/resources/{name}", serviceRemove).Methods("DELETE")
 	m.HandleFunc("/service/instance/{name}", serviceInstanceByName).Methods("GET")
-	m.HandleFunc("/service/instance", authorizationRequiredHandler(serviceInstances)).Methods("GET")
+	m.Handle("/service/instance", authorizationRequiredHandler(serviceInstances)).Methods("GET")
 	m.HandleFunc("/wizard/{name}/events", eventsByWizardName).Methods("GET")
 	m.HandleFunc("/wizard/{name}", wizardByName).Methods("GET")
 	m.HandleFunc("/wizard/{name}", removeWizard).Methods("DELETE")

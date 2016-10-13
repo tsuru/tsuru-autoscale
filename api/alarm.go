@@ -13,131 +13,92 @@ import (
 	"github.com/tsuru/tsuru-autoscale/alarm"
 )
 
-func newAlarm(w http.ResponseWriter, r *http.Request) {
+func newAlarm(w http.ResponseWriter, r *http.Request) error {
 	defer r.Body.Close()
 	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {
-		logger().Error(err)
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		return err
 	}
 	var a alarm.Alarm
 	err = json.Unmarshal(body, &a)
 	if err != nil {
-		logger().Error(err)
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		return err
 	}
 	err = alarm.NewAlarm(&a)
 	if err != nil {
-		logger().Error(err)
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		return err
 	}
 	w.WriteHeader(http.StatusCreated)
+	return nil
 }
 
-func listAlarms(w http.ResponseWriter, r *http.Request) {
+func listAlarms(w http.ResponseWriter, r *http.Request) error {
 	token := r.Header.Get("Authorization")
 	alarms, err := alarm.ListAlarmsByToken(token)
 	if err != nil {
-		logger().Error(err)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return err
 	}
 	w.Header().Set("Content-Type", "application/json")
-	err = json.NewEncoder(w).Encode(alarms)
-	if err != nil {
-		logger().Error(err)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-	}
+	return json.NewEncoder(w).Encode(alarms)
 }
 
-func listAlarmsByInstance(w http.ResponseWriter, r *http.Request) {
+func listAlarmsByInstance(w http.ResponseWriter, r *http.Request) error {
 	vars := mux.Vars(r)
 	alarms, err := alarm.ListAlarmsByInstance(vars["instance"])
 	if err != nil {
-		logger().Error(err)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return err
 	}
 	w.Header().Set("Content-Type", "application/json")
-	err = json.NewEncoder(w).Encode(alarms)
-	if err != nil {
-		logger().Error(err)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-	}
+	return json.NewEncoder(w).Encode(alarms)
 }
 
-func removeAlarm(w http.ResponseWriter, r *http.Request) {
+func removeAlarm(w http.ResponseWriter, r *http.Request) error {
 	vars := mux.Vars(r)
 	a, err := alarm.FindAlarmByName(vars["name"])
 	if err != nil {
-		logger().Error(err)
-		http.Error(w, err.Error(), http.StatusNotFound)
-		return
+		return err
 	}
-	err = alarm.RemoveAlarm(a)
-	if err != nil {
-		logger().Error(err)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-	}
+	return alarm.RemoveAlarm(a)
 }
 
-func enableAlarm(w http.ResponseWriter, r *http.Request) {
+func enableAlarm(w http.ResponseWriter, r *http.Request) error {
 	vars := mux.Vars(r)
 	a, err := alarm.FindAlarmByName(vars["name"])
 	if err != nil {
-		logger().Error(err)
-		http.Error(w, err.Error(), http.StatusNotFound)
+		return err
 	}
-	err = alarm.Enable(a)
-	if err != nil {
-		logger().Error(err)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-	}
+	return alarm.Enable(a)
 }
 
-func disableAlarm(w http.ResponseWriter, r *http.Request) {
+func disableAlarm(w http.ResponseWriter, r *http.Request) error {
 	vars := mux.Vars(r)
 	a, err := alarm.FindAlarmByName(vars["name"])
 	if err != nil {
-		logger().Error(err)
-		http.Error(w, err.Error(), http.StatusNotFound)
+		return err
 	}
-	err = alarm.Disable(a)
-	if err != nil {
-		logger().Error(err)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-	}
+	return alarm.Disable(a)
 }
 
-func getAlarm(w http.ResponseWriter, r *http.Request) {
+func getAlarm(w http.ResponseWriter, r *http.Request) error {
 	vars := mux.Vars(r)
 	a, err := alarm.FindAlarmByName(vars["name"])
 	if err != nil {
-		logger().Error(err)
-		http.Error(w, err.Error(), http.StatusNotFound)
+		return err
 	}
 	w.Header().Set("Content-Type", "application/json")
-	err = json.NewEncoder(w).Encode(a)
-	if err != nil {
-		logger().Error(err)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-	}
+	return json.NewEncoder(w).Encode(a)
 }
 
-func listEvents(w http.ResponseWriter, r *http.Request) {
+func listEvents(w http.ResponseWriter, r *http.Request) error {
 	vars := mux.Vars(r)
 	a, err := alarm.FindAlarmByName(vars["name"])
 	if err != nil {
-		logger().Error(err)
-		http.Error(w, err.Error(), http.StatusNotFound)
+		return err
 	}
 	events, err := alarm.EventsByAlarmName(a.Name)
 	if err != nil {
-		logger().Error(err)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return err
 	}
 	w.Header().Set("Content-Type", "application/json")
-	err = json.NewEncoder(w).Encode(events)
-	if err != nil {
-		logger().Error(err)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-	}
+	return json.NewEncoder(w).Encode(events)
 }

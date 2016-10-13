@@ -96,19 +96,14 @@ func serviceRemove(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func serviceInstances(w http.ResponseWriter, r *http.Request) {
+func serviceInstances(w http.ResponseWriter, r *http.Request) error {
 	token := r.Header.Get("Authorization")
 	instances, err := tsuru.FindServiceInstance(token)
 	if err != nil {
-		logger().Error(err)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return err
 	}
 	w.Header().Set("Content-Type", "application/json")
-	err = json.NewEncoder(w).Encode(&instances)
-	if err != nil {
-		logger().Error(err)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-	}
+	return json.NewEncoder(w).Encode(&instances)
 }
 
 func serviceInstanceByName(w http.ResponseWriter, r *http.Request) {
