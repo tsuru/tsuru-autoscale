@@ -15,28 +15,26 @@ import (
 	"gopkg.in/mgo.v2/bson"
 )
 
-func newDataSource(w http.ResponseWriter, r *http.Request) {
+func newDataSource(w http.ResponseWriter, r *http.Request) error {
 	defer r.Body.Close()
 	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {
-		logger().Error(err)
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		return err
 	}
 	var ds datasource.DataSource
 	err = json.Unmarshal(body, &ds)
 	if err != nil {
-		logger().Error(err)
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		return err
 	}
 	err = datasource.New(&ds)
 	if err != nil {
-		logger().Error(err)
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		return err
 	}
 	w.WriteHeader(http.StatusCreated)
+	return nil
 }
 
-func allDataSources(w http.ResponseWriter, r *http.Request) {
+func allDataSources(w http.ResponseWriter, r *http.Request) error {
 	var q bson.M
 	public, err := strconv.ParseBool(r.URL.Query().Get("public"))
 	if err == nil {
@@ -44,42 +42,27 @@ func allDataSources(w http.ResponseWriter, r *http.Request) {
 	}
 	ds, err := datasource.FindBy(q)
 	if err != nil {
-		logger().Error(err)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return err
 	}
 	w.Header().Set("Content-Type", "application/json")
-	err = json.NewEncoder(w).Encode(ds)
-	if err != nil {
-		logger().Error(err)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-	}
+	return json.NewEncoder(w).Encode(ds)
 }
 
-func removeDataSource(w http.ResponseWriter, r *http.Request) {
+func removeDataSource(w http.ResponseWriter, r *http.Request) error {
 	vars := mux.Vars(r)
 	ds, err := datasource.Get(vars["name"])
 	if err != nil {
-		logger().Error(err)
-		http.Error(w, err.Error(), http.StatusNotFound)
+		return err
 	}
-	err = datasource.Remove(ds)
-	if err != nil {
-		logger().Error(err)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-	}
+	return datasource.Remove(ds)
 }
 
-func getDataSource(w http.ResponseWriter, r *http.Request) {
+func getDataSource(w http.ResponseWriter, r *http.Request) error {
 	vars := mux.Vars(r)
 	ds, err := datasource.Get(vars["name"])
 	if err != nil {
-		logger().Error(err)
-		http.Error(w, err.Error(), http.StatusNotFound)
+		return err
 	}
 	w.Header().Set("Content-Type", "application/json")
-	err = json.NewEncoder(w).Encode(ds)
-	if err != nil {
-		logger().Error(err)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-	}
+	return json.NewEncoder(w).Encode(ds)
 }

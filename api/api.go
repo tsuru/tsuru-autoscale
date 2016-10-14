@@ -33,10 +33,10 @@ func (fn handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 // Router return a http.Handler with all api routes
 func Router(m *mux.Router) {
 	m.HandleFunc("/healthcheck", healthcheck).Methods("GET")
-	m.HandleFunc("/datasource", newDataSource).Methods("POST")
-	m.HandleFunc("/datasource", allDataSources).Methods("GET")
-	m.HandleFunc("/datasource/{name}", removeDataSource).Methods("DELETE")
-	m.HandleFunc("/datasource/{name}", getDataSource).Methods("GET")
+	m.Handle("/datasource", handler(newDataSource)).Methods("POST")
+	m.Handle("/datasource", handler(allDataSources)).Methods("GET")
+	m.Handle("/datasource/{name}", handler(removeDataSource)).Methods("DELETE")
+	m.Handle("/datasource/{name}", handler(getDataSource)).Methods("GET")
 	m.Handle("/action", handler(allActions)).Methods("GET")
 	m.Handle("/action", handler(newAction)).Methods("POST")
 	m.Handle("/action/{name}", handler(removeAction)).Methods("DELETE")
