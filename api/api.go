@@ -57,8 +57,8 @@ func Router(m *mux.Router) {
 	m.Handle("/resources/{name}", handler(serviceRemove)).Methods("DELETE")
 	m.Handle("/service/instance/{name}", handler(serviceInstanceByName)).Methods("GET")
 	m.Handle("/service/instance", authorizationRequiredHandler(serviceInstances)).Methods("GET")
-	m.HandleFunc("/wizard/{name}/events", eventsByWizardName).Methods("GET")
-	m.HandleFunc("/wizard/{name}", wizardByName).Methods("GET")
-	m.HandleFunc("/wizard/{name}", removeWizard).Methods("DELETE")
-	m.HandleFunc("/wizard", newAutoScale).Methods("POST")
+	m.Handle("/wizard/{name}/events", handler(eventsByWizardName)).Methods("GET")
+	m.Handle("/wizard/{name}", handler(wizardByName)).Methods("GET")
+	m.Handle("/wizard/{name}", handler(removeWizard)).Methods("DELETE")
+	m.Handle("/wizard", handler(newAutoScale)).Methods("POST")
 }

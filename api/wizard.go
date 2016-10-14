@@ -13,73 +13,54 @@ import (
 	"github.com/tsuru/tsuru-autoscale/wizard"
 )
 
-func newAutoScale(w http.ResponseWriter, r *http.Request) {
+func newAutoScale(w http.ResponseWriter, r *http.Request) error {
 	defer r.Body.Close()
 	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {
-		logger().Error(err)
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		return err
 	}
 	var a wizard.AutoScale
 	err = json.Unmarshal(body, &a)
 	if err != nil {
-		logger().Error(err)
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		return err
 	}
 	err = wizard.New(&a)
 	if err != nil {
-		logger().Error(err)
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		return err
 	}
 	w.WriteHeader(http.StatusCreated)
+	return nil
 }
 
-func wizardByName(w http.ResponseWriter, r *http.Request) {
+func wizardByName(w http.ResponseWriter, r *http.Request) error {
 	vars := mux.Vars(r)
 	autoScale, err := wizard.FindByName(vars["name"])
 	if err != nil {
-		logger().Error(err)
-		http.Error(w, err.Error(), http.StatusNotFound)
+		return err
 	}
 	w.Header().Set("Content-Type", "application/json")
-	err = json.NewEncoder(w).Encode(&autoScale)
-	if err != nil {
-		logger().Error(err)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-	}
+	return json.NewEncoder(w).Encode(&autoScale)
 }
 
-func removeWizard(w http.ResponseWriter, r *http.Request) {
+func removeWizard(w http.ResponseWriter, r *http.Request) error {
 	vars := mux.Vars(r)
 	autoScale, err := wizard.FindByName(vars["name"])
 	if err != nil {
-		logger().Error(err)
-		http.Error(w, err.Error(), http.StatusNotFound)
-		return
+		return err
 	}
-	err = wizard.Remove(autoScale)
-	if err != nil {
-		logger().Error(err)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-	}
+	return wizard.Remove(autoScale)
 }
 
-func eventsByWizardName(w http.ResponseWriter, r *http.Request) {
+func eventsByWizardName(w http.ResponseWriter, r *http.Request) error {
 	vars := mux.Vars(r)
 	autoScale, err := wizard.FindByName(vars["name"])
 	if err != nil {
-		logger().Error(err)
-		http.Error(w, err.Error(), http.StatusNotFound)
+		return err
 	}
 	w.Header().Set("Content-Type", "application/json")
 	events, err := autoScale.Events()
 	if err != nil {
-		logger().Error(err)
-		http.Error(w, err.Error(), http.StatusNotFound)
+		return err
 	}
-	err = json.NewEncoder(w).Encode(&events)
-	if err != nil {
-		logger().Error(err)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-	}
+	return json.NewEncoder(w).Encode(&events)
 }
