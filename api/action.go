@@ -13,66 +13,49 @@ import (
 	"github.com/tsuru/tsuru-autoscale/action"
 )
 
-func newAction(w http.ResponseWriter, r *http.Request) {
+func newAction(w http.ResponseWriter, r *http.Request) error {
 	defer r.Body.Close()
 	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {
-		logger().Error(err)
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		return err
 	}
 	var a action.Action
 	err = json.Unmarshal(body, &a)
 	if err != nil {
-		logger().Error(err)
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		return err
 	}
 	err = action.New(&a)
 	if err != nil {
-		logger().Error(err)
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		return err
 	}
 	w.WriteHeader(http.StatusCreated)
+	return nil
 }
 
-func allActions(w http.ResponseWriter, r *http.Request) {
+func allActions(w http.ResponseWriter, r *http.Request) error {
 	actions, err := action.All()
 	if err != nil {
-		logger().Error(err)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return err
 	}
 	w.Header().Set("Content-Type", "application/json")
-	err = json.NewEncoder(w).Encode(actions)
-	if err != nil {
-		logger().Error(err)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-	}
+	return json.NewEncoder(w).Encode(actions)
 }
 
-func removeAction(w http.ResponseWriter, r *http.Request) {
+func removeAction(w http.ResponseWriter, r *http.Request) error {
 	vars := mux.Vars(r)
 	a, err := action.FindByName(vars["name"])
 	if err != nil {
-		logger().Error(err)
-		http.Error(w, err.Error(), http.StatusNotFound)
+		return err
 	}
-	err = action.Remove(a)
-	if err != nil {
-		logger().Error(err)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-	}
+	return action.Remove(a)
 }
 
-func actionInfo(w http.ResponseWriter, r *http.Request) {
+func actionInfo(w http.ResponseWriter, r *http.Request) error {
 	vars := mux.Vars(r)
 	a, err := action.FindByName(vars["name"])
 	if err != nil {
-		logger().Error(err)
-		http.Error(w, err.Error(), http.StatusNotFound)
+		return err
 	}
 	w.Header().Set("Content-Type", "application/json")
-	err = json.NewEncoder(w).Encode(a)
-	if err != nil {
-		logger().Error(err)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-	}
+	return json.NewEncoder(w).Encode(a)
 }
