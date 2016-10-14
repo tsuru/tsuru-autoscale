@@ -14,7 +14,7 @@ import (
 	"github.com/tsuru/tsuru-autoscale/wizard"
 )
 
-func serviceAdd(w http.ResponseWriter, r *http.Request) {
+func serviceAdd(w http.ResponseWriter, r *http.Request) error {
 	i := tsuru.Instance{
 		Name: r.FormValue("name"),
 		Team: r.FormValue("team"),
@@ -22,78 +22,62 @@ func serviceAdd(w http.ResponseWriter, r *http.Request) {
 	}
 	err := tsuru.NewInstance(&i)
 	if err != nil {
-		logger().Error(err)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
+		return err
 	}
 	w.WriteHeader(http.StatusCreated)
+	return nil
 }
 
 func serviceBindUnit(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusCreated)
 }
 
-func serviceBindApp(w http.ResponseWriter, r *http.Request) {
+func serviceBindApp(w http.ResponseWriter, r *http.Request) error {
 	vars := mux.Vars(r)
 	i, err := tsuru.GetInstanceByName(vars["name"])
 	if err != nil {
-		logger().Error(err)
-		http.Error(w, err.Error(), http.StatusNotFound)
-		return
+		return err
 	}
 	err = i.AddApp(r.FormValue("app-host"))
 	if err != nil {
-		logger().Error(err)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
+		return err
 	}
 	w.WriteHeader(http.StatusCreated)
 	fmt.Fprint(w, "{}")
+	return nil
 }
 
 func serviceUnbindUnit(w http.ResponseWriter, r *http.Request) {
 }
 
-func serviceUnbindApp(w http.ResponseWriter, r *http.Request) {
+func serviceUnbindApp(w http.ResponseWriter, r *http.Request) error {
 	vars := mux.Vars(r)
 	i, err := tsuru.GetInstanceByName(vars["name"])
 	if err != nil {
-		logger().Error(err)
-		http.Error(w, err.Error(), http.StatusNotFound)
-		return
+		return err
 	}
 	r.Method = "POST"
 	err = i.RemoveApp(r.FormValue("app-host"))
 	if err != nil {
-		logger().Error(err)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
+		return err
 	}
 	autoScale, err := wizard.FindByName(vars["name"])
 	if err == nil {
 		rerr := wizard.Remove(autoScale)
 		if rerr != nil {
-			logger().Error(err)
-			http.Error(w, rerr.Error(), http.StatusInternalServerError)
-			return
+			return rerr
 		}
 	}
+	return nil
 }
 
-func serviceRemove(w http.ResponseWriter, r *http.Request) {
+func serviceRemove(w http.ResponseWriter, r *http.Request) error {
 	vars := mux.Vars(r)
 	i, err := tsuru.GetInstanceByName(vars["name"])
 	if err != nil {
-		logger().Error(err)
-		http.Error(w, err.Error(), http.StatusNotFound)
-		return
+		return nil
 	}
-	err = tsuru.RemoveInstance(i)
-	if err != nil {
-		logger().Error(err)
-		http.Error(w, err.Error(), http.StatusNotFound)
-		return
-	}
+	return tsuru.RemoveInstance(i)
 }
 
 func serviceInstances(w http.ResponseWriter, r *http.Request) error {
@@ -106,17 +90,12 @@ func serviceInstances(w http.ResponseWriter, r *http.Request) error {
 	return json.NewEncoder(w).Encode(&instances)
 }
 
-func serviceInstanceByName(w http.ResponseWriter, r *http.Request) {
+func serviceInstanceByName(w http.ResponseWriter, r *http.Request) error {
 	vars := mux.Vars(r)
 	instance, err := tsuru.GetInstanceByName(vars["name"])
 	if err != nil {
-		logger().Error(err)
-		http.Error(w, err.Error(), http.StatusNotFound)
+		return err
 	}
 	w.Header().Set("Content-Type", "application/json")
-	err = json.NewEncoder(w).Encode(&instance)
-	if err != nil {
-		logger().Error(err)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-	}
+	return json.NewEncoder(w).Encode(&instance)
 }
