@@ -16,41 +16,29 @@ import (
 	"gopkg.in/mgo.v2/bson"
 )
 
-func wizardDetailHandler(w http.ResponseWriter, r *http.Request) {
+func wizardDetailHandler(w http.ResponseWriter, r *http.Request) error {
 	t, err := template.ParseFiles("web/templates/wizard.html")
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
+		return err
 	}
 	vars := mux.Vars(r)
 	a, err := wizard.FindByName(vars["name"])
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusNotFound)
-		return
+		return err
 	}
-	err = t.Execute(w, a)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
+	return t.Execute(w, a)
 }
 
-func wizardHandler(w http.ResponseWriter, r *http.Request) {
+func wizardHandler(w http.ResponseWriter, r *http.Request) error {
 	t, err := template.ParseFiles("web/templates/wizards.html")
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
+		return err
 	}
 	wizards, err := wizard.FindBy(nil)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
+		return err
 	}
-	err = t.Execute(w, wizards)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
+	return t.Execute(w, wizards)
 }
 
 func indexHandler(w http.ResponseWriter, r *http.Request) {
@@ -58,113 +46,77 @@ func indexHandler(w http.ResponseWriter, r *http.Request) {
 	t.Execute(w, nil)
 }
 
-func dataSourceHandler(w http.ResponseWriter, r *http.Request) {
+func dataSourceHandler(w http.ResponseWriter, r *http.Request) error {
 	t, err := template.ParseFiles("web/templates/datasources.html")
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
+		return err
 	}
 	ds, err := datasource.FindBy(nil)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
+		return err
 	}
-	err = t.Execute(w, ds)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
+	return t.Execute(w, ds)
 }
 
-func dataSourceDetailHandler(w http.ResponseWriter, r *http.Request) {
+func dataSourceDetailHandler(w http.ResponseWriter, r *http.Request) error {
 	t, err := template.ParseFiles("web/templates/datasource.html")
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
+		return err
 	}
 	vars := mux.Vars(r)
 	ds, err := datasource.FindBy(bson.M{"name": vars["name"]})
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusNotFound)
-		return
+		return err
 	}
-	err = t.Execute(w, ds)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
+	return t.Execute(w, ds)
 }
 
-func actionHandler(w http.ResponseWriter, r *http.Request) {
+func actionHandler(w http.ResponseWriter, r *http.Request) error {
 	t, err := template.ParseFiles("web/templates/actions.html")
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
+		return err
 	}
 	a, err := action.All()
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
+		return err
 	}
-	err = t.Execute(w, a)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
+	return t.Execute(w, a)
 }
 
-func actionDetailHandler(w http.ResponseWriter, r *http.Request) {
+func actionDetailHandler(w http.ResponseWriter, r *http.Request) error {
 	t, err := template.ParseFiles("web/templates/action.html")
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
+		return err
 	}
 	vars := mux.Vars(r)
 	a, err := action.FindByName(vars["name"])
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusNotFound)
-		return
+		return err
 	}
-	err = t.Execute(w, a)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
+	return t.Execute(w, a)
 }
 
-func alarmHandler(w http.ResponseWriter, r *http.Request) {
+func alarmHandler(w http.ResponseWriter, r *http.Request) error {
 	t, err := template.ParseFiles("web/templates/alarms.html")
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
+		return err
 	}
 	a, err := alarm.FindAlarmBy(nil)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
+		return err
 	}
-	err = t.Execute(w, a)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
+	return t.Execute(w, a)
 }
 
-func alarmDetailHandler(w http.ResponseWriter, r *http.Request) {
+func alarmDetailHandler(w http.ResponseWriter, r *http.Request) error {
 	t, err := template.ParseFiles("web/templates/alarm.html")
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
+		return err
 	}
 	vars := mux.Vars(r)
 	a, err := alarm.FindAlarmByName(vars["name"])
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusNotFound)
-		return
+		return err
 	}
-	err = t.Execute(w, a)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
+	return t.Execute(w, a)
 }

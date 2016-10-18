@@ -5,18 +5,34 @@
 package web
 
 import (
+	"net/http"
+	"strings"
+
 	"github.com/gorilla/mux"
 )
+
+type handler func(http.ResponseWriter, *http.Request) error
+
+func (fn handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	err := fn(w, r)
+	if err != nil {
+		if strings.Contains(err.Error(), "not found") {
+			http.Error(w, err.Error(), http.StatusNotFound)
+		} else {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+		}
+	}
+}
 
 // Router return a http.Handler with all web routes
 func Router(m *mux.Router) {
 	m.HandleFunc("/", indexHandler).Methods("GET")
-	m.HandleFunc("/alarm", alarmHandler).Methods("GET")
-	m.HandleFunc("/alarm/{name}", alarmDetailHandler).Methods("GET")
-	m.HandleFunc("/action", actionHandler).Methods("GET")
-	m.HandleFunc("/action/{name}", actionDetailHandler).Methods("GET")
-	m.HandleFunc("/datasource", dataSourceHandler).Methods("GET")
-	m.HandleFunc("/datasource/{name}", dataSourceDetailHandler).Methods("GET")
-	m.HandleFunc("/wizard", wizardHandler).Methods("GET")
-	m.HandleFunc("/wizard/{name}", wizardDetailHandler).Methods("GET")
+	m.Handle("/alarm", handler(alarmHandler)).Methods("GET")
+	m.Handle("/alarm/{name}", handler(alarmDetailHandler)).Methods("GET")
+	m.Handle("/action", handler(actionHandler)).Methods("GET")
+	m.Handle("/action/{name}", handler(actionDetailHandler)).Methods("GET")
+	m.Handle("/datasource", handler(dataSourceHandler)).Methods("GET")
+	m.Handle("/datasource/{name}", handler(dataSourceDetailHandler)).Methods("GET")
+	m.Handle("/wizard", handler(wizardHandler)).Methods("GET")
+	m.Handle("/wizard/{name}", handler(wizardDetailHandler)).Methods("GET")
 }
