@@ -17,7 +17,7 @@
       </tr>
     {{range $item := .}}
       <tr>
-        <td>{{$item.Alarm.Name}}</td>
+        <td><a href="/web/alarm/{{$item.Alarm.Name}}">{{$item.Alarm.Name}}</a></td>
         <td>{{$item.StartTime}}</td>
         <td>{{$item.EndTime}}</td>
       </tr>
