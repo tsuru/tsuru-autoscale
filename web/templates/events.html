@@ -1,0 +1,27 @@
+<html>
+  <head>
+  </head>
+  <body>
+    <h1>last events</h1>
+    <table>
+      <tr>
+        <td>
+          alarm
+        </td>
+        <td>
+          start
+        </td>
+        <td>
+          end
+        </td>
+      </tr>
+    {{range $item := .}}
+      <tr>
+        <td>{{$item.Alarm.Name}}</td>
+        <td>{{$item.StartTime}}</td>
+        <td>{{$item.EndTime}}</td>
+      </tr>
+      {{end}}
+    </table>
+  </body>
+</html>
