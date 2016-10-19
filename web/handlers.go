@@ -11,35 +11,7 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/tsuru/tsuru-autoscale/action"
 	"github.com/tsuru/tsuru-autoscale/alarm"
-	"github.com/tsuru/tsuru-autoscale/datasource"
-	"github.com/tsuru/tsuru-autoscale/wizard"
-	"gopkg.in/mgo.v2/bson"
 )
-
-func wizardDetailHandler(w http.ResponseWriter, r *http.Request) error {
-	t, err := template.ParseFiles("web/templates/wizard.html")
-	if err != nil {
-		return err
-	}
-	vars := mux.Vars(r)
-	a, err := wizard.FindByName(vars["name"])
-	if err != nil {
-		return err
-	}
-	return t.Execute(w, a)
-}
-
-func wizardHandler(w http.ResponseWriter, r *http.Request) error {
-	t, err := template.ParseFiles("web/templates/wizards.html")
-	if err != nil {
-		return err
-	}
-	wizards, err := wizard.FindBy(nil)
-	if err != nil {
-		return err
-	}
-	return t.Execute(w, wizards)
-}
 
 func indexHandler(w http.ResponseWriter, r *http.Request) {
 	t, _ := template.ParseFiles("web/templates/index.html")
