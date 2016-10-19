@@ -36,7 +36,7 @@ func dataSourceDetailHandler(w http.ResponseWriter, r *http.Request) error {
 	if err != nil {
 		return err
 	}
-	return t.Execute(w, ds)
+	return t.Execute(w, ds[0])
 }
 
 func dataSourceAdd(w http.ResponseWriter, r *http.Request) error {
@@ -73,5 +73,10 @@ func dataSourceRemoveHandler(w http.ResponseWriter, r *http.Request) error {
 	if err != nil {
 		return err
 	}
-	return datasource.Remove(&ds[0])
+	err = datasource.Remove(&ds[0])
+	if err != nil {
+		return err
+	}
+	http.Redirect(w, r, "/web/datasource", 302)
+	return nil
 }
