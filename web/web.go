@@ -32,6 +32,7 @@ func Router(m *mux.Router) {
 	m.Handle("/action", handler(actionHandler)).Methods("GET")
 	m.Handle("/action/{name}", handler(actionDetailHandler)).Methods("GET")
 	m.Handle("/datasource", handler(dataSourceHandler)).Methods("GET")
+	m.Handle("/datasource/add", handler(dataSourceAdd)).Methods("GET", "POST")
 	m.Handle("/datasource/{name}", handler(dataSourceDetailHandler)).Methods("GET")
 	m.Handle("/wizard", handler(wizardHandler)).Methods("GET")
 	m.Handle("/wizard/{name}", handler(wizardDetailHandler)).Methods("GET")
