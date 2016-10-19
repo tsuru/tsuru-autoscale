@@ -66,3 +66,12 @@ func dataSourceAdd(w http.ResponseWriter, r *http.Request) error {
 	}
 	return t.Execute(w, nil)
 }
+
+func dataSourceRemoveHandler(w http.ResponseWriter, r *http.Request) error {
+	vars := mux.Vars(r)
+	ds, err := datasource.FindBy(bson.M{"name": vars["name"]})
+	if err != nil {
+		return err
+	}
+	return datasource.Remove(&ds[0])
+}
