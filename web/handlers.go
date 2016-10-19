@@ -46,31 +46,6 @@ func indexHandler(w http.ResponseWriter, r *http.Request) {
 	t.Execute(w, nil)
 }
 
-func dataSourceHandler(w http.ResponseWriter, r *http.Request) error {
-	t, err := template.ParseFiles("web/templates/datasources.html")
-	if err != nil {
-		return err
-	}
-	ds, err := datasource.FindBy(nil)
-	if err != nil {
-		return err
-	}
-	return t.Execute(w, ds)
-}
-
-func dataSourceDetailHandler(w http.ResponseWriter, r *http.Request) error {
-	t, err := template.ParseFiles("web/templates/datasource.html")
-	if err != nil {
-		return err
-	}
-	vars := mux.Vars(r)
-	ds, err := datasource.FindBy(bson.M{"name": vars["name"]})
-	if err != nil {
-		return err
-	}
-	return t.Execute(w, ds)
-}
-
 func actionHandler(w http.ResponseWriter, r *http.Request) error {
 	t, err := template.ParseFiles("web/templates/actions.html")
 	if err != nil {
