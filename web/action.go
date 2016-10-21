@@ -39,7 +39,7 @@ func actionDetailHandler(w http.ResponseWriter, r *http.Request) error {
 }
 
 func actionAdd(w http.ResponseWriter, r *http.Request) error {
-	if r.Method == "POST" {
+	if r.Method == http.MethodPost {
 		err := r.ParseForm()
 		if err != nil {
 			return err
