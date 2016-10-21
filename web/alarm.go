@@ -93,3 +93,17 @@ func alarmEnable(w http.ResponseWriter, r *http.Request) error {
 	http.Redirect(w, r, "/web/alarm", 302)
 	return nil
 }
+
+func alarmDisable(w http.ResponseWriter, r *http.Request) error {
+	vars := mux.Vars(r)
+	a, err := alarm.FindAlarmByName(vars["name"])
+	if err != nil {
+		return err
+	}
+	err = alarm.Disable(a)
+	if err != nil {
+		return err
+	}
+	http.Redirect(w, r, "/web/alarm", 302)
+	return nil
+}
