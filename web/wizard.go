@@ -13,7 +13,7 @@ import (
 )
 
 func wizardDetailHandler(w http.ResponseWriter, r *http.Request) error {
-	t, err := template.ParseFiles("web/templates/wizard.html")
+	t, err := template.ParseFiles("web/templates/wizard/detail.html")
 	if err != nil {
 		return err
 	}
@@ -26,7 +26,7 @@ func wizardDetailHandler(w http.ResponseWriter, r *http.Request) error {
 }
 
 func wizardHandler(w http.ResponseWriter, r *http.Request) error {
-	t, err := template.ParseFiles("web/templates/wizards.html")
+	t, err := template.ParseFiles("web/templates/wizard/list.html")
 	if err != nil {
 		return err
 	}

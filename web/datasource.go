@@ -15,7 +15,7 @@ import (
 )
 
 func dataSourceHandler(w http.ResponseWriter, r *http.Request) error {
-	t, err := template.ParseFiles("web/templates/datasources.html")
+	t, err := template.ParseFiles("web/templates/datasource/list.html")
 	if err != nil {
 		return err
 	}
@@ -27,7 +27,7 @@ func dataSourceHandler(w http.ResponseWriter, r *http.Request) error {
 }
 
 func dataSourceDetailHandler(w http.ResponseWriter, r *http.Request) error {
-	t, err := template.ParseFiles("web/templates/datasource.html")
+	t, err := template.ParseFiles("web/templates/datasource/detail.html")
 	if err != nil {
 		return err
 	}
@@ -60,7 +60,7 @@ func dataSourceAdd(w http.ResponseWriter, r *http.Request) error {
 		http.Redirect(w, r, "/web/datasource", 302)
 		return nil
 	}
-	t, err := template.ParseFiles("web/templates/datasource-add.html")
+	t, err := template.ParseFiles("web/templates/datasource/add.html")
 	if err != nil {
 		return err
 	}

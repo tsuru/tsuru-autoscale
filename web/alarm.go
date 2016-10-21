@@ -13,7 +13,7 @@ import (
 )
 
 func alarmHandler(w http.ResponseWriter, r *http.Request) error {
-	t, err := template.ParseFiles("web/templates/alarms.html")
+	t, err := template.ParseFiles("web/templates/alarm/list.html")
 	if err != nil {
 		return err
 	}
@@ -25,7 +25,7 @@ func alarmHandler(w http.ResponseWriter, r *http.Request) error {
 }
 
 func alarmDetailHandler(w http.ResponseWriter, r *http.Request) error {
-	t, err := template.ParseFiles("web/templates/alarm.html")
+	t, err := template.ParseFiles("web/templates/alarm/detail.html")
 	if err != nil {
 		return err
 	}

@@ -13,7 +13,7 @@ import (
 )
 
 func actionHandler(w http.ResponseWriter, r *http.Request) error {
-	t, err := template.ParseFiles("web/templates/actions.html")
+	t, err := template.ParseFiles("web/templates/action/list.html")
 	if err != nil {
 		return err
 	}
@@ -25,7 +25,7 @@ func actionHandler(w http.ResponseWriter, r *http.Request) error {
 }
 
 func actionDetailHandler(w http.ResponseWriter, r *http.Request) error {
-	t, err := template.ParseFiles("web/templates/action.html")
+	t, err := template.ParseFiles("web/templates/action/detail.html")
 	if err != nil {
 		return err
 	}

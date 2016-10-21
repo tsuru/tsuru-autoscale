@@ -12,7 +12,7 @@ import (
 )
 
 func eventHandler(w http.ResponseWriter, r *http.Request) error {
-	t, err := template.ParseFiles("web/templates/events.html")
+	t, err := template.ParseFiles("web/templates/event/list.html")
 	if err != nil {
 		return err
 	}
