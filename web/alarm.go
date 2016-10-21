@@ -5,6 +5,7 @@
 package web
 
 import (
+	"fmt"
 	"html/template"
 	"net/http"
 
@@ -90,7 +91,7 @@ func alarmEnable(w http.ResponseWriter, r *http.Request) error {
 	if err != nil {
 		return err
 	}
-	http.Redirect(w, r, "/web/alarm", 302)
+	http.Redirect(w, r, fmt.Sprintf("/web/alarm/%s", vars["name"]), 302)
 	return nil
 }
 
@@ -104,6 +105,6 @@ func alarmDisable(w http.ResponseWriter, r *http.Request) error {
 	if err != nil {
 		return err
 	}
-	http.Redirect(w, r, "/web/alarm", 302)
+	http.Redirect(w, r, fmt.Sprintf("/web/alarm/%s", vars["name"]), 302)
 	return nil
 }
