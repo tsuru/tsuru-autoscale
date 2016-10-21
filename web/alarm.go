@@ -65,3 +65,17 @@ func alarmAdd(w http.ResponseWriter, r *http.Request) error {
 	}
 	return t.Execute(w, nil)
 }
+
+func alarmRemove(w http.ResponseWriter, r *http.Request) error {
+	vars := mux.Vars(r)
+	a, err := alarm.FindAlarmByName(vars["name"])
+	if err != nil {
+		return err
+	}
+	err = alarm.RemoveAlarm(a)
+	if err != nil {
+		return err
+	}
+	http.Redirect(w, r, "/web/alarm", 302)
+	return nil
+}
