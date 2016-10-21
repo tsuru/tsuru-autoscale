@@ -8,6 +8,7 @@ import (
 	"html/template"
 	"net/http"
 
+	"github.com/ajg/form"
 	"github.com/gorilla/mux"
 	"github.com/tsuru/tsuru-autoscale/alarm"
 )
@@ -35,4 +36,32 @@ func alarmDetailHandler(w http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 	return t.Execute(w, a)
+}
+
+func alarmAdd(w http.ResponseWriter, r *http.Request) error {
+	if r.Method == "POST" {
+		err := r.ParseForm()
+		if err != nil {
+			return err
+		}
+		var a alarm.Alarm
+		d := form.NewDecoder(nil)
+		d.IgnoreCase(true)
+		d.IgnoreUnknownKeys(true)
+		err = d.DecodeValues(&a, r.Form)
+		if err != nil {
+			return err
+		}
+		err = alarm.NewAlarm(&a)
+		if err != nil {
+			return err
+		}
+		http.Redirect(w, r, "/web/alarm", 302)
+		return nil
+	}
+	t, err := template.ParseFiles("web/templates/alarm/add.html")
+	if err != nil {
+		return err
+	}
+	return t.Execute(w, nil)
 }
