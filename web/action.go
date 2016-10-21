@@ -65,3 +65,17 @@ func actionAdd(w http.ResponseWriter, r *http.Request) error {
 	}
 	return t.Execute(w, nil)
 }
+
+func actionRemove(w http.ResponseWriter, r *http.Request) error {
+	vars := mux.Vars(r)
+	a, err := action.FindByName(vars["name"])
+	if err != nil {
+		return err
+	}
+	err = action.Remove(a)
+	if err != nil {
+		return err
+	}
+	http.Redirect(w, r, "/web/action", 302)
+	return nil
+}
