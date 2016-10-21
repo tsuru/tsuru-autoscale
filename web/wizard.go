@@ -65,3 +65,17 @@ func wizardAdd(w http.ResponseWriter, r *http.Request) error {
 	}
 	return t.Execute(w, nil)
 }
+
+func wizardRemove(w http.ResponseWriter, r *http.Request) error {
+	vars := mux.Vars(r)
+	a, err := wizard.FindByName(vars["name"])
+	if err != nil {
+		return err
+	}
+	err = wizard.Remove(a)
+	if err != nil {
+		return err
+	}
+	http.Redirect(w, r, "/web/wizard", 302)
+	return nil
+}

@@ -43,4 +43,5 @@ func Router(m *mux.Router) {
 	m.Handle("/datasource/{name}/delete", handler(dataSourceRemoveHandler)).Methods("GET")
 	m.Handle("/wizard", handler(wizardHandler)).Methods("GET")
 	m.Handle("/wizard/{name}", handler(wizardDetailHandler)).Methods("GET")
+	m.Handle("/wizard/{name}/delete", handler(wizardRemove)).Methods("GET")
 }
