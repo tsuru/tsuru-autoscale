@@ -114,3 +114,49 @@ func (s *S) TestEventsByWizardName(c *check.C) {
 	c.Assert(err, check.IsNil)
 	c.Assert(events, check.HasLen, 1)
 }
+
+func (s *S) TestEnableWizardNotFound(c *check.C) {
+	recorder := httptest.NewRecorder()
+	request, err := http.NewRequest("POST", "/wizard/notfound/enable", nil)
+	request.Header.Add("Authorization", "token")
+	c.Assert(err, check.IsNil)
+	server(recorder, request)
+	c.Assert(recorder.Code, check.Equals, http.StatusNotFound)
+}
+
+func (s *S) TestEnableWizard(c *check.C) {
+	scaleUp := wizard.ScaleAction{
+		Metric:   "cpu",
+		Operator: ">",
+		Step:     "1",
+		Value:    "10",
+		Wait:     50,
+	}
+	scaleDown := wizard.ScaleAction{
+		Metric:   "cpu",
+		Operator: "<",
+		Step:     "1",
+		Value:    "2",
+		Wait:     50,
+	}
+	autoScale := &wizard.AutoScale{
+		Name:      "instance",
+		ScaleUp:   scaleUp,
+		ScaleDown: scaleDown,
+		Process:   "web",
+	}
+	err := wizard.New(autoScale)
+	c.Assert(err, check.IsNil)
+	err = autoScale.Disable()
+	c.Assert(err, check.IsNil)
+	c.Assert(autoScale.Enabled(), check.Equals, false)
+	recorder := httptest.NewRecorder()
+	request, err := http.NewRequest("POST", fmt.Sprintf("/wizard/%s/enable", autoScale.Name), nil)
+	request.Header.Add("Authorization", "token")
+	c.Assert(err, check.IsNil)
+	server(recorder, request)
+	c.Assert(recorder.Code, check.Equals, http.StatusOK)
+	a, err := wizard.FindByName(autoScale.Name)
+	c.Assert(err, check.IsNil)
+	c.Assert(a.Enabled(), check.Equals, true)
+}
