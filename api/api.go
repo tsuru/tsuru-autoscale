@@ -61,5 +61,6 @@ func Router(m *mux.Router) {
 	m.Handle("/wizard/{name}", handler(wizardByName)).Methods("GET")
 	m.Handle("/wizard/{name}", handler(removeWizard)).Methods("DELETE")
 	m.Handle("/wizard/{name}/enable", handler(wizardEnable)).Methods("POST")
+	m.Handle("/wizard/{name}/disable", handler(wizardDisable)).Methods("POST")
 	m.Handle("/wizard", handler(newAutoScale)).Methods("POST")
 }

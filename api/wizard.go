@@ -73,3 +73,12 @@ func wizardEnable(w http.ResponseWriter, r *http.Request) error {
 	}
 	return autoScale.Enable()
 }
+
+func wizardDisable(w http.ResponseWriter, r *http.Request) error {
+	vars := mux.Vars(r)
+	autoScale, err := wizard.FindByName(vars["name"])
+	if err != nil {
+		return err
+	}
+	return autoScale.Disable()
+}
