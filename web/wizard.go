@@ -44,15 +44,15 @@ func wizardAdd(w http.ResponseWriter, r *http.Request) error {
 		if err != nil {
 			return err
 		}
-		var w wizard.AutoScale
+		var a wizard.AutoScale
 		d := form.NewDecoder(nil)
 		d.IgnoreCase(true)
 		d.IgnoreUnknownKeys(true)
-		err = d.DecodeValues(&w, r.Form)
+		err = d.DecodeValues(&a, r.Form)
 		if err != nil {
 			return err
 		}
-		err = wizard.New(&w)
+		err = wizard.New(&a)
 		if err != nil {
 			return err
 		}
