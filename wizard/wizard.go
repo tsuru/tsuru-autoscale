@@ -5,6 +5,7 @@
 package wizard
 
 import (
+	"encoding/json"
 	"fmt"
 	"time"
 
@@ -25,6 +26,18 @@ type AutoScale struct {
 	ScaleDown ScaleAction `json:"scaleDown"`
 	MinUnits  int         `json:"minUnits"`
 	Process   string      `json:"process"`
+}
+
+// MarshalJSON marshals AutoScale in json format
+func (a *AutoScale) MarshalJSON() ([]byte, error) {
+	type alias AutoScale
+	return json.Marshal(&struct {
+		Enabled bool `json:"enabled"`
+		*alias
+	}{
+		Enabled: true,
+		alias:   (*alias)(a),
+	})
 }
 
 // ScaleAction represents a auto scale action like scale up or scale down.
