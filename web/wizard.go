@@ -94,3 +94,17 @@ func wizardEnable(w http.ResponseWriter, r *http.Request) error {
 	http.Redirect(w, r, fmt.Sprintf("/web/wizard/%s", a.Name), 302)
 	return nil
 }
+
+func wizardDisable(w http.ResponseWriter, r *http.Request) error {
+	vars := mux.Vars(r)
+	a, err := wizard.FindByName(vars["name"])
+	if err != nil {
+		return err
+	}
+	err = a.Disable()
+	if err != nil {
+		return err
+	}
+	http.Redirect(w, r, fmt.Sprintf("/web/wizard/%s", a.Name), 302)
+	return nil
+}
