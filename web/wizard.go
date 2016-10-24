@@ -5,6 +5,7 @@
 package web
 
 import (
+	"fmt"
 	"html/template"
 	"net/http"
 
@@ -77,5 +78,19 @@ func wizardRemove(w http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 	http.Redirect(w, r, "/web/wizard", 302)
+	return nil
+}
+
+func wizardEnable(w http.ResponseWriter, r *http.Request) error {
+	vars := mux.Vars(r)
+	a, err := wizard.FindByName(vars["name"])
+	if err != nil {
+		return err
+	}
+	err = a.Enable()
+	if err != nil {
+		return err
+	}
+	http.Redirect(w, r, fmt.Sprintf("/web/wizard/%s", a.Name), 302)
 	return nil
 }
