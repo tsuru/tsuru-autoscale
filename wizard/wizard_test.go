@@ -434,3 +434,37 @@ func (s *S) TestAutoScaleMarshalEnabled(c *check.C) {
 	c.Assert(err, check.IsNil)
 	c.Assert(data["enabled"].(bool), check.Equals, true)
 }
+
+func (s *S) TestAutoScaleMarshalDisabled(c *check.C) {
+	scaleUp := ScaleAction{
+		Metric:   "cpu",
+		Operator: ">",
+		Step:     "1",
+		Value:    "10",
+		Wait:     50,
+	}
+	scaleDown := ScaleAction{
+		Metric:   "cpu",
+		Operator: "<",
+		Step:     "1",
+		Value:    "2",
+		Wait:     50,
+	}
+	a := AutoScale{
+		Name:      "testmarshal",
+		ScaleUp:   scaleUp,
+		ScaleDown: scaleDown,
+		Process:   "web",
+		MinUnits:  2,
+	}
+	err := New(&a)
+	c.Assert(err, check.IsNil)
+	err = a.Disable()
+	c.Assert(err, check.IsNil)
+	d, err := json.Marshal(&a)
+	c.Assert(err, check.IsNil)
+	var data map[string]interface{}
+	err = json.Unmarshal(d, &data)
+	c.Assert(err, check.IsNil)
+	c.Assert(data["enabled"].(bool), check.Equals, false)
+}

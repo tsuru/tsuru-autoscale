@@ -35,7 +35,7 @@ func (a *AutoScale) MarshalJSON() ([]byte, error) {
 		Enabled bool `json:"enabled"`
 		*alias
 	}{
-		Enabled: true,
+		Enabled: a.Enabled(),
 		alias:   (*alias)(a),
 	})
 }
