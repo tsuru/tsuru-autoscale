@@ -82,3 +82,26 @@ func wizardDisable(w http.ResponseWriter, r *http.Request) error {
 	}
 	return autoScale.Disable()
 }
+
+func wizardUpdate(w http.ResponseWriter, r *http.Request) error {
+	vars := mux.Vars(r)
+	_, err := wizard.FindByName(vars["name"])
+	if err != nil {
+		return err
+	}
+	defer r.Body.Close()
+	body, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		return err
+	}
+	var a wizard.AutoScale
+	err = json.Unmarshal(body, &a)
+	if err != nil {
+		return err
+	}
+	err = wizard.Update(&a)
+	if err != nil {
+		return err
+	}
+	return nil
+}
