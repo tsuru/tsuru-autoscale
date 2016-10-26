@@ -506,4 +506,8 @@ func (s *S) TestUpdate(c *check.C) {
 	r, err := FindByName(a.Name)
 	c.Assert(err, check.IsNil)
 	c.Assert(r.ScaleUp.Value, check.Equals, "90")
+	al, err := alarm.FindAlarmByName("scale_up_test_web")
+	c.Assert(err, check.IsNil)
+	expression := "cpu.aggregations.range.buckets[0].date.buckets[cpu.aggregations.range.buckets[0].date.buckets.length - 1].max.value > 90"
+	c.Assert(al.Expression, check.Equals, expression)
 }
