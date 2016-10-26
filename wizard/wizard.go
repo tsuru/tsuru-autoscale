@@ -258,10 +258,14 @@ func (a *AutoScale) Enabled() bool {
 
 // Update updates an auto scale
 func Update(a *AutoScale) error {
+	old, err := FindByName(a.Name)
+	if err != nil {
+		return err
+	}
 	if a.MinUnits <= 0 {
 		a.MinUnits = 1
 	}
-	err := removeAlarms(a)
+	err = removeAlarms(old)
 	if err != nil {
 		return err
 	}
