@@ -511,3 +511,35 @@ func (s *S) TestUpdate(c *check.C) {
 	expression := "cpu.aggregations.range.buckets[0].date.buckets[cpu.aggregations.range.buckets[0].date.buckets.length - 1].max.value > 90"
 	c.Assert(al.Expression, check.Equals, expression)
 }
+
+func (s *S) TestUpdateMinUnits(c *check.C) {
+	scaleUp := ScaleAction{
+		Metric:   "cpu",
+		Operator: ">",
+		Step:     "1",
+		Value:    "10",
+		Wait:     50,
+	}
+	scaleDown := ScaleAction{
+		Metric:   "cpu",
+		Operator: "<",
+		Step:     "1",
+		Value:    "2",
+		Wait:     50,
+	}
+	a := AutoScale{
+		Name:      "test",
+		ScaleUp:   scaleUp,
+		ScaleDown: scaleDown,
+		Process:   "web",
+		MinUnits:  2,
+	}
+	err := New(&a)
+	c.Assert(err, check.IsNil)
+	a.MinUnits = 0
+	err = Update(&a)
+	c.Assert(err, check.IsNil)
+	r, err := FindByName(a.Name)
+	c.Assert(err, check.IsNil)
+	c.Assert(r.MinUnits, check.Equals, 1)
+}
