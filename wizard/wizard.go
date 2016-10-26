@@ -255,3 +255,31 @@ func (a *AutoScale) Enabled() bool {
 	}
 	return true
 }
+
+// Update updates an auto scale
+func Update(a *AutoScale) error {
+	if a.MinUnits <= 0 {
+		a.MinUnits = 1
+	}
+	err := removeAlarms(a)
+	if err != nil {
+		return err
+	}
+	err = newScaleAction(a, "scale_up")
+	if err != nil {
+		logger().Error(err)
+		return err
+	}
+	err = newScaleAction(a, "scale_down")
+	if err != nil {
+		logger().Error(err)
+		return err
+	}
+	conn, err := db.Conn()
+	if err != nil {
+		logger().Error(err)
+		return nil
+	}
+	defer conn.Close()
+	return conn.Wizard().Update(bson.M{"name": a.Name}, a)
+}

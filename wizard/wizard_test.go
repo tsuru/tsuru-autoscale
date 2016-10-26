@@ -468,3 +468,42 @@ func (s *S) TestAutoScaleMarshalDisabled(c *check.C) {
 	c.Assert(err, check.IsNil)
 	c.Assert(data["enabled"].(bool), check.Equals, false)
 }
+
+func (s *S) TestUpdate(c *check.C) {
+	scaleUp := ScaleAction{
+		Metric:   "cpu",
+		Operator: ">",
+		Step:     "1",
+		Value:    "10",
+		Wait:     50,
+	}
+	scaleDown := ScaleAction{
+		Metric:   "cpu",
+		Operator: "<",
+		Step:     "1",
+		Value:    "2",
+		Wait:     50,
+	}
+	a := AutoScale{
+		Name:      "test",
+		ScaleUp:   scaleUp,
+		ScaleDown: scaleDown,
+		Process:   "web",
+		MinUnits:  2,
+	}
+	err := New(&a)
+	c.Assert(err, check.IsNil)
+	scaleUp = ScaleAction{
+		Metric:   "cpu",
+		Operator: ">",
+		Step:     "1",
+		Value:    "90",
+		Wait:     50,
+	}
+	a.ScaleUp = scaleUp
+	err = Update(&a)
+	c.Assert(err, check.IsNil)
+	r, err := FindByName(a.Name)
+	c.Assert(err, check.IsNil)
+	c.Assert(r.ScaleUp.Value, check.Equals, "90")
+}
