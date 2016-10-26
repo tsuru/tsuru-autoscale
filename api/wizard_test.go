@@ -228,7 +228,7 @@ func (s *S) TestUpdateAutoScale(c *check.C) {
 	}
 	err := wizard.New(autoScale)
 	c.Assert(err, check.IsNil)
-	body := `{"name":"instance","minUnits":0,"scaleUp":{},"scaleDown":{},"process":"web"}`
+	body := `{"name":"instance","minUnits":0,"scaleUp":{},"scaleDown":{}}`
 	recorder := httptest.NewRecorder()
 	u := fmt.Sprintf("/wizard/%s", autoScale.Name)
 	request, err := http.NewRequest("PUT", u, strings.NewReader(body))

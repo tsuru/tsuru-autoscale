@@ -84,11 +84,6 @@ func wizardDisable(w http.ResponseWriter, r *http.Request) error {
 }
 
 func wizardUpdate(w http.ResponseWriter, r *http.Request) error {
-	vars := mux.Vars(r)
-	_, err := wizard.FindByName(vars["name"])
-	if err != nil {
-		return err
-	}
 	defer r.Body.Close()
 	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {
@@ -99,6 +94,8 @@ func wizardUpdate(w http.ResponseWriter, r *http.Request) error {
 	if err != nil {
 		return err
 	}
+	vars := mux.Vars(r)
+	a.Name = vars["name"]
 	err = wizard.Update(&a)
 	if err != nil {
 		return err
