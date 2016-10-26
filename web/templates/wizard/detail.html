@@ -2,7 +2,11 @@
   <body>
     <h1>wizard</h1>
     {{.}}
-    <a href="/web/wizard/{{.Name}}/enable">enable</a>
+    {{if .Enabled}}
     <a href="/web/wizard/{{.Name}}/disable">disable</a>
+    {{else}}
+    <a href="/web/wizard/{{.Name}}/enable">enable</a>
+    {{end}}
+
   </body>
 </html>
