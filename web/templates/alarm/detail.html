@@ -11,7 +11,10 @@
   <p>Data sources: {{.DataSources}}</p>
   <p>Instance: {{.Instance}}</p>
   <p>Envs: {{.Envs}}</p>
-  <a href="/web/alarm/{{.Name}}/enable">enable</a>
+  {{if .Enabled}}
   <a href="/web/alarm/{{.Name}}/disable">disable</a>
+  {{else}}
+  <a href="/web/alarm/{{.Name}}/enable">enable</a>
+  {{end}}
 </body>
 </html>
