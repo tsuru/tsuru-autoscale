@@ -1,35 +1,33 @@
-	Name      string      `json:"name"`
-	ScaleUp   ScaleAction `json:"scaleUp"`
-	ScaleDown ScaleAction `json:"scaleDown"`
-	MinUnits  int         `json:"minUnits"`
-	Process   string      `json:"process"`
 <html>
+<head>
+	<link rel="stylesheet" href="/static/css/skeleton.css" media="screen">
+</head>
 <body>
-  <h1>add new wizard</h1>
-  <form method="post">
-    <p>
-      <label for="name">name:</label>
-      <input type="text" name="name">
-    </p>
-    <p>
-      <label for="url">scale up:</label>
-      <textarea name="scaleup"></textarea>
-    </p>
-    <p>
-      <label for="url">scale down:</label>
-      <textarea name="scaledown"></textarea>
-    </p>
-    <p>
-      <label for="url">min units:</label>
-      <input type="text" name="minunits">
-    </p>
-    <p>
-      <label for="url">process:</label>
-      <input type="text" name="process">
-    </p>
-    <p>
-      <button>save</button>
-    </p>
-  </form>
+	<h1>add new wizard</h1>
+	<form method="post">
+		<p>
+			<label for="name">name:</label>
+			<input type="text" name="name">
+		</p>
+		<p>
+			<label for="url">scale up:</label>
+			<textarea name="scaleup"></textarea>
+		</p>
+		<p>
+			<label for="url">scale down:</label>
+			<textarea name="scaledown"></textarea>
+		</p>
+		<p>
+			<label for="url">min units:</label>
+			<input type="text" name="minunits">
+		</p>
+		<p>
+			<label for="url">process:</label>
+			<input type="text" name="process">
+		</p>
+		<p>
+			<button>save</button>
+		</p>
+	</form>
 </body>
 </html>

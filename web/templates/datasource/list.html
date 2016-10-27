@@ -1,13 +1,13 @@
 <html>
-  <head>
-
-  </head>
-  <body>
-    <h1>data sources</h1>
-    <ul>
+<head>
+  <link rel="stylesheet" href="/static/css/skeleton.css" media="screen">
+</head>
+<body>
+  <h1>data sources</h1>
+  <ul>
     {{range $item := .}}
-      <li><a href="/web/datasource/{{$item.Name}}">{{$item.Name}}</a></li>
+    <li><a href="/web/datasource/{{$item.Name}}">{{$item.Name}}</a></li>
     {{end}}
   </ul>
-  </body>
+</body>
 </html>

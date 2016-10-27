@@ -1,14 +1,14 @@
 <html>
-  <head>
-
-  </head>
-  <body>
-    <h1>wizard</h1>
-    {{range $item := .}}
-      <div>
-        <h2><a href="/web/wizard/{{$item.Name}}">{{$item.Name}}</a></h2>
-        <p>scale up: {{$item.ScaleUp}} - scale down: {{$item.ScaleDown}}</p>
-      </div>
-    {{end}}
-  </body>
+<head>
+  <link rel="stylesheet" href="/static/css/skeleton.css" media="screen">
+</head>
+<body>
+  <h1>wizard</h1>
+  {{range $item := .}}
+  <div>
+    <h2><a href="/web/wizard/{{$item.Name}}">{{$item.Name}}</a></h2>
+    <p>scale up: {{$item.ScaleUp}} - scale down: {{$item.ScaleDown}}</p>
+  </div>
+  {{end}}
+</body>
 </html>
