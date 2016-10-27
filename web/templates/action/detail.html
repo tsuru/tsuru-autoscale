@@ -4,7 +4,13 @@
 </head>
 <body>
   <h1>action</h1>
-  {{.}}
+  <p>URL: {{.URL}}</p>
+  <p>Method: {{.Method}}</p>
+  <p>Body: {{.Body}}</p>
+  <h5>Headers</h5>
+  {{range $key, $value := .Headers}}
+  <p>{{$key}} = {{$value}}</p>
+  {{end}}
   <a href="/web/action/{{.Name}}/delete">remove</a>
 </body>
 </html>
