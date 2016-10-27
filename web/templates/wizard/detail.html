@@ -1,12 +1,14 @@
 <html>
   <body>
-    <h1>wizard</h1>
-    {{.}}
+    <h1>Auto Scale > {{.Name}}</h1>
+    <p>Process: {{.Process}}</p>
+    <p>Min units: {{.MinUnits}}</p>
+    <p>Scale up: {{.ScaleUp}}</p>
+    <p>Scale down: {{.ScaleDown}}</p>
     {{if .Enabled}}
     <a href="/web/wizard/{{.Name}}/disable">disable</a>
     {{else}}
     <a href="/web/wizard/{{.Name}}/enable">enable</a>
     {{end}}
-
   </body>
 </html>
