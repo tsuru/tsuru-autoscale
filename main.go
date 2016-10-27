@@ -40,6 +40,7 @@ func router() http.Handler {
 
 func runServer() {
 	http.Handle("/", router())
+	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("static"))))
 	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%s", port()), nil))
 }
 
