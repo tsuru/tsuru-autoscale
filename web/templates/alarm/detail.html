@@ -3,8 +3,14 @@
   <link rel="stylesheet" href="/static/css/skeleton.css" media="screen">
 </head>
 <body>
-  <h1>alarm</h1>
-  {{.}}
+  <h1>alarm / {{.Name}}</h1>
+  <p>Actions: {{.Actions}}</p>
+  <p>Expression: {{.Expression}}</p>
+  <p>Enabled: {{.Enabled}}</p>
+  <p>Wait: {{.Wait}}</p>
+  <p>Data sources: {{.DataSources}}</p>
+  <p>Instance: {{.Instance}}</p>
+  <p>Envs: {{.Envs}}</p>
   <a href="/web/alarm/{{.Name}}/enable">enable</a>
   <a href="/web/alarm/{{.Name}}/disable">disable</a>
 </body>
