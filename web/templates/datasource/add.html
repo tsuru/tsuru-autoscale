@@ -3,35 +3,21 @@
   <link rel="stylesheet" href="/static/css/skeleton.css" media="screen">
 </head>
 <body>
-  <h1>add new data source</h1>
-  <form method="post">
-    <p>
-      <label for="name">name:</label>
-      <input type="text" name="name">
-    </p>
-    <p>
-      <label for="url">url:</label>
-      <input type="text" name="url">
-    </p>
-    <p>
-      <label for="method">method:</label>
-      <input type="text" name="method">
-    </p>
-    <p>
-      <label for="body">body:</label>
-      <textarea name="body"></textarea>
-    </p>
-    <p>
-      <label for="headers">headers:</label>
-      <textarea name="headers"></textarea>
-    </p>
-    <p>
-      <label for="public">public:</label>
-      <input type="checkbox" name="public">
-    </p>
-    <p>
-      <button>save</button>
-    </p>
-  </form>
+  <div class="container">
+    <h1>add new data source</h1>
+    <form method="post">
+      <label for="name">Name</label>
+      <input class="u-full-width" type="text" name="name">
+      <label for="url">Url</label>
+      <input class="u-full-width" type="text" name="url">
+      <label for="method">Method</label>
+      <input class="u-full-width" type="text" name="method">
+      <label for="body">Body</label>
+      <textarea class="u-full-width" name="body"></textarea>
+      <label for="headers">Headers</label>
+      <textarea class="u-full-width" name="headers"></textarea>
+      <input class="button-primary" type="submit" value="Submit">
+    </form>
+  </div>
 </body>
 </html>
