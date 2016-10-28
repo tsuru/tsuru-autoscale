@@ -5,7 +5,6 @@
 package web
 
 import (
-	"html/template"
 	"net/http"
 
 	"github.com/ajg/form"
@@ -15,28 +14,20 @@ import (
 )
 
 func dataSourceHandler(w http.ResponseWriter, r *http.Request) error {
-	t, err := template.ParseFiles("web/templates/datasource/list.html")
-	if err != nil {
-		return err
-	}
 	ds, err := datasource.FindBy(nil)
 	if err != nil {
 		return err
 	}
-	return t.Execute(w, ds)
+	return render(w, "web/templates/datasource/list.html", ds)
 }
 
 func dataSourceDetailHandler(w http.ResponseWriter, r *http.Request) error {
-	t, err := template.ParseFiles("web/templates/datasource/detail.html")
-	if err != nil {
-		return err
-	}
 	vars := mux.Vars(r)
 	ds, err := datasource.FindBy(bson.M{"name": vars["name"]})
 	if err != nil {
 		return err
 	}
-	return t.Execute(w, ds[0])
+	return render(w, "web/templates/datasource/detail.html", ds[0])
 }
 
 func dataSourceAdd(w http.ResponseWriter, r *http.Request) error {
@@ -60,11 +51,7 @@ func dataSourceAdd(w http.ResponseWriter, r *http.Request) error {
 		http.Redirect(w, r, "/web/datasource", 302)
 		return nil
 	}
-	t, err := template.ParseFiles("web/templates/datasource/add.html")
-	if err != nil {
-		return err
-	}
-	return t.Execute(w, nil)
+	return render(w, "web/templates/datasource/add.html", nil)
 }
 
 func dataSourceRemoveHandler(w http.ResponseWriter, r *http.Request) error {

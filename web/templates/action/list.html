@@ -1,13 +1,8 @@
-<html>
-<head>
-  <link rel="stylesheet" href="/static/css/skeleton.css" media="screen">
-</head>
-<body>
-  <h1>actions</h1>
-  <ul>
-    {{range $item := .}}
-    <li><a href="/web/action/{{$item.Name}}">{{$item.Name}}</a></li>
-    {{end}}
-  </ul>
-</body>
-</html>
+{{define "content"}}
+<h1>actions</h1>
+<ul>
+  {{range $item := .}}
+  <li><a href="/web/action/{{$item.Name}}">{{$item.Name}}</a></li>
+  {{end}}
+</ul>
+{{end}}

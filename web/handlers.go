@@ -5,11 +5,9 @@
 package web
 
 import (
-	"html/template"
 	"net/http"
 )
 
 func indexHandler(w http.ResponseWriter, r *http.Request) {
-	t, _ := template.ParseFiles("web/templates/index.html")
-	t.Execute(w, nil)
+	render(w, "web/templates/index.html", nil)
 }

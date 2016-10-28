@@ -13,29 +13,29 @@ import (
 	"github.com/tsuru/tsuru-autoscale/action"
 )
 
-func actionHandler(w http.ResponseWriter, r *http.Request) error {
-	t, err := template.ParseFiles("web/templates/action/list.html")
+func render(w http.ResponseWriter, templatePath string, data interface{}) error {
+	t, err := template.ParseFiles(templatePath, "web/templates/base.html")
 	if err != nil {
 		return err
 	}
+	return t.ExecuteTemplate(w, "base", data)
+}
+
+func actionHandler(w http.ResponseWriter, r *http.Request) error {
 	a, err := action.All()
 	if err != nil {
 		return err
 	}
-	return t.Execute(w, a)
+	return render(w, "web/templates/action/list.html", a)
 }
 
 func actionDetailHandler(w http.ResponseWriter, r *http.Request) error {
-	t, err := template.ParseFiles("web/templates/action/detail.html")
-	if err != nil {
-		return err
-	}
 	vars := mux.Vars(r)
 	a, err := action.FindByName(vars["name"])
 	if err != nil {
 		return err
 	}
-	return t.Execute(w, a)
+	return render(w, "web/templates/action/detail.html", a)
 }
 
 func actionAdd(w http.ResponseWriter, r *http.Request) error {
@@ -59,11 +59,7 @@ func actionAdd(w http.ResponseWriter, r *http.Request) error {
 		http.Redirect(w, r, "/web/action", 302)
 		return nil
 	}
-	t, err := template.ParseFiles("web/templates/action/add.html")
-	if err != nil {
-		return err
-	}
-	return t.Execute(w, nil)
+	return render(w, "web/templates/action/add.html", nil)
 }
 
 func actionRemove(w http.ResponseWriter, r *http.Request) error {

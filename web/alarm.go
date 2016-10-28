@@ -6,7 +6,6 @@ package web
 
 import (
 	"fmt"
-	"html/template"
 	"net/http"
 
 	"github.com/ajg/form"
@@ -15,28 +14,20 @@ import (
 )
 
 func alarmHandler(w http.ResponseWriter, r *http.Request) error {
-	t, err := template.ParseFiles("web/templates/alarm/list.html")
-	if err != nil {
-		return err
-	}
 	a, err := alarm.FindAlarmBy(nil)
 	if err != nil {
 		return err
 	}
-	return t.Execute(w, a)
+	return render(w, "web/templates/alarm/list.html", a)
 }
 
 func alarmDetailHandler(w http.ResponseWriter, r *http.Request) error {
-	t, err := template.ParseFiles("web/templates/alarm/detail.html")
-	if err != nil {
-		return err
-	}
 	vars := mux.Vars(r)
 	a, err := alarm.FindAlarmByName(vars["name"])
 	if err != nil {
 		return err
 	}
-	return t.Execute(w, a)
+	return render(w, "web/templates/alarm/detail.html", a)
 }
 
 func alarmAdd(w http.ResponseWriter, r *http.Request) error {
@@ -60,11 +51,7 @@ func alarmAdd(w http.ResponseWriter, r *http.Request) error {
 		http.Redirect(w, r, "/web/alarm", 302)
 		return nil
 	}
-	t, err := template.ParseFiles("web/templates/alarm/add.html")
-	if err != nil {
-		return err
-	}
-	return t.Execute(w, nil)
+	return render(w, "web/templates/alarm/add.html", nil)
 }
 
 func alarmRemove(w http.ResponseWriter, r *http.Request) error {

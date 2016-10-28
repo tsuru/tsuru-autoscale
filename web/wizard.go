@@ -6,7 +6,6 @@ package web
 
 import (
 	"fmt"
-	"html/template"
 	"net/http"
 
 	"github.com/ajg/form"
@@ -15,28 +14,20 @@ import (
 )
 
 func wizardDetailHandler(w http.ResponseWriter, r *http.Request) error {
-	t, err := template.ParseFiles("web/templates/wizard/detail.html")
-	if err != nil {
-		return err
-	}
 	vars := mux.Vars(r)
 	a, err := wizard.FindByName(vars["name"])
 	if err != nil {
 		return err
 	}
-	return t.Execute(w, a)
+	return render(w, "web/templates/wizard/detail.html", a)
 }
 
 func wizardHandler(w http.ResponseWriter, r *http.Request) error {
-	t, err := template.ParseFiles("web/templates/wizard/list.html")
-	if err != nil {
-		return err
-	}
 	wizards, err := wizard.FindBy(nil)
 	if err != nil {
 		return err
 	}
-	return t.Execute(w, wizards)
+	return render(w, "web/templates/wizard/list.html", wizards)
 }
 
 func wizardAdd(w http.ResponseWriter, r *http.Request) error {
@@ -60,11 +51,7 @@ func wizardAdd(w http.ResponseWriter, r *http.Request) error {
 		http.Redirect(w, r, "/web/wizard", 302)
 		return nil
 	}
-	t, err := template.ParseFiles("web/templates/wizard/add.html")
-	if err != nil {
-		return err
-	}
-	return t.Execute(w, nil)
+	return render(w, "web/templates/wizard/add.html", nil)
 }
 
 func wizardRemove(w http.ResponseWriter, r *http.Request) error {

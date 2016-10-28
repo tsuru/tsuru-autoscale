@@ -5,20 +5,15 @@
 package web
 
 import (
-	"html/template"
 	"net/http"
 
 	"github.com/tsuru/tsuru-autoscale/alarm"
 )
 
 func eventHandler(w http.ResponseWriter, r *http.Request) error {
-	t, err := template.ParseFiles("web/templates/event/list.html")
-	if err != nil {
-		return err
-	}
 	events, err := alarm.FindEventsBy(nil, 1000)
 	if err != nil {
 		return err
 	}
-	return t.Execute(w, events)
+	return render(w, "web/templates/event/list.html", events)
 }
