@@ -1,28 +1,23 @@
-<html>
-<head>
-  <link rel="stylesheet" href="/static/css/skeleton.css" media="screen">
-</head>
-<body>
-  <h1>last events</h1>
-  <table>
-    <tr>
-      <td>
-        alarm
-      </td>
-      <td>
-        start
-      </td>
-      <td>
-        end
-      </td>
-    </tr>
-    {{range $item := .}}
-    <tr>
-      <td><a href="/web/alarm/{{$item.Alarm.Name}}">{{$item.Alarm.Name}}</a></td>
-      <td>{{$item.StartTime}}</td>
-      <td>{{$item.EndTime}}</td>
-    </tr>
-    {{end}}
-  </table>
-</body>
-</html>
+{{define "content"}}
+<h1>last events</h1>
+<table>
+  <tr>
+    <td>
+      alarm
+    </td>
+    <td>
+      start
+    </td>
+    <td>
+      end
+    </td>
+  </tr>
+  {{range $item := .}}
+  <tr>
+    <td><a href="/web/alarm/{{$item.Alarm.Name}}">{{$item.Alarm.Name}}</a></td>
+    <td>{{$item.StartTime}}</td>
+    <td>{{$item.EndTime}}</td>
+  </tr>
+  {{end}}
+</table>
+{{end}}

@@ -1,16 +1,11 @@
-<html>
-<head>
-  <link rel="stylesheet" href="/static/css/skeleton.css" media="screen">
-</head>
-<body>
-  <h1>data source / {{.Name}}</h1>
-  <p>URL: {{.URL}}</p>
-  <p>Method: {{.Method}}</p>
-  <p>Body: {{.Body}}</p>
-  <h5>Headers:</h5>
-  {{range $key, $value := .Headers}}
-  <p>{{$key}} = {{$value}}</p>
-  {{end}}
-  <a href="/web/datasource/{{.Name}}/delete">remove</a>
-</body>
-</html>
+{{define "content"}}
+<h1>data source / {{.Name}}</h1>
+<p>URL: {{.URL}}</p>
+<p>Method: {{.Method}}</p>
+<p>Body: {{.Body}}</p>
+<h5>Headers:</h5>
+{{range $key, $value := .Headers}}
+<p>{{$key}} = {{$value}}</p>
+{{end}}
+<a href="/web/datasource/{{.Name}}/delete">remove</a>
+{{end}}

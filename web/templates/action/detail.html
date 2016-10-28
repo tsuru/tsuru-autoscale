@@ -1,8 +1,4 @@
-<html>
-<head>
-  <link rel="stylesheet" href="/static/css/skeleton.css" media="screen">
-</head>
-<body>
+{{define "content"}}
   <h1>action</h1>
   <p>URL: {{.URL}}</p>
   <p>Method: {{.Method}}</p>
@@ -12,5 +8,4 @@
   <p>{{$key}} = {{$value}}</p>
   {{end}}
   <a href="/web/action/{{.Name}}/delete">remove</a>
-</body>
-</html>
+{{end}}

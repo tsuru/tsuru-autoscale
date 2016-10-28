@@ -1,14 +1,9 @@
-<html>
-<head>
-  <link rel="stylesheet" href="/static/css/skeleton.css" media="screen">
-</head>
-<body>
-  <h1>data sources</h1>
-  <ul>
-    {{range $item := .}}
-    <li><a href="/web/datasource/{{$item.Name}}">{{$item.Name}}</a></li>
-    {{end}}
-  </ul>
-  <a href="/web/datasource/add">add new data source</a>
-</body>
-</html>
+{{define "content"}}
+<h1>data sources</h1>
+<ul>
+  {{range $item := .}}
+  <li><a href="/web/datasource/{{$item.Name}}">{{$item.Name}}</a></li>
+  {{end}}
+</ul>
+<a href="/web/datasource/add">add new data source</a>
+{{end}}

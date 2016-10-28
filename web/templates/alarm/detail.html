@@ -1,8 +1,4 @@
-<html>
-<head>
-  <link rel="stylesheet" href="/static/css/skeleton.css" media="screen">
-</head>
-<body>
+{{define "content"}}
   <h1>alarm / {{.Name}}</h1>
   <p>Actions: {{.Actions}}</p>
   <p>Expression: {{.Expression}}</p>
@@ -16,5 +12,4 @@
   {{else}}
   <a href="/web/alarm/{{.Name}}/enable">enable</a>
   {{end}}
-</body>
-</html>
+{{end}}
