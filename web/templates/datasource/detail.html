@@ -1,11 +1,33 @@
 {{define "content"}}
 <h1>data source / {{.Name}}</h1>
-<p>URL: {{.URL}}</p>
-<p>Method: {{.Method}}</p>
-<p>Body: {{.Body}}</p>
-<h5>Headers:</h5>
-{{range $key, $value := .Headers}}
-<p>{{$key}} = {{$value}}</p>
-{{end}}
+<form method="post">
+  <label for="name">Name</label>
+  <input class="u-full-width" type="text" name="name" value={{.Name}} readonly>
+  <label for="url">Url</label>
+  <input class="u-full-width" type="text" name="url" value={{.URL}}>
+  <label for="method">Method</label>
+  <select class="u-full-width" name="method">
+    <option value="GET"{{if eq .Method "GET"}} selected{{end}}>GET</option>
+    <option value="POST"{{if eq .Method "POST"}} selected{{end}}>POST</option>
+    <option value="PUT"{{if eq .Method "PUT"}} selected{{end}}>PUT</option>
+    <option value="DELETE"{{if eq .Method "DELETE"}} selected{{end}}>DELETE</option>
+  </select>
+  <label for="body">Body</label>
+  <textarea class="u-full-width" name="body">{{.Body}}</textarea>
+  <label for="headers">Headers</label>
+  {{range $key, $value := .Headers}}
+  <div class="row">
+    <div class="six columns">
+      <label for="key">key</label>
+      <input class="u-full-width" type="text" name="key" value={{$key}}>
+    </div>
+    <div class="six columns">
+      <label for="value">value</label>
+      <input class="u-full-width" type="text" name="value" value={{$value}}>
+    </div>
+  </div>
+  {{end}}
+  <input class="button-primary" type="submit" value="Edit">
+</form>
 <a href="/web/datasource/{{.Name}}/delete">remove</a>
 {{end}}
