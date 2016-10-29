@@ -1,52 +1,50 @@
 {{define "content"}}
-<div class="container">
-  <h1>add new data source</h1>
-  <form method="post">
-    <label for="name">Name</label>
-    <input class="u-full-width" type="text" name="name">
-    <label for="url">Url</label>
-    <input class="u-full-width" type="text" name="url">
-    <label for="method">Method</label>
-    <select class="u-full-width" name="method">
-      <option value="GET">GET</option>
-      <option value="POST">POST</option>
-      <option value="PUT">PUT</option>
-      <option value="DELETE">DELETE</option>
-    </select>
-    <label for="body">Body</label>
-    <textarea class="u-full-width" name="body"></textarea>
-    <label for="headers">Headers</label>
-    <div class="row">
-      <div class="six columns">
-        <label for="key">key</label>
-        <input class="u-full-width" type="text" name="key">
-      </div>
-      <div class="six columns">
-        <label for="value">value</label>
-        <input class="u-full-width" type="text" name="value">
-      </div>
+<h1>add new data source</h1>
+<form method="post">
+  <label for="name">Name</label>
+  <input class="u-full-width" type="text" name="name">
+  <label for="url">Url</label>
+  <input class="u-full-width" type="text" name="url">
+  <label for="method">Method</label>
+  <select class="u-full-width" name="method">
+    <option value="GET">GET</option>
+    <option value="POST">POST</option>
+    <option value="PUT">PUT</option>
+    <option value="DELETE">DELETE</option>
+  </select>
+  <label for="body">Body</label>
+  <textarea class="u-full-width" name="body"></textarea>
+  <label for="headers">Headers</label>
+  <div class="row">
+    <div class="six columns">
+      <label for="key">key</label>
+      <input class="u-full-width" type="text" name="key">
     </div>
-    <div class="row">
-      <div class="six columns">
-        <label for="key">key</label>
-        <input class="u-full-width" type="text" name="key">
-      </div>
-      <div class="six columns">
-        <label for="value">value</label>
-        <input class="u-full-width" type="text" name="value">
-      </div>
+    <div class="six columns">
+      <label for="value">value</label>
+      <input class="u-full-width" type="text" name="value">
     </div>
-    <div class="row">
-      <div class="six columns">
-        <label for="key">key</label>
-        <input class="u-full-width" type="text" name="key">
-      </div>
-      <div class="six columns">
-        <label for="value">value</label>
-        <input class="u-full-width" type="text" name="value">
-      </div>
+  </div>
+  <div class="row">
+    <div class="six columns">
+      <label for="key">key</label>
+      <input class="u-full-width" type="text" name="key">
     </div>
-    <input class="button-primary" type="submit" value="Submit">
-  </form>
-</div>
+    <div class="six columns">
+      <label for="value">value</label>
+      <input class="u-full-width" type="text" name="value">
+    </div>
+  </div>
+  <div class="row">
+    <div class="six columns">
+      <label for="key">key</label>
+      <input class="u-full-width" type="text" name="key">
+    </div>
+    <div class="six columns">
+      <label for="value">value</label>
+      <input class="u-full-width" type="text" name="value">
+    </div>
+  </div>
+  <input class="button-primary" type="submit" value="Submit">
+</form>
 {{end}}
