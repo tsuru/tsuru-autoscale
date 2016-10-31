@@ -7,7 +7,9 @@ package web
 import (
 	"net/http"
 	"net/http/httptest"
+	"strings"
 
+	"github.com/ajg/form"
 	"github.com/tsuru/tsuru-autoscale/alarm"
 	"gopkg.in/check.v1"
 )
@@ -51,4 +53,16 @@ func (s *S) TestAlarmRemove(c *check.C) {
 	c.Assert(recorder.Code, check.Equals, http.StatusFound)
 	_, err = alarm.FindAlarmByName("myalarm")
 	c.Assert(err, check.NotNil)
+}
+
+func (s *S) TestAlarmAdd(c *check.C) {
+	a := &alarm.Alarm{Name: "myalarm"}
+	recorder := httptest.NewRecorder()
+	v, err := form.EncodeToValues(&a)
+	c.Assert(err, check.IsNil)
+	body := strings.NewReader(v.Encode())
+	request, err := http.NewRequest("POST", "/alarm/add", body)
+	c.Assert(err, check.IsNil)
+	server(recorder, request)
+	c.Assert(recorder.Code, check.Equals, http.StatusFound)
 }
