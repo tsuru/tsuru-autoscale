@@ -10,7 +10,9 @@ import (
 
 	"github.com/ajg/form"
 	"github.com/gorilla/mux"
+	"github.com/tsuru/tsuru-autoscale/action"
 	"github.com/tsuru/tsuru-autoscale/alarm"
+	"github.com/tsuru/tsuru-autoscale/datasource"
 )
 
 func alarmHandler(w http.ResponseWriter, r *http.Request) error {
@@ -51,7 +53,22 @@ func alarmAdd(w http.ResponseWriter, r *http.Request) error {
 		http.Redirect(w, r, "/web/alarm", 302)
 		return nil
 	}
-	return render(w, "web/templates/alarm/add.html", nil)
+	ds, err := datasource.FindBy(nil)
+	if err != nil {
+		return err
+	}
+	actions, err := action.All()
+	if err != nil {
+		return err
+	}
+	context := struct {
+		datasourceList []datasource.DataSource
+		actionList     []action.Action
+	}{
+		ds,
+		actions,
+	}
+	return render(w, "web/templates/alarm/add.html", context)
 }
 
 func alarmRemove(w http.ResponseWriter, r *http.Request) error {
