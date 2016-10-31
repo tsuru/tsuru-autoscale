@@ -92,3 +92,20 @@ func (s *S) TestDataSourceAddEmptyHeader(c *check.C) {
 	c.Assert(err, check.IsNil)
 	c.Assert(len(r.Headers), check.Equals, 1)
 }
+
+func (s *S) TestDataSourceRemove(c *check.C) {
+	recorder := httptest.NewRecorder()
+	ds := datasource.DataSource{
+		Name:   "new",
+		URL:    "http://tsuru.io",
+		Method: "GET",
+	}
+	err := datasource.New(&ds)
+	c.Assert(err, check.IsNil)
+	request, err := http.NewRequest("GET", "/datasource/new/delete", nil)
+	c.Assert(err, check.IsNil)
+	server(recorder, request)
+	c.Assert(recorder.Code, check.Equals, http.StatusFound)
+	_, err = datasource.Get(ds.Name)
+	c.Assert(err, check.NotNil)
+}
