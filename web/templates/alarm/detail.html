@@ -1,15 +1,31 @@
 {{define "content"}}
-  <h1>alarm / {{.Name}}</h1>
-  <p>Actions: {{.Actions}}</p>
-  <p>Expression: {{.Expression}}</p>
-  <p>Enabled: {{.Enabled}}</p>
-  <p>Wait: {{.Wait}}</p>
-  <p>Data sources: {{.DataSources}}</p>
-  <p>Instance: {{.Instance}}</p>
-  <p>Envs: {{.Envs}}</p>
-  {{if .Enabled}}
-  <a href="/web/alarm/{{.Name}}/disable">disable</a>
-  {{else}}
-  <a href="/web/alarm/{{.Name}}/enable">enable</a>
+<h1>alarm / {{.Name}}</h1>
+<form method="post">
+  <label for="name">Name</label>
+  <input class="u-full-width" type="text" name="name" value={{.Name}} readonly>
+  <label for="datasource">Data source</label>
+  <input class="u-full-width" type="text" name="datasource" value={{.DataSources}} readonly>
+  <label for="actions">Actions</label>
+  <input class="u-full-width" type="text" name="actions" value={{.Actions}} readonly>
+  <label for="wait">Wait time</label>
+  <input class="u-full-width" type="text" name="wait" value="{{.Wait}}">
+  <label for="headers">Envs</label>
+  {{range $key, $value := .Envs}}
+  <div class="row">
+    <div class="six columns">
+      <label for="key">key</label>
+      <input class="u-full-width" type="text" name="key" value="{{$key}}">
+    </div>
+    <div class="six columns">
+      <label for="value">value</label>
+      <input class="u-full-width" type="text" name="value" value="{{$value}}">
+    </div>
+  </div>
   {{end}}
+</form>
+{{if .Enabled}}
+<a href="/web/alarm/{{.Name}}/disable">disable</a>
+{{else}}
+<a href="/web/alarm/{{.Name}}/enable">enable</a>
+{{end}}
 {{end}}
