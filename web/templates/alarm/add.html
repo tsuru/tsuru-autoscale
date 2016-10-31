@@ -1,28 +1,49 @@
 {{define "content"}}
-  <h1>add new alarm</h1>
-  <form method="post">
-    <p>
-      <label for="name">name:</label>
-      <input type="text" name="name">
-    </p>
-    <p>
-      <label for="actions">actions:</label>
-      <textarea name="actions"></textarea>
-    </p>
-    <p>
-      <label for="wait">wait:</label>
-      <input type="text" name="wait">
-    </p>
-    <p>
-      <label for="datasources">data sources:</label>
-      <textarea name="datasources"></textarea>
-    </p>
-    <p>
-      <label for="envs">envs</label>
-      <textarea name="envs"></textarea>
-    </p>
-    <p>
-      <button>save</button>
-    </p>
-  </form>
+<h1>add new alarm</h1>
+<form method="post">
+  <label for="name">Name</label>
+  <input class="u-full-width" type="text" name="name">
+  <label for="actions">Data source</label>
+  <select class="u-full-width" name="datasource">
+    <option value=""></option>
+  </select>
+  <label for="actions">Actions</label>
+  <select class="u-full-width" name="actions">
+    <option value=""></option>
+  </select>
+  <label for="wait">Wait time</label>
+  <input class="u-full-width" type="text" name="wait">
+  <label for="headers">Envs</label>
+  <div class="row">
+    <div class="six columns">
+      <label for="key">key</label>
+      <input class="u-full-width" type="text" name="key">
+    </div>
+    <div class="six columns">
+      <label for="value">value</label>
+      <input class="u-full-width" type="text" name="value">
+    </div>
+  </div>
+  <div class="row">
+    <div class="six columns">
+      <label for="key">key</label>
+      <input class="u-full-width" type="text" name="key">
+    </div>
+    <div class="six columns">
+      <label for="value">value</label>
+      <input class="u-full-width" type="text" name="value">
+    </div>
+  </div>
+  <div class="row">
+    <div class="six columns">
+      <label for="key">key</label>
+      <input class="u-full-width" type="text" name="key">
+    </div>
+    <div class="six columns">
+      <label for="value">value</label>
+      <input class="u-full-width" type="text" name="value">
+    </div>
+  </div>
+  <input class="button-primary" type="submit" value="Submit">
+</form>
 {{end}}
