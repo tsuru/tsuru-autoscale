@@ -5,11 +5,15 @@
   <input class="u-full-width" type="text" name="name">
   <label for="actions">Data source</label>
   <select class="u-full-width" name="datasource">
-    <option value=""></option>
+    {{range .DataSources}}
+    <option value="{{.Name}}">{{.Name}}</option>
+    {{end}}
   </select>
   <label for="actions">Actions</label>
   <select class="u-full-width" name="actions">
-    <option value=""></option>
+    {{range .Actions}}
+    <option value="{{.Name}}">{{.Name}}</option>
+    {{end}}
   </select>
   <label for="wait">Wait time</label>
   <input class="u-full-width" type="text" name="wait">

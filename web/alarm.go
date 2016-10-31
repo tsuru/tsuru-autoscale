@@ -62,8 +62,8 @@ func alarmAdd(w http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 	context := struct {
-		datasourceList []datasource.DataSource
-		actionList     []action.Action
+		DataSources []datasource.DataSource
+		Actions     []action.Action
 	}{
 		ds,
 		actions,
