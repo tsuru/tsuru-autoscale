@@ -29,6 +29,7 @@ func Router(m *mux.Router) {
 	m.HandleFunc("/", indexHandler).Methods("GET")
 	m.Handle("/event", handler(eventHandler)).Methods("GET")
 	m.Handle("/alarm", handler(alarmHandler)).Methods("GET")
+	m.Handle("/alarm/add", handler(alarmAdd)).Methods("GET", "POST")
 	m.Handle("/alarm/{name}", handler(alarmDetailHandler)).Methods("GET")
 	m.Handle("/alarm/{name}/delete", handler(alarmRemove)).Methods("GET")
 	m.Handle("/alarm/{name}/enable", handler(alarmEnable)).Methods("GET")
