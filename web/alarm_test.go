@@ -39,3 +39,16 @@ func (s *S) TestAlarmDisable(c *check.C) {
 	c.Assert(err, check.IsNil)
 	c.Assert(a.Enabled, check.Equals, false)
 }
+
+func (s *S) TestAlarmRemove(c *check.C) {
+	a := &alarm.Alarm{Name: "myalarm"}
+	err := alarm.NewAlarm(a)
+	c.Assert(err, check.IsNil)
+	recorder := httptest.NewRecorder()
+	request, err := http.NewRequest("GET", "/alarm/myalarm/delete", nil)
+	c.Assert(err, check.IsNil)
+	server(recorder, request)
+	c.Assert(recorder.Code, check.Equals, http.StatusFound)
+	_, err = alarm.FindAlarmByName("myalarm")
+	c.Assert(err, check.NotNil)
+}
