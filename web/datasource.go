@@ -46,7 +46,9 @@ func dataSourceAdd(w http.ResponseWriter, r *http.Request) error {
 		}
 		headers := map[string]string{}
 		for i := range r.Form["key"] {
-			headers[r.Form["key"][i]] = r.Form["value"][i]
+			if r.Form["key"][i] != "" {
+				headers[r.Form["key"][i]] = r.Form["value"][i]
+			}
 		}
 		ds.Headers = headers
 		err = datasource.New(&ds)

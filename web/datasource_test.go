@@ -7,6 +7,7 @@ package web
 import (
 	"net/http"
 	"net/http/httptest"
+	"net/url"
 	"os"
 	"strings"
 	"testing"
@@ -64,4 +65,30 @@ func (s *S) TestDataSourceAdd(c *check.C) {
 	request.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 	server(recorder, request)
 	c.Assert(recorder.Code, check.Equals, http.StatusFound)
+}
+
+func (s *S) TestDataSourceAddEmptyHeader(c *check.C) {
+	recorder := httptest.NewRecorder()
+	ds := datasource.DataSource{
+		Name:    "new",
+		URL:     "http://tsuru.io",
+		Method:  "GET",
+		Headers: map[string]string{" ": " "},
+	}
+	v := url.Values{
+		"key":    []string{"", "f", ""},
+		"value":  []string{"", "f", ""},
+		"name":   []string{"new"},
+		"url":    []string{"sdfasd"},
+		"method": []string{"GET"},
+	}
+	body := strings.NewReader(v.Encode())
+	request, err := http.NewRequest("POST", "/datasource/add", body)
+	c.Assert(err, check.IsNil)
+	request.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+	server(recorder, request)
+	c.Assert(recorder.Code, check.Equals, http.StatusFound)
+	r, err := datasource.Get(ds.Name)
+	c.Assert(err, check.IsNil)
+	c.Assert(len(r.Headers), check.Equals, 1)
 }
