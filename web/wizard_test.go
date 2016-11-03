@@ -60,3 +60,39 @@ func (s *S) TestWizardEnable(c *check.C) {
 	c.Assert(err, check.IsNil)
 	c.Assert(r.Enabled(), check.Equals, true)
 }
+
+func (s *S) TestWizardDisable(c *check.C) {
+	scaleUp := wizard.ScaleAction{
+		Metric:   "cpu",
+		Operator: ">",
+		Step:     "1",
+		Value:    "10",
+		Wait:     50,
+	}
+	scaleDown := wizard.ScaleAction{
+		Metric:   "cpu",
+		Operator: "<",
+		Step:     "1",
+		Value:    "2",
+		Wait:     50,
+	}
+	a := wizard.AutoScale{
+		Name:      "new",
+		ScaleUp:   scaleUp,
+		ScaleDown: scaleDown,
+		Process:   "web",
+		MinUnits:  2,
+	}
+	recorder := httptest.NewRecorder()
+	err := wizard.New(&a)
+	c.Assert(err, check.IsNil)
+	err = a.Enable()
+	c.Assert(err, check.IsNil)
+	request, err := http.NewRequest("GET", "/wizard/new/disable", nil)
+	c.Assert(err, check.IsNil)
+	server(recorder, request)
+	c.Assert(recorder.Code, check.Equals, http.StatusFound)
+	r, err := wizard.FindByName(a.Name)
+	c.Assert(err, check.IsNil)
+	c.Assert(r.Enabled(), check.Equals, false)
+}
