@@ -161,7 +161,6 @@ func shouldWait(alarm *Alarm) (bool, error) {
 	now := time.Now().UTC()
 	lastEvent, err := lastScaleEvent(alarm)
 	if err != nil && err != mgo.ErrNotFound {
-		logger().Error(err)
 		return false, err
 	}
 	if err != mgo.ErrNotFound && lastEvent.EndTime.IsZero() {
@@ -181,7 +180,6 @@ func shouldWait(alarm *Alarm) (bool, error) {
 func Enable(alarm *Alarm) error {
 	conn, err := db.Conn()
 	if err != nil {
-		logger().Error(err)
 		return nil
 	}
 	defer conn.Close()
@@ -192,7 +190,6 @@ func Enable(alarm *Alarm) error {
 func Disable(alarm *Alarm) error {
 	conn, err := db.Conn()
 	if err != nil {
-		logger().Error(err)
 		return nil
 	}
 	defer conn.Close()
@@ -204,12 +201,10 @@ func (a *Alarm) data(appName string) (map[string]string, error) {
 	for _, dataSource := range a.DataSources {
 		ds, err := datasource.Get(dataSource)
 		if err != nil {
-			logger().Error(err)
 			return nil, err
 		}
 		data, err := ds.Get(appName, a.Envs)
 		if err != nil {
-			logger().Error(err)
 			return nil, err
 		}
 		logger().Printf("data for alarm %s - %s", a.Name, data)
@@ -222,7 +217,6 @@ func (a *Alarm) data(appName string) (map[string]string, error) {
 func (a *Alarm) Check() (bool, error) {
 	instance, err := tsuru.GetInstanceByName(a.Instance)
 	if err != nil {
-		logger().Error(err)
 		return false, err
 	}
 	if len(instance.Apps) < 1 {
@@ -234,7 +228,6 @@ func (a *Alarm) Check() (bool, error) {
 	appName := instance.Apps[0]
 	dataSourceData, err := a.data(appName)
 	if err != nil {
-		logger().Error(err)
 		return false, err
 	}
 	expression := strings.Replace(a.Expression, "{app}", appName, -1)
@@ -250,12 +243,10 @@ func (a *Alarm) Check() (bool, error) {
 	vm.Run(fmt.Sprintf("var expression=%s;", expression))
 	result, err := vm.Get("expression")
 	if err != nil {
-		logger().Error(err)
 		return false, err
 	}
 	check, err := result.ToBoolean()
 	if err != nil {
-		logger().Error(err)
 		return false, err
 	}
 	return check, nil
@@ -273,14 +264,12 @@ func ListAlarmsByToken(token string) ([]Alarm, error) {
 	}
 	conn, err := db.Conn()
 	if err != nil {
-		logger().Error(err)
 		return nil, err
 	}
 	defer conn.Close()
 	var alarms []Alarm
 	err = conn.Alarms().Find(bson.M{"instance": bson.M{"$in": instances}}).All(&alarms)
 	if err != nil {
-		logger().Error(err)
 		return nil, err
 	}
 	return alarms, nil
@@ -290,14 +279,12 @@ func ListAlarmsByToken(token string) ([]Alarm, error) {
 func ListAlarmsByInstance(instanceName string) ([]Alarm, error) {
 	conn, err := db.Conn()
 	if err != nil {
-		logger().Error(err)
 		return nil, err
 	}
 	defer conn.Close()
 	var alarms []Alarm
 	err = conn.Alarms().Find(bson.M{"instance": instanceName}).All(&alarms)
 	if err != nil {
-		logger().Error(err)
 		return nil, err
 	}
 	return alarms, nil
@@ -339,13 +326,11 @@ func FindAlarmByName(name string) (*Alarm, error) {
 func RemoveAlarm(a *Alarm) error {
 	conn, err := db.Conn()
 	if err != nil {
-		logger().Error(err)
 		return err
 	}
 	defer conn.Close()
 	err = conn.Alarms().Remove(bson.M{"name": a.Name})
 	if err != nil {
-		logger().Error(err)
 		return err
 	}
 	conn.Events().RemoveAll(bson.M{"alarm.name": a.Name})
