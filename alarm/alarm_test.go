@@ -437,3 +437,13 @@ func (s *S) TestUpdateAlarm(c *check.C) {
 	c.Assert(err, check.IsNil)
 	c.Assert(r.Enabled, check.Equals, false)
 }
+
+func (s *S) TestUpdateAlarmNotFound(c *check.C) {
+	a := Alarm{
+		Name:       "name",
+		Expression: `data.id === "{var}"`,
+		Enabled:    true,
+	}
+	err := UpdateAlarm(&a)
+	c.Assert(err, check.NotNil)
+}
