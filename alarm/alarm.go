@@ -48,8 +48,7 @@ type Alarm struct {
 func NewAlarm(a *Alarm) error {
 	conn, err := db.Conn()
 	if err != nil {
-		logger().Error(err)
-		return nil
+		return err
 	}
 	defer conn.Close()
 	return conn.Alarms().Insert(&a)

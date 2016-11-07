@@ -447,3 +447,16 @@ func (s *S) TestUpdateAlarmNotFound(c *check.C) {
 	err := UpdateAlarm(&a)
 	c.Assert(err, check.NotNil)
 }
+
+func (s *S) TestNewAlarmWithoutDB(c *check.C) {
+	err := os.Setenv("MONGODB_URL", "invalid")
+	c.Assert(err, check.IsNil)
+	defer os.Unsetenv("MONGODB_URL")
+	a := Alarm{
+		Name:       "name",
+		Expression: `data.id === "{var}"`,
+		Enabled:    true,
+	}
+	err = NewAlarm(&a)
+	c.Assert(err, check.NotNil)
+}
