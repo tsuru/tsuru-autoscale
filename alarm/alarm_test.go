@@ -421,3 +421,19 @@ func (s *S) TestListAlarmsByInstance(c *check.C) {
 	c.Assert(err, check.IsNil)
 	c.Assert(all, check.HasLen, 2)
 }
+
+func (s *S) TestUpdateAlarm(c *check.C) {
+	a := Alarm{
+		Name:       "name",
+		Expression: `data.id === "{var}"`,
+		Enabled:    true,
+	}
+	err := NewAlarm(&a)
+	c.Assert(err, check.IsNil)
+	a.Enabled = false
+	err = UpdateAlarm(&a)
+	c.Assert(err, check.IsNil)
+	r, err := FindAlarmByName(a.Name)
+	c.Assert(err, check.IsNil)
+	c.Assert(r.Enabled, check.Equals, false)
+}

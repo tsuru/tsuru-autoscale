@@ -352,3 +352,17 @@ func RemoveAlarm(a *Alarm) error {
 	conn.Events().RemoveAll(bson.M{"alarm.name": a.Name})
 	return nil
 }
+
+// UpdateAlarm updates an alarm
+func UpdateAlarm(a *Alarm) error {
+	_, err := FindAlarmByName(a.Name)
+	if err != nil {
+		return err
+	}
+	conn, err := db.Conn()
+	if err != nil {
+		return err
+	}
+	defer conn.Close()
+	return conn.Alarms().Update(bson.M{"name": a.Name}, &a)
+}
