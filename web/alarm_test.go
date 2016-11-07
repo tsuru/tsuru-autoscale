@@ -66,3 +66,44 @@ func (s *S) TestAlarmAdd(c *check.C) {
 	server(recorder, request)
 	c.Assert(recorder.Code, check.Equals, http.StatusFound)
 }
+
+func (s *S) TestAlarmEdit(c *check.C) {
+	a := &alarm.Alarm{Name: "myalarm", Enabled: true}
+	err := alarm.NewAlarm(a)
+	c.Assert(err, check.IsNil)
+	recorder := httptest.NewRecorder()
+	a = &alarm.Alarm{Name: "myalarm", Enabled: false}
+	v, err := form.EncodeToValues(&a)
+	c.Assert(err, check.IsNil)
+	body := strings.NewReader(v.Encode())
+	request, err := http.NewRequest("POST", "/alarm/myalarm/edit", body)
+	c.Assert(err, check.IsNil)
+	request.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+	server(recorder, request)
+	c.Assert(recorder.Code, check.Equals, http.StatusFound)
+	r, err := alarm.FindAlarmByName(a.Name)
+	c.Assert(err, check.IsNil)
+	c.Assert(r.Enabled, check.Equals, false)
+}
+
+func (s *S) TestAlarmEditEmptyBody(c *check.C) {
+	recorder := httptest.NewRecorder()
+	request, err := http.NewRequest("POST", "/alarm/myalarm/edit", nil)
+	c.Assert(err, check.IsNil)
+	request.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+	server(recorder, request)
+	c.Assert(recorder.Code, check.Equals, http.StatusInternalServerError)
+}
+
+func (s *S) TestAlarmEditNotFound(c *check.C) {
+	recorder := httptest.NewRecorder()
+	a := &alarm.Alarm{Name: "myalarm", Enabled: false}
+	v, err := form.EncodeToValues(&a)
+	c.Assert(err, check.IsNil)
+	body := strings.NewReader(v.Encode())
+	request, err := http.NewRequest("POST", "/alarm/myalarm/edit", body)
+	c.Assert(err, check.IsNil)
+	request.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+	server(recorder, request)
+	c.Assert(recorder.Code, check.Equals, http.StatusNotFound)
+}

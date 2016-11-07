@@ -112,3 +112,24 @@ func alarmDisable(w http.ResponseWriter, r *http.Request) error {
 	http.Redirect(w, r, fmt.Sprintf("/web/alarm/%s", vars["name"]), 302)
 	return nil
 }
+
+func alarmEdit(w http.ResponseWriter, r *http.Request) error {
+	err := r.ParseForm()
+	if err != nil {
+		return err
+	}
+	var a alarm.Alarm
+	d := form.NewDecoder(nil)
+	d.IgnoreCase(true)
+	d.IgnoreUnknownKeys(true)
+	err = d.DecodeValues(&a, r.Form)
+	if err != nil {
+		return err
+	}
+	err = alarm.UpdateAlarm(&a)
+	if err != nil {
+		return err
+	}
+	http.Redirect(w, r, "/web/alarm", 302)
+	return nil
+}
