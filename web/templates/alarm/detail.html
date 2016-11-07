@@ -1,12 +1,16 @@
 {{define "content"}}
 <h1>alarm / {{.Name}}</h1>
-<form method="post">
+<form method="post" action="/web/alarm/{{.Name}}/edit">
   <label for="name">Name</label>
   <input class="u-full-width" type="text" name="name" value={{.Name}} readonly>
   <label for="datasource">Data source</label>
-  <input class="u-full-width" type="text" name="datasource" value={{.DataSources}} readonly>
+  {{range $ds := .DataSources }}
+  <input class="u-full-width" type="text" name="datasource" value={{$ds}} readonly>
+  {{end}}
   <label for="actions">Actions</label>
-  <input class="u-full-width" type="text" name="actions" value={{.Actions}} readonly>
+  {{range $action := .Actions}}
+  <input class="u-full-width" type="text" name="actions" value={{$action}} readonly>
+  {{end}}
   <label for="wait">Wait time</label>
   <input class="u-full-width" type="text" name="wait" value="{{.Wait}}">
   <label for="headers">Envs</label>
@@ -22,6 +26,7 @@
     </div>
   </div>
   {{end}}
+  <input class="button-primary" type="submit" value="Edit">
 </form>
 {{if .Enabled}}
 <a href="/web/alarm/{{.Name}}/disable">disable</a>
