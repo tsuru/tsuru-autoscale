@@ -1,20 +1,25 @@
 {{define "content"}}
-<h1>alarm / {{.Name}}</h1>
-<form method="post" action="/web/alarm/{{.Name}}/edit">
+<h1>alarm / {{.Alarm.Name}}</h1>
+<form method="post" action="/web/alarm/{{.Alarm.Name}}/edit">
   <label for="name">Name</label>
-  <input class="u-full-width" type="text" name="name" value={{.Name}} readonly>
+  <input class="u-full-width" type="text" name="name" value={{.Alarm.Name}} readonly>
   <label for="datasource">Data source</label>
-  {{range $ds := .DataSources }}
-  <input class="u-full-width" type="text" name="datasource" value={{$ds}} readonly>
-  {{end}}
+  <select class="u-full-width" name="datasource" multiple>
+    {{ $alarm := .Alarm }}
+    {{range $ds := .DataSources}}
+    <option value="{{$ds.Name}}"{{range $alarm.DataSources}}{{if eq . $ds.Name}} selected{{end}}{{end}}>{{$ds.Name}}</option>
+    {{end}}
+  </select>
   <label for="actions">Actions</label>
-  {{range $action := .Actions}}
-  <input class="u-full-width" type="text" name="actions" value={{$action}} readonly>
-  {{end}}
+  <select class="u-full-width" name="actions" multiple>
+    {{range $action := .Actions}}
+    <option value="{{$action.Name}}"{{range $alarm.Actions}}{{if eq . $action.Name}} selected{{end}}{{end}}>{{$action.Name}}</option>
+    {{end}}
+  </select>
   <label for="wait">Wait time</label>
-  <input class="u-full-width" type="text" name="wait" value="{{.Wait}}">
+  <input class="u-full-width" type="text" name="wait" value="{{.Alarm.Wait}}">
   <label for="headers">Envs</label>
-  {{range $key, $value := .Envs}}
+  {{range $key, $value := .Alarm.Envs}}
   <div class="row">
     <div class="six columns">
       <label for="key">key</label>
@@ -28,9 +33,9 @@
   {{end}}
   <input class="button-primary" type="submit" value="Edit">
 </form>
-{{if .Enabled}}
-<a href="/web/alarm/{{.Name}}/disable">disable</a>
+{{if .Alarm.Enabled}}
+<a href="/web/alarm/{{.Alarm.Name}}/disable">disable</a>
 {{else}}
-<a href="/web/alarm/{{.Name}}/enable">enable</a>
+<a href="/web/alarm/{{.Alarm.Name}}/enable">enable</a>
 {{end}}
 {{end}}

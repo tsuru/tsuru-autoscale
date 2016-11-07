@@ -29,7 +29,24 @@ func alarmDetailHandler(w http.ResponseWriter, r *http.Request) error {
 	if err != nil {
 		return err
 	}
-	return render(w, "web/templates/alarm/detail.html", a)
+	ds, err := datasource.FindBy(nil)
+	if err != nil {
+		return err
+	}
+	actions, err := action.All()
+	if err != nil {
+		return err
+	}
+	context := struct {
+		DataSources []datasource.DataSource
+		Actions     []action.Action
+		Alarm       *alarm.Alarm
+	}{
+		ds,
+		actions,
+		a,
+	}
+	return render(w, "web/templates/alarm/detail.html", context)
 }
 
 func alarmAdd(w http.ResponseWriter, r *http.Request) error {
