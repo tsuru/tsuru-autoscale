@@ -86,9 +86,14 @@ func (s *S) TestAlarmEdit(c *check.C) {
 	err := alarm.NewAlarm(a)
 	c.Assert(err, check.IsNil)
 	recorder := httptest.NewRecorder()
-	a = &alarm.Alarm{Name: "myalarm", Enabled: false}
-	v, err := form.EncodeToValues(&a)
-	c.Assert(err, check.IsNil)
+	v := url.Values{
+		"key":         []string{"", "f", "x"},
+		"value":       []string{"", "f", "x"},
+		"name":        []string{"myalarm"},
+		"enabled":     []string{"false"},
+		"datasources": []string{"cpu", "memory"},
+		"actions":     []string{"up", "down"},
+	}
 	body := strings.NewReader(v.Encode())
 	request, err := http.NewRequest("POST", "/alarm/myalarm/edit", body)
 	c.Assert(err, check.IsNil)
@@ -98,6 +103,9 @@ func (s *S) TestAlarmEdit(c *check.C) {
 	r, err := alarm.FindAlarmByName(a.Name)
 	c.Assert(err, check.IsNil)
 	c.Assert(r.Enabled, check.Equals, false)
+	c.Assert(r.DataSources, check.DeepEquals, []string{"cpu", "memory"})
+	c.Assert(r.Actions, check.DeepEquals, []string{"up", "down"})
+	c.Assert(r.Envs, check.DeepEquals, map[string]string{"x": "x", "f": "f"})
 }
 
 func (s *S) TestAlarmEditEmptyBody(c *check.C) {

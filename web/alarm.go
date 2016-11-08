@@ -157,6 +157,24 @@ func alarmEdit(w http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 	var a alarm.Alarm
+	ds := []string{}
+	for _, d := range r.Form["datasources"] {
+		ds = append(ds, d)
+	}
+	r.Form.Del("datasources")
+	envs := map[string]string{}
+	for i := range r.Form["key"] {
+		if r.Form["key"][i] != "" {
+			envs[r.Form["key"][i]] = r.Form["value"][i]
+		}
+	}
+	r.Form.Del("key")
+	r.Form.Del("value")
+	actions := []string{}
+	for _, a := range r.Form["actions"] {
+		actions = append(actions, a)
+	}
+	r.Form.Del("actions")
 	d := form.NewDecoder(nil)
 	d.IgnoreCase(true)
 	d.IgnoreUnknownKeys(true)
@@ -164,6 +182,9 @@ func alarmEdit(w http.ResponseWriter, r *http.Request) error {
 	if err != nil {
 		return err
 	}
+	a.DataSources = ds
+	a.Actions = actions
+	a.Envs = envs
 	err = alarm.UpdateAlarm(&a)
 	if err != nil {
 		return err
