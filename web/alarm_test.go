@@ -7,6 +7,7 @@ package web
 import (
 	"net/http"
 	"net/http/httptest"
+	"net/url"
 	"strings"
 
 	"github.com/ajg/form"
@@ -56,15 +57,28 @@ func (s *S) TestAlarmRemove(c *check.C) {
 }
 
 func (s *S) TestAlarmAdd(c *check.C) {
-	a := &alarm.Alarm{Name: "myalarm"}
-	recorder := httptest.NewRecorder()
-	v, err := form.EncodeToValues(&a)
-	c.Assert(err, check.IsNil)
+	v := url.Values{
+		"key":         []string{"", "f", "x"},
+		"value":       []string{"", "f", "x"},
+		"name":        []string{"new"},
+		"enabled":     []string{"true"},
+		"datasources": []string{"cpu", "memory"},
+		"actions":     []string{"up", "down"},
+	}
 	body := strings.NewReader(v.Encode())
+	recorder := httptest.NewRecorder()
 	request, err := http.NewRequest("POST", "/alarm/add", body)
 	c.Assert(err, check.IsNil)
+	request.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 	server(recorder, request)
+	c.Assert(recorder.Body.String(), check.Equals, "")
 	c.Assert(recorder.Code, check.Equals, http.StatusFound)
+	r, err := alarm.FindAlarmByName("new")
+	c.Assert(err, check.IsNil)
+	c.Assert(r.Name, check.Equals, "new")
+	c.Assert(r.DataSources, check.DeepEquals, []string{"cpu", "memory"})
+	c.Assert(r.Actions, check.DeepEquals, []string{"up", "down"})
+	c.Assert(r.Envs, check.DeepEquals, map[string]string{"x": "x", "f": "f"})
 }
 
 func (s *S) TestAlarmEdit(c *check.C) {
