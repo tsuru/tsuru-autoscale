@@ -16,8 +16,8 @@
     <option value="{{$action.Name}}"{{range $alarm.Actions}}{{if eq . $action.Name}} selected{{end}}{{end}}>{{$action.Name}}</option>
     {{end}}
   </select>
-  <label for="wait">Wait time</label>
-  <input class="u-full-width" type="text" name="wait" value="{{.Alarm.Wait}}">
+  <label for="wait">Wait time (nanoseconds)</label>
+  <input class="u-full-width" type="text" name="wait" value="{{.Alarm.Wait.Nanoseconds}}">
   <label for="headers">Envs</label>
   {{range $key, $value := .Alarm.Envs}}
   <div class="row">
