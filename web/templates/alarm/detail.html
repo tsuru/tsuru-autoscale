@@ -3,8 +3,8 @@
 <form method="post" action="/web/alarm/{{.Alarm.Name}}/edit">
   <label for="name">Name</label>
   <input class="u-full-width" type="text" name="name" value={{.Alarm.Name}} readonly>
-  <label for="datasource">Data source</label>
-  <select class="u-full-width" name="datasource" multiple>
+  <label for="datasources">Data source</label>
+  <select class="u-full-width" name="datasources" multiple>
     {{ $alarm := .Alarm }}
     {{range $ds := .DataSources}}
     <option value="{{$ds.Name}}"{{range $alarm.DataSources}}{{if eq . $ds.Name}} selected{{end}}{{end}}>{{$ds.Name}}</option>
