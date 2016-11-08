@@ -69,12 +69,6 @@ func (s *S) TestDataSourceAdd(c *check.C) {
 
 func (s *S) TestDataSourceAddEmptyHeader(c *check.C) {
 	recorder := httptest.NewRecorder()
-	ds := datasource.DataSource{
-		Name:    "new",
-		URL:     "http://tsuru.io",
-		Method:  "GET",
-		Headers: map[string]string{" ": " "},
-	}
 	v := url.Values{
 		"key":    []string{"", "f", ""},
 		"value":  []string{"", "f", ""},
@@ -88,7 +82,7 @@ func (s *S) TestDataSourceAddEmptyHeader(c *check.C) {
 	request.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 	server(recorder, request)
 	c.Assert(recorder.Code, check.Equals, http.StatusFound)
-	r, err := datasource.Get(ds.Name)
+	r, err := datasource.Get("new")
 	c.Assert(err, check.IsNil)
 	c.Assert(len(r.Headers), check.Equals, 1)
 }
