@@ -3,6 +3,8 @@
 <form method="post" action="/web/alarm/{{.Alarm.Name}}/edit">
   <label for="name">Name</label>
   <input class="u-full-width" type="text" name="name" value={{.Alarm.Name}} readonly>
+  <label for="expression">Expression</label>
+  <input class="u-full-width" type="text" name="expression" value="{{.Alarm.Expression}}">
   <label for="datasources">Data source</label>
   <select class="u-full-width" name="datasources" multiple>
     {{ $alarm := .Alarm }}
