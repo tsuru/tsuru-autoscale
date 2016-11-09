@@ -3,6 +3,8 @@
 <form method="post">
   <label for="name">Name</label>
   <input class="u-full-width" type="text" name="name">
+  <label for="expression">Expression</label>
+  <input class="u-full-width" type="text" name="expression">
   <label for="actions">Data source</label>
   <select class="u-full-width" name="datasources" multiple>
     {{range .DataSources}}
