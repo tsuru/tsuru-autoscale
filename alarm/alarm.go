@@ -313,7 +313,7 @@ func FindAlarmByName(name string) (*Alarm, error) {
 	}
 	defer conn.Close()
 	alarms, err := FindAlarmBy(bson.M{"name": name})
-	if err != nil {
+	if err != nil && err != mgo.ErrNotFound {
 		return nil, err
 	}
 	if len(alarms) > 0 {

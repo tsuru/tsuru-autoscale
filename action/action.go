@@ -12,6 +12,7 @@ import (
 
 	"github.com/tsuru/tsuru-autoscale/db"
 	"github.com/tsuru/tsuru-autoscale/log"
+	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 )
 
@@ -57,6 +58,9 @@ func FindByName(name string) (*Action, error) {
 	var action Action
 	err = conn.Actions().Find(bson.M{"name": name}).One(&action)
 	if err != nil {
+		if err == mgo.ErrNotFound {
+			err = fmt.Errorf("action %q not found", name)
+		}
 		logger().Error(err)
 		return nil, err
 	}

@@ -13,6 +13,7 @@ import (
 
 	"github.com/tsuru/tsuru-autoscale/db"
 	"github.com/tsuru/tsuru-autoscale/log"
+	mgo "gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 )
 
@@ -75,6 +76,9 @@ func Get(name string) (*DataSource, error) {
 	var ds DataSource
 	err = conn.DataSources().Find(bson.M{"name": name}).One(&ds)
 	if err != nil {
+		if err == mgo.ErrNotFound {
+			err = fmt.Errorf("datasource %q not found", name)
+		}
 		logger().Error(err)
 		return nil, err
 	}

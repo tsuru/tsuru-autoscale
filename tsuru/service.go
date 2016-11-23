@@ -6,10 +6,12 @@ package tsuru
 
 import (
 	"errors"
+	"fmt"
 	"strings"
 
 	"github.com/tsuru/tsuru-autoscale/db"
 	"github.com/tsuru/tsuru-autoscale/log"
+	mgo "gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 )
 
@@ -111,6 +113,9 @@ func GetInstanceByName(name string) (*Instance, error) {
 	var i Instance
 	err = conn.Instances().Find(bson.M{"name": name}).One(&i)
 	if err != nil {
+		if err == mgo.ErrNotFound {
+			err = fmt.Errorf("instance %q not found", name)
+		}
 		logger().Error(err)
 		return nil, err
 	}
