@@ -194,6 +194,7 @@ func alarmEdit(w http.ResponseWriter, r *http.Request) error {
 	if err != nil {
 		return err
 	}
-	http.Redirect(w, r, "/web/alarm", 302)
+	u := fmt.Sprintf("/web/alarm/%s", a.Name)
+	http.Redirect(w, r, u, 302)
 	return nil
 }
