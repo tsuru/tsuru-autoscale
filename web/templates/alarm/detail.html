@@ -6,6 +6,7 @@
   <label for="expression">Expression</label>
   <input class="u-full-width" type="text" name="expression" value="{{.Alarm.Expression}}">
   <input type="hidden" name="enabled" value="{{.Alarm.Enabled}}">
+  <input type="hidden" name="instance" value="{{.Alarm.Instance}}">
   <label for="datasources">Data source</label>
   <select class="u-full-width" name="datasources" multiple>
     {{ $alarm := .Alarm }}

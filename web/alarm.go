@@ -185,11 +185,6 @@ func alarmEdit(w http.ResponseWriter, r *http.Request) error {
 	a.DataSources = ds
 	a.Actions = actions
 	a.Envs = envs
-	oldAlarm, err := alarm.FindAlarmByName(a.Name)
-	if err != nil {
-		return err
-	}
-	a.Instance = oldAlarm.Instance
 	err = alarm.UpdateAlarm(&a)
 	if err != nil {
 		return err
