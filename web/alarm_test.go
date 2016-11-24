@@ -82,7 +82,7 @@ func (s *S) TestAlarmAdd(c *check.C) {
 }
 
 func (s *S) TestAlarmEdit(c *check.C) {
-	a := &alarm.Alarm{Name: "myalarm", Enabled: true}
+	a := &alarm.Alarm{Name: "myalarm", Enabled: true, Instance: "myalarm-instance"}
 	err := alarm.NewAlarm(a)
 	c.Assert(err, check.IsNil)
 	recorder := httptest.NewRecorder()
@@ -106,6 +106,7 @@ func (s *S) TestAlarmEdit(c *check.C) {
 	c.Assert(r.DataSources, check.DeepEquals, []string{"cpu", "memory"})
 	c.Assert(r.Actions, check.DeepEquals, []string{"up", "down"})
 	c.Assert(r.Envs, check.DeepEquals, map[string]string{"x": "x", "f": "f"})
+	c.Assert(r.Instance, check.Equals, "myalarm-instance")
 }
 
 func (s *S) TestAlarmEditEmptyBody(c *check.C) {

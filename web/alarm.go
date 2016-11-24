@@ -156,7 +156,6 @@ func alarmEdit(w http.ResponseWriter, r *http.Request) error {
 	if err != nil {
 		return err
 	}
-	var a alarm.Alarm
 	ds := []string{}
 	for _, d := range r.Form["datasources"] {
 		ds = append(ds, d)
@@ -178,6 +177,7 @@ func alarmEdit(w http.ResponseWriter, r *http.Request) error {
 	d := form.NewDecoder(nil)
 	d.IgnoreCase(true)
 	d.IgnoreUnknownKeys(true)
+	var a alarm.Alarm
 	err = d.DecodeValues(&a, r.Form)
 	if err != nil {
 		return err
@@ -185,6 +185,11 @@ func alarmEdit(w http.ResponseWriter, r *http.Request) error {
 	a.DataSources = ds
 	a.Actions = actions
 	a.Envs = envs
+	oldAlarm, err := alarm.FindAlarmByName(a.Name)
+	if err != nil {
+		return err
+	}
+	a.Instance = oldAlarm.Instance
 	err = alarm.UpdateAlarm(&a)
 	if err != nil {
 		return err
