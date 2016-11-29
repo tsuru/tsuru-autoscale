@@ -4,3 +4,6 @@
 
 build:
 	go build -x
+
+test:
+	./go.test.bash
