@@ -14,3 +14,9 @@ matrix:
     - go: tip
 after_success:
   - bash <(curl -s https://codecov.io/bash)
+notifications:
+  email:
+    on_success: change
+    on_failure: always
+  slack:
+    secure: "KIgyVWMgGn10b2iwM4vMgvBGRuFfv163GleWR1glG03Ne/z1cweLThPZABcHY+bc1gaSETtlVeYFJYMsPQy+3B0xIaZmR2UCqQmMU/MfekdZnmHrKg1SQrYZLqGWTlNad1t5M+NNHU0+q/1bOkndKcxoYYFd8bG4Rcn7erYWboc="
