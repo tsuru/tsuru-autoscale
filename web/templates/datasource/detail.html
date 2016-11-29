@@ -27,6 +27,11 @@
     </div>
   </div>
   {{end}}
+  <div class="row">
+    <div class="six columns">
+      <input type="checkbox" name="public" value="true" {{if .Public}} checked {{end}}> Public
+    </div>
+  </div>
   <input class="button-primary" type="submit" value="Edit">
 </form>
 <a href="/web/datasource/{{.Name}}/delete">remove</a>
