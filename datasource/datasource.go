@@ -23,12 +23,13 @@ func logger() *log.Logger {
 
 // DataSource represents a data source.
 type DataSource struct {
-	Name    string
-	URL     string
-	Method  string
-	Body    string
-	Headers map[string]string
-	Public  bool
+	Name               string
+	URL                string
+	Method             string
+	Body               string
+	Headers            map[string]string
+	Public             bool
+	ExpressionTemplate string
 }
 
 // New creates a new data source instance.

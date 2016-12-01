@@ -12,6 +12,7 @@ import (
 	"time"
 
 	"github.com/tsuru/tsuru-autoscale/alarm"
+	"github.com/tsuru/tsuru-autoscale/datasource"
 	"github.com/tsuru/tsuru-autoscale/db"
 	"github.com/tsuru/tsuru/db/dbtest"
 	"gopkg.in/check.v1"
@@ -138,7 +139,66 @@ func (s *S) TestNew(c *check.C) {
 	c.Assert(al.Enabled, check.Equals, true)
 	c.Assert(al.Actions, check.DeepEquals, []string{"scale_down"})
 	c.Assert(al.Wait, check.Equals, 50*time.Second)
-	c.Assert(al.DataSources, check.DeepEquals, []string{scaleDown.Metric, "units"})
+	c.Assert(al.DataSources, check.DeepEquals, []string{"units", scaleDown.Metric})
+	var as AutoScale
+	err = s.conn.Wizard().Find(&a).One(&as)
+	c.Assert(err, check.IsNil)
+	c.Assert(as.Name, check.Equals, a.Name)
+	c.Assert(as.MinUnits, check.Equals, 2)
+}
+
+func (s *S) TestNewCustomDataSourceExpressionTemplate(c *check.C) {
+	scaleUp := ScaleAction{
+		Metric:   "cpu_prometheus",
+		Operator: ">",
+		Step:     "1",
+		Value:    "10",
+		Wait:     50,
+	}
+	scaleDown := ScaleAction{
+		Metric:   "cpu_prometheus",
+		Operator: "<",
+		Step:     "1",
+		Value:    "2",
+		Wait:     50,
+	}
+	a := AutoScale{
+		Name:      "test",
+		ScaleUp:   scaleUp,
+		ScaleDown: scaleDown,
+		Process:   "web",
+		MinUnits:  2,
+	}
+	err := datasource.New(&datasource.DataSource{
+		Name:               "cpu_prometheus",
+		URL:                "url",
+		Method:             "GET",
+		ExpressionTemplate: "cpu_prometheus['data']['result'][0]['values'] {operator} {value}",
+	})
+	c.Assert(err, check.IsNil)
+	err = New(&a)
+	c.Assert(err, check.IsNil)
+	scaleName := "scale_up_test_web"
+	al, err := alarm.FindAlarmByName(scaleName)
+	c.Assert(err, check.IsNil)
+	c.Assert(al.Name, check.Equals, scaleName)
+	c.Assert(al.Expression, check.Equals, "cpu_prometheus['data']['result'][0]['values'] > 10")
+	c.Assert(al.Envs, check.DeepEquals, map[string]string{"step": scaleUp.Step, "process": "web"})
+	c.Assert(al.Enabled, check.Equals, true)
+	c.Assert(al.DataSources, check.DeepEquals, []string{scaleUp.Metric})
+	c.Assert(al.Actions, check.DeepEquals, []string{"scale_up"})
+	scaleName = "scale_down_test_web"
+	al, err = alarm.FindAlarmByName(scaleName)
+	c.Assert(err, check.IsNil)
+	c.Assert(al.Name, check.Equals, scaleName)
+	expression := fmt.Sprintf(`!units.lock.Locked && units.units.map(function(unit){ if (unit.ProcessName === "{process}") {return 1} else {return 0}}).reduce(function(c, p) { return c + p }) > %d && `, a.MinUnits)
+	expression += "cpu_prometheus['data']['result'][0]['values'] < 2"
+	c.Assert(al.Expression, check.Equals, expression)
+	c.Assert(al.Envs, check.DeepEquals, map[string]string{"step": scaleDown.Step, "process": "web"})
+	c.Assert(al.Enabled, check.Equals, true)
+	c.Assert(al.Actions, check.DeepEquals, []string{"scale_down"})
+	c.Assert(al.Wait, check.Equals, 50*time.Second)
+	c.Assert(al.DataSources, check.DeepEquals, []string{"units", scaleDown.Metric})
 	var as AutoScale
 	err = s.conn.Wizard().Find(&a).One(&as)
 	c.Assert(err, check.IsNil)

@@ -7,12 +7,20 @@ package wizard
 import (
 	"encoding/json"
 	"fmt"
+	"strconv"
+	"strings"
 	"time"
 
 	"github.com/tsuru/tsuru-autoscale/alarm"
+	"github.com/tsuru/tsuru-autoscale/datasource"
 	"github.com/tsuru/tsuru-autoscale/db"
 	"github.com/tsuru/tsuru-autoscale/log"
 	"gopkg.in/mgo.v2/bson"
+)
+
+var (
+	unitsExpression   = `!units.lock.Locked && units.units.map(function(unit){ if (unit.ProcessName === "{process}") {return 1} else {return 0}}).reduce(function(c, p) { return c + p }) > {minUnits}`
+	defaultExpression = `{metric}.aggregations.range.buckets[0].date.buckets[{metric}.aggregations.range.buckets[0].date.buckets.length - 1].{aggregator}.value {operator} {value}`
 )
 
 func logger() *log.Logger {
@@ -79,7 +87,6 @@ func newScaleAction(scaleConfig *AutoScale, kind string) error {
 		name        string
 		processName string
 		action      ScaleAction
-		expression  string
 		datasources []string
 	)
 	if kind == "scale_up" {
@@ -88,8 +95,7 @@ func newScaleAction(scaleConfig *AutoScale, kind string) error {
 	}
 	if kind == "scale_down" {
 		action = scaleConfig.ScaleDown
-		expression = fmt.Sprintf(`!units.lock.Locked && units.units.map(function(unit){ if (unit.ProcessName === "{process}") {return 1} else {return 0}}).reduce(function(c, p) { return c + p }) > %d && `, scaleConfig.MinUnits)
-		datasources = []string{action.Metric, "units"}
+		datasources = []string{"units", action.Metric}
 	}
 	if scaleConfig.Process == "" {
 		name = fmt.Sprintf("%s_%s", kind, scaleConfig.Name)
@@ -102,14 +108,34 @@ func newScaleAction(scaleConfig *AutoScale, kind string) error {
 	if aggregator == "" {
 		aggregator = "max"
 	}
-	expression += fmt.Sprintf("%s.aggregations.range.buckets[0].date.buckets[%s.aggregations.range.buckets[0].date.buckets.length - 1].%s.value %s %s", action.Metric, action.Metric, aggregator, action.Operator, action.Value)
+	var expParts []string
+	for _, d := range datasources {
+		ds, _ := datasource.Get(d)
+		if ds == nil || ds.ExpressionTemplate == "" {
+			if d == "units" {
+				expParts = append(expParts, unitsExpression)
+			} else {
+				expParts = append(expParts, defaultExpression)
+			}
+		} else {
+			expParts = append(expParts, ds.ExpressionTemplate)
+		}
+	}
+	expression := strings.Join(expParts, " && ")
+	replacer := strings.NewReplacer(
+		"{aggregator}", aggregator,
+		"{operator}", action.Operator,
+		"{value}", action.Value,
+		"{minUnits}", strconv.Itoa(scaleConfig.MinUnits),
+		"{metric}", action.Metric,
+	)
 	envs := map[string]string{
 		"step":    action.Step,
 		"process": processName,
 	}
 	a := alarm.Alarm{
 		Name:        name,
-		Expression:  expression,
+		Expression:  replacer.Replace(expression),
 		Enabled:     true,
 		Wait:        action.Wait * time.Second,
 		Actions:     []string{kind},
