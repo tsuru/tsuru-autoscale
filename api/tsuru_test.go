@@ -35,7 +35,7 @@ func (s *S) TestServiceBindUnit(c *check.C) {
 	c.Assert(recorder.Code, check.Equals, http.StatusCreated)
 }
 
-func (s *S) TestServiceBindApp(c *check.C) {
+func (s *S) TestServiceBindAppByHost(c *check.C) {
 	service := &tsuru.Instance{
 		Name: "name",
 	}
@@ -43,6 +43,24 @@ func (s *S) TestServiceBindApp(c *check.C) {
 	c.Assert(err, check.IsNil)
 	recorder := httptest.NewRecorder()
 	body := `app-host=tsuru-dashboard.192.168.50.4.nip.io`
+	request, err := http.NewRequest("POST", "/resources/name/bind-app", strings.NewReader(body))
+	request.Header.Add("Authorization", "token")
+	c.Assert(err, check.IsNil)
+	server(recorder, request)
+	c.Assert(recorder.Code, check.Equals, http.StatusCreated)
+	var i interface{}
+	err = json.Unmarshal(recorder.Body.Bytes(), &i)
+	c.Assert(err, check.IsNil)
+}
+
+func (s *S) TestServiceBindApp(c *check.C) {
+	service := &tsuru.Instance{
+		Name: "name",
+	}
+	err := tsuru.NewInstance(service)
+	c.Assert(err, check.IsNil)
+	recorder := httptest.NewRecorder()
+	body := `app-name=tsuru-dashboard`
 	request, err := http.NewRequest("POST", "/resources/name/bind-app", strings.NewReader(body))
 	request.Header.Add("Authorization", "token")
 	c.Assert(err, check.IsNil)
@@ -62,6 +80,29 @@ func (s *S) TestServiceUnbindUnit(c *check.C) {
 	c.Assert(recorder.Code, check.Equals, http.StatusOK)
 }
 
+func (s *S) TestServiceUnbindAppByHost(c *check.C) {
+	service := &tsuru.Instance{
+		Name: "name",
+	}
+	err := tsuru.NewInstance(service)
+	c.Assert(err, check.IsNil)
+	instance, err := tsuru.GetInstanceByName("name")
+	c.Assert(err, check.IsNil)
+	err = instance.AddApp("", "tsuru-dashboard.192.168.50.4.nip.io")
+	c.Assert(err, check.IsNil)
+	recorder := httptest.NewRecorder()
+	body := `app-host=tsuru-dashboard.192.168.50.4.nip.io`
+	request, err := http.NewRequest("DELETE", "/resources/name/bind-app", strings.NewReader(body))
+	c.Assert(err, check.IsNil)
+	request.Header.Add("Authorization", "token")
+	request.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+	server(recorder, request)
+	c.Assert(recorder.Code, check.Equals, http.StatusOK)
+	instance, err = tsuru.GetInstanceByName("name")
+	c.Assert(err, check.IsNil)
+	c.Assert(instance.Apps, check.HasLen, 0)
+}
+
 func (s *S) TestServiceUnbindApp(c *check.C) {
 	service := &tsuru.Instance{
 		Name: "name",
@@ -70,10 +111,10 @@ func (s *S) TestServiceUnbindApp(c *check.C) {
 	c.Assert(err, check.IsNil)
 	instance, err := tsuru.GetInstanceByName("name")
 	c.Assert(err, check.IsNil)
-	err = instance.AddApp("tsuru-dashboard.192.168.50.4.nip.io")
+	err = instance.AddApp("", "tsuru-dashboard.192.168.50.4.nip.io")
 	c.Assert(err, check.IsNil)
 	recorder := httptest.NewRecorder()
-	body := `app-host=tsuru-dashboard.192.168.50.4.nip.io`
+	body := `app-name=tsuru-dashboard`
 	request, err := http.NewRequest("DELETE", "/resources/name/bind-app", strings.NewReader(body))
 	c.Assert(err, check.IsNil)
 	request.Header.Add("Authorization", "token")
@@ -115,7 +156,7 @@ func (s *S) TestServiceUnbindAppWithWizard(c *check.C) {
 	c.Assert(err, check.IsNil)
 	instance, err := tsuru.GetInstanceByName("name")
 	c.Assert(err, check.IsNil)
-	err = instance.AddApp("tsuru-dashboard.192.168.50.4.nip.io")
+	err = instance.AddApp("", "tsuru-dashboard.192.168.50.4.nip.io")
 	c.Assert(err, check.IsNil)
 	recorder := httptest.NewRecorder()
 	body := `app-host=tsuru-dashboard.192.168.50.4.nip.io`

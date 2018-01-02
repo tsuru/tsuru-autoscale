@@ -38,7 +38,7 @@ func serviceBindApp(w http.ResponseWriter, r *http.Request) error {
 	if err != nil {
 		return err
 	}
-	err = i.AddApp(r.FormValue("app-host"))
+	err = i.AddApp(r.FormValue("app-name"), r.FormValue("app-host"))
 	if err != nil {
 		return err
 	}
@@ -57,7 +57,7 @@ func serviceUnbindApp(w http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 	r.Method = "POST"
-	err = i.RemoveApp(r.FormValue("app-host"))
+	err = i.RemoveApp(r.FormValue("app-name"), r.FormValue("app-host"))
 	if err != nil {
 		return err
 	}
