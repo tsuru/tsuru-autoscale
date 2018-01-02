@@ -449,9 +449,11 @@ func (s *S) TestUpdateAlarmNotFound(c *check.C) {
 }
 
 func (s *S) TestNewAlarmWithoutDB(c *check.C) {
+	defer func(mongoURL string) {
+		os.Setenv("MONGODB_URL", mongoURL)
+	}(os.Getenv("MONGODB_URL"))
 	err := os.Setenv("MONGODB_URL", "invalid")
 	c.Assert(err, check.IsNil)
-	defer os.Unsetenv("MONGODB_URL")
 	a := Alarm{
 		Name:       "name",
 		Expression: `data.id === "{var}"`,
