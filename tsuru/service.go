@@ -52,8 +52,10 @@ func appFromHost(host string) string {
 }
 
 // AddApp add new app to an instance.
-func (i *Instance) AddApp(host string) error {
-	app := appFromHost(host)
+func (i *Instance) AddApp(app, host string) error {
+	if app == "" {
+		app = appFromHost(host)
+	}
 	if contains(i.Apps, app) {
 		return errors.New("")
 	}
@@ -62,8 +64,10 @@ func (i *Instance) AddApp(host string) error {
 }
 
 // RemoveApp removes app from an instance.
-func (i *Instance) RemoveApp(host string) error {
-	app := appFromHost(host)
+func (i *Instance) RemoveApp(app, host string) error {
+	if app == "" {
+		app = appFromHost(host)
+	}
 	if !contains(i.Apps, app) {
 		return errors.New("")
 	}

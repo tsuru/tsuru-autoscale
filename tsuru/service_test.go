@@ -56,9 +56,26 @@ func (s *S) TestAddApp(c *check.C) {
 	c.Assert(err, check.IsNil)
 	i, err = GetInstanceByName(i.Name)
 	c.Assert(err, check.IsNil)
-	err = i.AddApp("app.domain.com")
+	err = i.AddApp("app", "other.domain.com")
 	c.Assert(err, check.IsNil)
-	err = i.AddApp("app.domain.com")
+	err = i.AddApp("app", "other.domain.com")
+	c.Assert(err, check.NotNil)
+	i, err = GetInstanceByName(i.Name)
+	c.Assert(err, check.IsNil)
+	c.Assert(i.Apps, check.DeepEquals, []string{"app"})
+}
+
+func (s *S) TestAddAppByHost(c *check.C) {
+	i := &Instance{
+		Name: "name",
+	}
+	err := NewInstance(i)
+	c.Assert(err, check.IsNil)
+	i, err = GetInstanceByName(i.Name)
+	c.Assert(err, check.IsNil)
+	err = i.AddApp("", "app.domain.com")
+	c.Assert(err, check.IsNil)
+	err = i.AddApp("", "app.domain.com")
 	c.Assert(err, check.NotNil)
 	i, err = GetInstanceByName(i.Name)
 	c.Assert(err, check.IsNil)
@@ -89,11 +106,30 @@ func (s *S) TestRemoveApp(c *check.C) {
 	c.Assert(err, check.IsNil)
 	i, err = GetInstanceByName(i.Name)
 	c.Assert(err, check.IsNil)
-	err = i.AddApp("app.domain.com")
+	err = i.AddApp("app", "other.domain.com")
 	c.Assert(err, check.IsNil)
-	err = i.RemoveApp("notfound.domain.com")
+	err = i.RemoveApp("", "notfound.domain.com")
 	c.Assert(err, check.NotNil)
-	err = i.RemoveApp("app.domain.com")
+	err = i.RemoveApp("app", "other2.domain.com")
+	c.Assert(err, check.IsNil)
+	i, err = GetInstanceByName(i.Name)
+	c.Assert(err, check.IsNil)
+	c.Assert(i.Apps, check.HasLen, 0)
+}
+
+func (s *S) TestRemoveAppByHost(c *check.C) {
+	i := &Instance{
+		Name: "name",
+	}
+	err := NewInstance(i)
+	c.Assert(err, check.IsNil)
+	i, err = GetInstanceByName(i.Name)
+	c.Assert(err, check.IsNil)
+	err = i.AddApp("", "app.domain.com")
+	c.Assert(err, check.IsNil)
+	err = i.RemoveApp("", "notfound.domain.com")
+	c.Assert(err, check.NotNil)
+	err = i.RemoveApp("", "app.domain.com")
 	c.Assert(err, check.IsNil)
 	i, err = GetInstanceByName(i.Name)
 	c.Assert(err, check.IsNil)
