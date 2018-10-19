@@ -55,10 +55,7 @@ func alarmAdd(w http.ResponseWriter, r *http.Request) error {
 		if err != nil {
 			return err
 		}
-		ds := []string{}
-		for _, d := range r.Form["datasources"] {
-			ds = append(ds, d)
-		}
+		ds := append([]string{}, r.Form["datasources"]...)
 		r.Form.Del("datasources")
 		envs := map[string]string{}
 		for i := range r.Form["key"] {
@@ -68,10 +65,7 @@ func alarmAdd(w http.ResponseWriter, r *http.Request) error {
 		}
 		r.Form.Del("key")
 		r.Form.Del("value")
-		actions := []string{}
-		for _, a := range r.Form["actions"] {
-			actions = append(actions, a)
-		}
+		actions := append([]string{}, r.Form["actions"]...)
 		r.Form.Del("actions")
 		var a alarm.Alarm
 		d := form.NewDecoder(nil)
@@ -156,10 +150,7 @@ func alarmEdit(w http.ResponseWriter, r *http.Request) error {
 	if err != nil {
 		return err
 	}
-	ds := []string{}
-	for _, d := range r.Form["datasources"] {
-		ds = append(ds, d)
-	}
+	ds := append([]string{}, r.Form["datasources"]...)
 	r.Form.Del("datasources")
 	envs := map[string]string{}
 	for i := range r.Form["key"] {
@@ -169,10 +160,7 @@ func alarmEdit(w http.ResponseWriter, r *http.Request) error {
 	}
 	r.Form.Del("key")
 	r.Form.Del("value")
-	actions := []string{}
-	for _, a := range r.Form["actions"] {
-		actions = append(actions, a)
-	}
+	actions := append([]string{}, r.Form["actions"]...)
 	r.Form.Del("actions")
 	d := form.NewDecoder(nil)
 	d.IgnoreCase(true)

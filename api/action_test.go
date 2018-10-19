@@ -41,7 +41,7 @@ func (s *S) TestAllActions(c *check.C) {
 	c.Assert(err, check.IsNil)
 	server(recorder, request)
 	c.Assert(recorder.Code, check.Equals, http.StatusOK)
-	c.Assert(recorder.HeaderMap["Content-Type"], check.DeepEquals, []string{"application/json"})
+	c.Assert(recorder.Header().Get("Content-Type"), check.DeepEquals, "application/json")
 	body := recorder.Body.Bytes()
 	var a []action.Action
 	err = json.Unmarshal(body, &a)
@@ -82,7 +82,7 @@ func (s *S) TestActionInfo(c *check.C) {
 	c.Assert(err, check.IsNil)
 	server(recorder, request)
 	c.Assert(recorder.Code, check.Equals, http.StatusOK)
-	c.Assert(recorder.HeaderMap["Content-Type"], check.DeepEquals, []string{"application/json"})
+	c.Assert(recorder.Header().Get("Content-Type"), check.DeepEquals, "application/json")
 	body := recorder.Body.Bytes()
 	var got action.Action
 	err = json.Unmarshal(body, &got)
