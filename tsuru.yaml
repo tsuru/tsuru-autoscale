@@ -1,2 +1,8 @@
 healthcheck:
   path: /healthcheck
+  match: .*WORKING.*
+  method: GET
+  status: 200
+  allowed_failures: 5
+  use_in_router: true
+  router_body: WORKING
