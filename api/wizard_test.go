@@ -38,7 +38,7 @@ func (s *S) TestWizardByName(c *check.C) {
 	c.Assert(err, check.IsNil)
 	server(recorder, request)
 	c.Assert(recorder.Code, check.Equals, http.StatusOK)
-	c.Assert(recorder.HeaderMap["Content-Type"], check.DeepEquals, []string{"application/json"})
+	c.Assert(recorder.Header().Get("Content-Type"), check.DeepEquals, "application/json")
 	body := recorder.Body.Bytes()
 	var instance wizard.AutoScale
 	err = json.Unmarshal(body, &instance)
@@ -107,7 +107,7 @@ func (s *S) TestEventsByWizardName(c *check.C) {
 	c.Assert(err, check.IsNil)
 	server(recorder, request)
 	c.Assert(recorder.Code, check.Equals, http.StatusOK)
-	c.Assert(recorder.HeaderMap["Content-Type"], check.DeepEquals, []string{"application/json"})
+	c.Assert(recorder.Header().Get("Content-Type"), check.DeepEquals, "application/json")
 	body := recorder.Body.Bytes()
 	var events []alarm.Event
 	err = json.Unmarshal(body, &events)

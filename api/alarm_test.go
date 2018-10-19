@@ -41,7 +41,7 @@ func (s *S) TestListAlarms(c *check.C) {
 	c.Assert(err, check.IsNil)
 	server(recorder, request)
 	c.Assert(recorder.Code, check.Equals, http.StatusOK)
-	c.Assert(recorder.HeaderMap["Content-Type"], check.DeepEquals, []string{"application/json"})
+	c.Assert(recorder.Header().Get("Content-Type"), check.DeepEquals, "application/json")
 	body := recorder.Body.Bytes()
 	var a []alarm.Alarm
 	err = json.Unmarshal(body, &a)
@@ -112,7 +112,7 @@ func (s *S) TestGetAlarm(c *check.C) {
 	c.Assert(err, check.IsNil)
 	server(recorder, request)
 	c.Assert(recorder.Code, check.Equals, http.StatusOK)
-	c.Assert(recorder.HeaderMap["Content-Type"], check.DeepEquals, []string{"application/json"})
+	c.Assert(recorder.Header().Get("Content-Type"), check.DeepEquals, "application/json")
 	body := recorder.Body.Bytes()
 	var got alarm.Alarm
 	err = json.Unmarshal(body, &got)
@@ -132,7 +132,7 @@ func (s *S) TestListEvents(c *check.C) {
 	c.Assert(err, check.IsNil)
 	server(recorder, request)
 	c.Assert(recorder.Code, check.Equals, http.StatusOK)
-	c.Assert(recorder.HeaderMap["Content-Type"], check.DeepEquals, []string{"application/json"})
+	c.Assert(recorder.Header().Get("Content-Type"), check.DeepEquals, "application/json")
 	body := recorder.Body.Bytes()
 	var events []alarm.Event
 	err = json.Unmarshal(body, &events)
@@ -149,7 +149,7 @@ func (s *S) TestListAlarmsByInstance(c *check.C) {
 	c.Assert(err, check.IsNil)
 	server(recorder, request)
 	c.Assert(recorder.Code, check.Equals, http.StatusOK)
-	c.Assert(recorder.HeaderMap["Content-Type"], check.DeepEquals, []string{"application/json"})
+	c.Assert(recorder.Header().Get("Content-Type"), check.DeepEquals, "application/json")
 	body := recorder.Body.Bytes()
 	var a []alarm.Alarm
 	err = json.Unmarshal(body, &a)

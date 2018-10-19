@@ -8,7 +8,6 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/ajg/form"
 	"github.com/gorilla/mux"
 	"github.com/tsuru/tsuru-autoscale/wizard"
 )
@@ -28,30 +27,6 @@ func wizardHandler(w http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 	return render(w, "web/templates/wizard/list.html", wizards)
-}
-
-func wizardAdd(w http.ResponseWriter, r *http.Request) error {
-	if r.Method == http.MethodPost {
-		err := r.ParseForm()
-		if err != nil {
-			return err
-		}
-		var a wizard.AutoScale
-		d := form.NewDecoder(nil)
-		d.IgnoreCase(true)
-		d.IgnoreUnknownKeys(true)
-		err = d.DecodeValues(&a, r.Form)
-		if err != nil {
-			return err
-		}
-		err = wizard.New(&a)
-		if err != nil {
-			return err
-		}
-		http.Redirect(w, r, "/web/wizard", 302)
-		return nil
-	}
-	return render(w, "web/templates/wizard/add.html", nil)
 }
 
 func wizardRemove(w http.ResponseWriter, r *http.Request) error {

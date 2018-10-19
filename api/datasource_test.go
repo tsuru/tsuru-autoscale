@@ -74,7 +74,7 @@ func (s *S) TestFindByDataSources(c *check.C) {
 		request.Header.Add("Authorization", "token")
 		server(recorder, request)
 		c.Check(recorder.Code, check.Equals, http.StatusOK)
-		c.Check(recorder.HeaderMap["Content-Type"], check.DeepEquals, []string{"application/json"})
+		c.Check(recorder.Header().Get("Content-Type"), check.DeepEquals, "application/json")
 		body := recorder.Body.Bytes()
 		var ds []datasource.DataSource
 		err = json.Unmarshal(body, &ds)
@@ -116,7 +116,7 @@ func (s *S) TestGetDataSource(c *check.C) {
 	c.Assert(err, check.IsNil)
 	server(recorder, request)
 	c.Assert(recorder.Code, check.Equals, http.StatusOK)
-	c.Assert(recorder.HeaderMap["Content-Type"], check.DeepEquals, []string{"application/json"})
+	c.Assert(recorder.Header().Get("Content-Type"), check.DeepEquals, "application/json")
 	body := recorder.Body.Bytes()
 	var got datasource.DataSource
 	err = json.Unmarshal(body, &got)
