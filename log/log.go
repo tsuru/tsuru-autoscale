@@ -26,7 +26,7 @@ type Logger struct {
 
 // Print writes an info in the log
 func (l *Logger) Print(v ...interface{}) {
-	l.lg.Print(v)
+	l.lg.Print(v...)
 }
 
 // Printf writes an info with format in the log
