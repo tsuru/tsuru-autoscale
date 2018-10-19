@@ -7,3 +7,7 @@ build:
 
 test:
 	./go.test.bash
+
+lint:
+	go get -u github.com/golangci/golangci-lint/cmd/golangci-lint
+	golangci-lint run -c ./.golangci.yml
