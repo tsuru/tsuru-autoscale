@@ -55,6 +55,10 @@ tsuru env-set "MONGODB_URL=mongodb://172.17.0.1:27017/tsuru_autoscale" -a autosc
 ### Deploy the applications
 
 ```
+tsuru env-set GO_PKG_PATH=github.com/tsuru/tsuru-autoscale -a autoscale
+```
+
+```
 tsuru app-deploy . -a autoscale
 ```
 
